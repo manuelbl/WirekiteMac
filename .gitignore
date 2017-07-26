@@ -1,0 +1,12 @@
+*.o
+*.a
+*.d
+*.lst
+*.elf
+*.swp
+*~
+ThirdParty/
+xcuserdata/
+build/
+DerivedData/
+bin/wirekite.hex

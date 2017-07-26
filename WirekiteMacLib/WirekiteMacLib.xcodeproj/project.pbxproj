@@ -1,0 +1,318 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DB90AE0C1F293A5A00E8A95B /* MessageDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB90ADFD1F293A5A00E8A95B /* MessageDump.cpp */; };
+		DB90AE0D1F293A5A00E8A95B /* MessageDump.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DB90ADFE1F293A5A00E8A95B /* MessageDump.hpp */; };
+		DB90AE0E1F293A5A00E8A95B /* PendingRequestList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB90ADFF1F293A5A00E8A95B /* PendingRequestList.cpp */; };
+		DB90AE0F1F293A5A00E8A95B /* PendingRequestList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE001F293A5A00E8A95B /* PendingRequestList.hpp */; };
+		DB90AE101F293A5A00E8A95B /* Port.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB90AE011F293A5A00E8A95B /* Port.cpp */; };
+		DB90AE111F293A5A00E8A95B /* Port.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE021F293A5A00E8A95B /* Port.hpp */; };
+		DB90AE121F293A5A00E8A95B /* PortList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB90AE031F293A5A00E8A95B /* PortList.cpp */; };
+		DB90AE131F293A5A00E8A95B /* PortList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE041F293A5A00E8A95B /* PortList.hpp */; };
+		DB90AE141F293A5A00E8A95B /* proto.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE051F293A5A00E8A95B /* proto.h */; };
+		DB90AE151F293A5A00E8A95B /* Queue.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE061F293A5A00E8A95B /* Queue.hpp */; };
+		DB90AE161F293A5A00E8A95B /* WirekiteDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE071F293A5A00E8A95B /* WirekiteDevice.h */; };
+		DB90AE171F293A5A00E8A95B /* WirekiteDevice.mm in Sources */ = {isa = PBXBuildFile; fileRef = DB90AE081F293A5A00E8A95B /* WirekiteDevice.mm */; };
+		DB90AE181F293A5A00E8A95B /* WirekiteDeviceInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */; };
+		DB90AE191F293A5A00E8A95B /* WirekiteService.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE0A1F293A5A00E8A95B /* WirekiteService.h */; };
+		DB90AE1A1F293A5A00E8A95B /* WirekiteService.mm in Sources */ = {isa = PBXBuildFile; fileRef = DB90AE0B1F293A5A00E8A95B /* WirekiteService.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		DB90ADEE1F293A1800E8A95B /* libWirekiteMacLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWirekiteMacLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB90ADFD1F293A5A00E8A95B /* MessageDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageDump.cpp; sourceTree = "<group>"; };
+		DB90ADFE1F293A5A00E8A95B /* MessageDump.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MessageDump.hpp; sourceTree = "<group>"; };
+		DB90ADFF1F293A5A00E8A95B /* PendingRequestList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PendingRequestList.cpp; sourceTree = "<group>"; };
+		DB90AE001F293A5A00E8A95B /* PendingRequestList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PendingRequestList.hpp; sourceTree = "<group>"; };
+		DB90AE011F293A5A00E8A95B /* Port.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Port.cpp; sourceTree = "<group>"; };
+		DB90AE021F293A5A00E8A95B /* Port.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Port.hpp; sourceTree = "<group>"; };
+		DB90AE031F293A5A00E8A95B /* PortList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PortList.cpp; sourceTree = "<group>"; };
+		DB90AE041F293A5A00E8A95B /* PortList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PortList.hpp; sourceTree = "<group>"; };
+		DB90AE051F293A5A00E8A95B /* proto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = proto.h; sourceTree = "<group>"; };
+		DB90AE061F293A5A00E8A95B /* Queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Queue.hpp; sourceTree = "<group>"; };
+		DB90AE071F293A5A00E8A95B /* WirekiteDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WirekiteDevice.h; sourceTree = "<group>"; };
+		DB90AE081F293A5A00E8A95B /* WirekiteDevice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WirekiteDevice.mm; sourceTree = "<group>"; };
+		DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WirekiteDeviceInternal.h; sourceTree = "<group>"; };
+		DB90AE0A1F293A5A00E8A95B /* WirekiteService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WirekiteService.h; sourceTree = "<group>"; };
+		DB90AE0B1F293A5A00E8A95B /* WirekiteService.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WirekiteService.mm; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DB90ADEB1F293A1800E8A95B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DB90ADE51F293A1800E8A95B = {
+			isa = PBXGroup;
+			children = (
+				DB90ADFC1F293A5A00E8A95B /* Sources */,
+				DB90ADEF1F293A1800E8A95B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DB90ADEF1F293A1800E8A95B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB90ADEE1F293A1800E8A95B /* libWirekiteMacLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DB90ADFC1F293A5A00E8A95B /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				DB90ADFD1F293A5A00E8A95B /* MessageDump.cpp */,
+				DB90ADFE1F293A5A00E8A95B /* MessageDump.hpp */,
+				DB90ADFF1F293A5A00E8A95B /* PendingRequestList.cpp */,
+				DB90AE001F293A5A00E8A95B /* PendingRequestList.hpp */,
+				DB90AE011F293A5A00E8A95B /* Port.cpp */,
+				DB90AE021F293A5A00E8A95B /* Port.hpp */,
+				DB90AE031F293A5A00E8A95B /* PortList.cpp */,
+				DB90AE041F293A5A00E8A95B /* PortList.hpp */,
+				DB90AE051F293A5A00E8A95B /* proto.h */,
+				DB90AE061F293A5A00E8A95B /* Queue.hpp */,
+				DB90AE071F293A5A00E8A95B /* WirekiteDevice.h */,
+				DB90AE081F293A5A00E8A95B /* WirekiteDevice.mm */,
+				DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */,
+				DB90AE0A1F293A5A00E8A95B /* WirekiteService.h */,
+				DB90AE0B1F293A5A00E8A95B /* WirekiteService.mm */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		DB90ADEC1F293A1800E8A95B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB90AE151F293A5A00E8A95B /* Queue.hpp in Headers */,
+				DB90AE141F293A5A00E8A95B /* proto.h in Headers */,
+				DB90AE161F293A5A00E8A95B /* WirekiteDevice.h in Headers */,
+				DB90AE0F1F293A5A00E8A95B /* PendingRequestList.hpp in Headers */,
+				DB90AE111F293A5A00E8A95B /* Port.hpp in Headers */,
+				DB90AE0D1F293A5A00E8A95B /* MessageDump.hpp in Headers */,
+				DB90AE191F293A5A00E8A95B /* WirekiteService.h in Headers */,
+				DB90AE131F293A5A00E8A95B /* PortList.hpp in Headers */,
+				DB90AE181F293A5A00E8A95B /* WirekiteDeviceInternal.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		DB90ADED1F293A1800E8A95B /* WirekiteMacLib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DB90ADF91F293A1800E8A95B /* Build configuration list for PBXNativeTarget "WirekiteMacLib" */;
+			buildPhases = (
+				DB90ADEA1F293A1800E8A95B /* Sources */,
+				DB90ADEB1F293A1800E8A95B /* Frameworks */,
+				DB90ADEC1F293A1800E8A95B /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WirekiteMacLib;
+			productName = WirekiteMacLib;
+			productReference = DB90ADEE1F293A1800E8A95B /* libWirekiteMacLib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DB90ADE61F293A1800E8A95B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DB90ADED1F293A1800E8A95B = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = 4H9ZA7X4C4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DB90ADE91F293A1800E8A95B /* Build configuration list for PBXProject "WirekiteMacLib" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = DB90ADE51F293A1800E8A95B;
+			productRefGroup = DB90ADEF1F293A1800E8A95B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DB90ADED1F293A1800E8A95B /* WirekiteMacLib */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DB90ADEA1F293A1800E8A95B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB90AE101F293A5A00E8A95B /* Port.cpp in Sources */,
+				DB90AE1A1F293A5A00E8A95B /* WirekiteService.mm in Sources */,
+				DB90AE0C1F293A5A00E8A95B /* MessageDump.cpp in Sources */,
+				DB90AE121F293A5A00E8A95B /* PortList.cpp in Sources */,
+				DB90AE171F293A5A00E8A95B /* WirekiteDevice.mm in Sources */,
+				DB90AE0E1F293A5A00E8A95B /* PendingRequestList.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DB90ADF71F293A1800E8A95B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		DB90ADF81F293A1800E8A95B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DB90ADFA1F293A1800E8A95B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DB90ADFB1F293A1800E8A95B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DB90ADE91F293A1800E8A95B /* Build configuration list for PBXProject "WirekiteMacLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB90ADF71F293A1800E8A95B /* Debug */,
+				DB90ADF81F293A1800E8A95B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DB90ADF91F293A1800E8A95B /* Build configuration list for PBXNativeTarget "WirekiteMacLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB90ADFA1F293A1800E8A95B /* Debug */,
+				DB90ADFB1F293A1800E8A95B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DB90ADE61F293A1800E8A95B /* Project object */;
+}
