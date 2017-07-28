@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:WirekiteMacTest/WirekiteMacTest.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:WirekiteMacLib/WirekiteMacLib.xcodeproj">
    </FileRef>
 </Workspace>

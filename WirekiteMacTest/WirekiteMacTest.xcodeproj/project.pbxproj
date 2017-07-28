@@ -1,0 +1,344 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C341F293ECC00328C0F /* AppDelegate.swift */; };
+		DBC93C371F293ECC00328C0F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C361F293ECC00328C0F /* ViewController.swift */; };
+		DBC93C451F2BA41500328C0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C381F293ECC00328C0F /* Assets.xcassets */; };
+		DBC93C461F2BA41A00328C0F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C3A1F293ECC00328C0F /* Main.storyboard */; };
+		DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C471F2BA61700328C0F /* AnalogStick.swift */; };
+		DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C481F2BA61700328C0F /* Light.swift */; };
+		DBC93C4E1F2BA78A00328C0F /* libWirekiteMacLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */; };
+		DBC93C501F2BA8BA00328C0F /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		DBC93C311F293ECC00328C0F /* Wirekite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wirekite.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBC93C341F293ECC00328C0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DBC93C361F293ECC00328C0F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DBC93C381F293ECC00328C0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DBC93C3B1F293ECC00328C0F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DBC93C3D1F293ECC00328C0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DBC93C471F2BA61700328C0F /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalogStick.swift; sourceTree = "<group>"; };
+		DBC93C481F2BA61700328C0F /* Light.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
+		DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWirekiteMacLib.a; path = ../WirekiteMacLib/build/Debug/libWirekiteMacLib.a; sourceTree = "<group>"; };
+		DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DBC93C2E1F293ECC00328C0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBC93C501F2BA8BA00328C0F /* libc++.tbd in Frameworks */,
+				DBC93C4E1F2BA78A00328C0F /* libWirekiteMacLib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DBC93C281F293ECB00328C0F = {
+			isa = PBXGroup;
+			children = (
+				DBC93C441F2BA29200328C0F /* Controllers */,
+				DBC93C4B1F2BA67A00328C0F /* Resources */,
+				DBC93C431F2BA08E00328C0F /* Views */,
+				DBC93C321F293ECC00328C0F /* Products */,
+				DBC93C4C1F2BA78900328C0F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DBC93C321F293ECC00328C0F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DBC93C311F293ECC00328C0F /* Wirekite.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DBC93C431F2BA08E00328C0F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DBC93C3A1F293ECC00328C0F /* Main.storyboard */,
+				DBC93C471F2BA61700328C0F /* AnalogStick.swift */,
+				DBC93C481F2BA61700328C0F /* Light.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DBC93C441F2BA29200328C0F /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				DBC93C361F293ECC00328C0F /* ViewController.swift */,
+				DBC93C341F293ECC00328C0F /* AppDelegate.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		DBC93C4B1F2BA67A00328C0F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DBC93C3D1F293ECC00328C0F /* Info.plist */,
+				DBC93C381F293ECC00328C0F /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DBC93C4C1F2BA78900328C0F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */,
+				DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DBC93C301F293ECC00328C0F /* WirekiteMacTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DBC93C401F293ECC00328C0F /* Build configuration list for PBXNativeTarget "WirekiteMacTest" */;
+			buildPhases = (
+				DBC93C2D1F293ECC00328C0F /* Sources */,
+				DBC93C2E1F293ECC00328C0F /* Frameworks */,
+				DBC93C2F1F293ECC00328C0F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WirekiteMacTest;
+			productName = WirekiteMacTest;
+			productReference = DBC93C311F293ECC00328C0F /* Wirekite.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DBC93C291F293ECB00328C0F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0830;
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DBC93C301F293ECC00328C0F = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = 4H9ZA7X4C4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DBC93C2C1F293ECB00328C0F /* Build configuration list for PBXProject "WirekiteMacTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DBC93C281F293ECB00328C0F;
+			productRefGroup = DBC93C321F293ECC00328C0F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DBC93C301F293ECC00328C0F /* WirekiteMacTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DBC93C2F1F293ECC00328C0F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBC93C451F2BA41500328C0F /* Assets.xcassets in Resources */,
+				DBC93C461F2BA41A00328C0F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DBC93C2D1F293ECC00328C0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBC93C371F293ECC00328C0F /* ViewController.swift in Sources */,
+				DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */,
+				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
+				DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DBC93C3A1F293ECC00328C0F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DBC93C3B1F293ECC00328C0F /* Base */,
+			);
+			name = Main.storyboard;
+			path = ../Views;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DBC93C3E1F293ECC00328C0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../WirekiteMacLib/Sources;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DBC93C3F1F293ECC00328C0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../WirekiteMacLib/Sources;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		DBC93C411F293ECC00328C0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.WirekiteMacTest;
+				PRODUCT_NAME = Wirekite;
+				SWIFT_OBJC_BRIDGING_HEADER = "Resources/WirekiteMacTest-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		DBC93C421F293ECC00328C0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				INFOPLIST_FILE = Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.WirekiteMacTest;
+				PRODUCT_NAME = Wirekite;
+				SWIFT_OBJC_BRIDGING_HEADER = "Resources/WirekiteMacTest-Bridging-Header.h";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DBC93C2C1F293ECB00328C0F /* Build configuration list for PBXProject "WirekiteMacTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBC93C3E1F293ECC00328C0F /* Debug */,
+				DBC93C3F1F293ECC00328C0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DBC93C401F293ECC00328C0F /* Build configuration list for PBXNativeTarget "WirekiteMacTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBC93C411F293ECC00328C0F /* Debug */,
+				DBC93C421F293ECC00328C0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DBC93C291F293ECB00328C0F /* Project object */;
+}
