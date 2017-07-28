@@ -11,20 +11,46 @@
 @class WirekiteDevice;
 
 
+/*! @brief Delegate called if a device has been added or removed.
+ */
 @protocol WirekiteServiceDelegate
 
-- (void) deviceAdded: (WirekiteDevice*) newDevice;
-- (void) deviceRemoved: (WirekiteDevice*) removedDevice;
+/*! @brief Called after a device has been added.
+ 
+ @param newDevice the added device
+ */
+-(void)deviceAdded: (WirekiteDevice*) newDevice;
+
+
+/*! @brief Called after a device has been removed.
+
+    @remark If a device is removed, both the service delegate and 
+        the device delegate are called.
+ 
+ @param removedDevice the removed device
+ */
+-(void)deviceRemoved: (WirekiteDevice*) removedDevice;
 
 @end
 
 
+/*! @brief Service that notifies about added and removed devices.
+ 
+    @discussion When the service is started, a notification for all
+        already connected devices is triggered.
+ */
 @interface WirekiteService : NSObject
 
+/*! @brief Delegate called when a device is added or removed.
+ */
 @property (weak) id<WirekiteServiceDelegate> delegate;
 
-;- (instancetype) init;
+/*! @brief Creates a new service instance
+ */
+-(instancetype)init;
 
-- (void) start;
+/*! @brief Starts the service
+ */
+-(void)start;
 
 @end
