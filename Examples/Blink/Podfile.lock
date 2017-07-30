@@ -1,0 +1,21 @@
+PODS:
+  - WirekiteMac (0.1.0)
+
+DEPENDENCIES:
+  - WirekiteMac (from `https://github.com/manuelbl/WirekiteMac.git`)
+
+EXTERNAL SOURCES:
+  WirekiteMac:
+    :git: https://github.com/manuelbl/WirekiteMac.git
+
+CHECKOUT OPTIONS:
+  WirekiteMac:
+    :commit: 1bbb3610b4074bbad6cbfa3e83a9c95b14df9f98
+    :git: https://github.com/manuelbl/WirekiteMac.git
+
+SPEC CHECKSUMS:
+  WirekiteMac: 0e14153d82314c50e98099d6e06f6298889822b0
+
+PODFILE CHECKSUM: 882921f5957cbdbbaeb8bfa75f8f0fe32e5837a0
+
+COCOAPODS: 1.2.1

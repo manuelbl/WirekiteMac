@@ -1,0 +1,375 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DB80E4041F2DC75000321DC2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB80E4031F2DC75000321DC2 /* AppDelegate.swift */; };
+		DB80E4061F2DC75000321DC2 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB80E4051F2DC75000321DC2 /* ViewController.swift */; };
+		DB80E4081F2DC75000321DC2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB80E4071F2DC75000321DC2 /* Assets.xcassets */; };
+		DB80E40B1F2DC75000321DC2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DB80E4091F2DC75000321DC2 /* Main.storyboard */; };
+		F96F19EA72B20381449D357C /* Pods_Blink.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FF0C5E3965002D499DF3D58 /* Pods_Blink.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		508DE12E178648A6DFFF4804 /* Pods-Blink.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blink.release.xcconfig"; path = "Pods/Target Support Files/Pods-Blink/Pods-Blink.release.xcconfig"; sourceTree = "<group>"; };
+		8FF0C5E3965002D499DF3D58 /* Pods_Blink.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Blink.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C74CA74C57C0F9EAE893AFEC /* Pods-Blink.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Blink.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Blink/Pods-Blink.debug.xcconfig"; sourceTree = "<group>"; };
+		DB80E4001F2DC75000321DC2 /* Blink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Blink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB80E4031F2DC75000321DC2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DB80E4051F2DC75000321DC2 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DB80E4071F2DC75000321DC2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DB80E40A1F2DC75000321DC2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DB80E40C1F2DC75000321DC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DB80E3FD1F2DC75000321DC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96F19EA72B20381449D357C /* Pods_Blink.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2DCB4D10EACF992FB3505785 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C74CA74C57C0F9EAE893AFEC /* Pods-Blink.debug.xcconfig */,
+				508DE12E178648A6DFFF4804 /* Pods-Blink.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		DB80E3F71F2DC75000321DC2 = {
+			isa = PBXGroup;
+			children = (
+				DB80E4021F2DC75000321DC2 /* Blink */,
+				DB80E4011F2DC75000321DC2 /* Products */,
+				2DCB4D10EACF992FB3505785 /* Pods */,
+				E5E706F8ECF49EB0ADFEFA32 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DB80E4011F2DC75000321DC2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB80E4001F2DC75000321DC2 /* Blink.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DB80E4021F2DC75000321DC2 /* Blink */ = {
+			isa = PBXGroup;
+			children = (
+				DB80E4031F2DC75000321DC2 /* AppDelegate.swift */,
+				DB80E4051F2DC75000321DC2 /* ViewController.swift */,
+				DB80E4071F2DC75000321DC2 /* Assets.xcassets */,
+				DB80E4091F2DC75000321DC2 /* Main.storyboard */,
+				DB80E40C1F2DC75000321DC2 /* Info.plist */,
+			);
+			path = Blink;
+			sourceTree = "<group>";
+		};
+		E5E706F8ECF49EB0ADFEFA32 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8FF0C5E3965002D499DF3D58 /* Pods_Blink.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DB80E3FF1F2DC75000321DC2 /* Blink */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DB80E40F1F2DC75000321DC2 /* Build configuration list for PBXNativeTarget "Blink" */;
+			buildPhases = (
+				EC5307341606844CA20AE54D /* [CP] Check Pods Manifest.lock */,
+				DB80E3FC1F2DC75000321DC2 /* Sources */,
+				DB80E3FD1F2DC75000321DC2 /* Frameworks */,
+				DB80E3FE1F2DC75000321DC2 /* Resources */,
+				CD817745F76A441D886B2E8C /* [CP] Embed Pods Frameworks */,
+				2BDEA2890F32642508E5AC33 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Blink;
+			productName = Blink;
+			productReference = DB80E4001F2DC75000321DC2 /* Blink.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DB80E3F81F2DC75000321DC2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0830;
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DB80E3FF1F2DC75000321DC2 = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = 4H9ZA7X4C4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DB80E3FB1F2DC75000321DC2 /* Build configuration list for PBXProject "Blink" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DB80E3F71F2DC75000321DC2;
+			productRefGroup = DB80E4011F2DC75000321DC2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DB80E3FF1F2DC75000321DC2 /* Blink */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DB80E3FE1F2DC75000321DC2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB80E4081F2DC75000321DC2 /* Assets.xcassets in Resources */,
+				DB80E40B1F2DC75000321DC2 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2BDEA2890F32642508E5AC33 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Blink/Pods-Blink-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CD817745F76A441D886B2E8C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Blink/Pods-Blink-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EC5307341606844CA20AE54D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DB80E3FC1F2DC75000321DC2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB80E4061F2DC75000321DC2 /* ViewController.swift in Sources */,
+				DB80E4041F2DC75000321DC2 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DB80E4091F2DC75000321DC2 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DB80E40A1F2DC75000321DC2 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DB80E40D1F2DC75000321DC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DB80E40E1F2DC75000321DC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		DB80E4101F2DC75000321DC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C74CA74C57C0F9EAE893AFEC /* Pods-Blink.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				INFOPLIST_FILE = Blink/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.Blink;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		DB80E4111F2DC75000321DC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 508DE12E178648A6DFFF4804 /* Pods-Blink.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4H9ZA7X4C4;
+				INFOPLIST_FILE = Blink/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.Blink;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DB80E3FB1F2DC75000321DC2 /* Build configuration list for PBXProject "Blink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB80E40D1F2DC75000321DC2 /* Debug */,
+				DB80E40E1F2DC75000321DC2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DB80E40F1F2DC75000321DC2 /* Build configuration list for PBXNativeTarget "Blink" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB80E4101F2DC75000321DC2 /* Debug */,
+				DB80E4111F2DC75000321DC2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DB80E3F81F2DC75000321DC2 /* Project object */;
+}
