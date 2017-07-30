@@ -127,6 +127,7 @@ static void DeviceAdded(void *refCon, io_iterator_t iterator);
         }
         
         WirekiteDevice* device = [[WirekiteDevice alloc] init];
+        device.wirekiteService = self;
         
         if (! [device registerNotificationOnPart:notifyPort device: usbDevice]) {
             IOObjectRelease(usbDevice);

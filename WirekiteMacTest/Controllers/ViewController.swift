@@ -8,13 +8,12 @@
 
 import Cocoa
 
-class ViewController: NSViewController, WirekiteServiceDelegate, WirekiteDeviceDelegate {
+class ViewController: NSViewController {
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
     static let indicatorColorInactive = NSColor.lightGray
 
-    var service: WirekiteService? = nil
     var device: WirekiteDevice? = nil
     var timer: Timer? = nil
     
@@ -52,42 +51,19 @@ class ViewController: NSViewController, WirekiteServiceDelegate, WirekiteDeviceD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        service = WirekiteService()
-        service?.delegate = self
-        service?.start()
-        
         resetUI(enabled: false)
-    }
-    
-    override func viewDidDisappear() {
-        if let device = device {
-            device.resetConfiguration()
-            self.device = nil
-        }
     }
     
     override var representedObject: Any? {
         didSet {
-        // Update the view, if already loaded.
-        }
-    }
-
-    func deviceAdded(_ newDevice: WirekiteDevice!) {
-        NSLog("Wirekite device added")
-        device = newDevice
-        device?.delegate = self
-
-        DispatchQueue.main.async {
+            device = representedObject as? WirekiteDevice
             self.configurePins()
         }
     }
-    
-    
+
     func configurePins() {
         
         if let device = self.device {
-            device.resetConfiguration()
             resetUI(enabled: true)
             device.configurePWMChannel(0, channel: 3, attributes: [])
             
@@ -132,16 +108,14 @@ class ViewController: NSViewController, WirekiteServiceDelegate, WirekiteDeviceD
             analogStick.indicatorColor = device.readDigitalPin(onPort: switchPin) ? ViewController.indicatorColorNormal : ViewController.indicatorColorPressed
             
             pwmOutPin = device.configurePWMOutputPin(.pin10)
+        
+        } else {
+            timer?.invalidate()
+            timer = nil
+            resetUI(enabled: false)
         }
     }
-    
-    
-    func ledBlink() {
-        device?.writeDigitalPin(onPort: ledPortId, value: ledOn)
-        ledOn = !ledOn
-    }
-    
-    
+
     func resetUI(enabled: Bool) {
         checkboxRed.state = NSOffState
         checkboxOrange.state = NSOffState
@@ -157,6 +131,10 @@ class ViewController: NSViewController, WirekiteServiceDelegate, WirekiteDeviceD
         analogStick.indicatorColor = ViewController.indicatorColorInactive
     }
     
+    func ledBlink() {
+        device?.writeDigitalPin(onPort: ledPortId, value: ledOn)
+        ledOn = !ledOn
+    }
     
     func readAnalog() {
         let value2 = device!.readAnalogPin(onPort: voltageXPin)
@@ -170,18 +148,6 @@ class ViewController: NSViewController, WirekiteServiceDelegate, WirekiteDeviceD
         }
     }
     
-    
-    func deviceRemoved(_ removedDevice: WirekiteDevice!) {
-        if device == removedDevice {
-            NSLog("Wirekite device removed")
-            device = nil
-            timer?.invalidate()
-            timer = nil
-            resetUI(enabled: false)
-        }
-    }
-
-
     @IBAction func onCheckboxClicked(_ sender: Any) {
         let button = sender as! NSButton
         let ledPortId: PortID

@@ -36,7 +36,6 @@ uint16_t InvalidPortID = 0xffff;
 
 @interface WirekiteDevice ()
 {
-    WirekiteService* WirekiteService;
     io_object_t notification;
     IOUSBDeviceInterface** device;
     IOUSBInterfaceInterface** interface;
@@ -67,7 +66,7 @@ uint16_t InvalidPortID = 0xffff;
     
     if (self != nil) {
         _delegate = nil;
-        WirekiteService = nil;
+        _wirekiteService = nil;
         notification = NULL;
         device = NULL;
         interface = NULL;
@@ -83,7 +82,7 @@ uint16_t InvalidPortID = 0xffff;
 
     [self close];
 
-    WirekiteService = nil;
+    _wirekiteService = nil;
 }
 
 
@@ -318,8 +317,8 @@ retry:
         [self close];
         if (_delegate)
             [_delegate deviceRemoved: self];
-        if (WirekiteService.delegate)
-            [WirekiteService.delegate deviceRemoved: self];
+        if (_wirekiteService.delegate)
+            [_wirekiteService.delegate deviceRemoved: self];
     }
 }
 

@@ -10,6 +10,7 @@
 
 
 @class WirekiteDevice;
+@class WirekiteService;
 
 typedef uint16_t PortID;
 
@@ -171,6 +172,10 @@ extern uint16_t InvalidPortID;
 /*! @brief Delegate for notifications about the device.
  */
 @property (weak) id<WirekiteDeviceDelegate> delegate;
+
+/*! @brief Wirekite serivce that created this device.
+ */
+@property WirekiteService* wirekiteService;
 
 /*! @brief Creates a device
  
