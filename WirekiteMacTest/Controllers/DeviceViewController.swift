@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class ViewController: NSViewController {
+class DeviceViewController: NSViewController {
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -60,6 +60,13 @@ class ViewController: NSViewController {
             self.configurePins()
         }
     }
+    
+    override func viewDidDisappear() {
+        timer?.invalidate()
+        timer = nil
+        device?.close()
+        device = nil
+    }
 
     func configurePins() {
         
@@ -103,9 +110,9 @@ class ViewController: NSViewController {
                 self.analogStick.directionY = 1.0 - Double(value) / 16383.0
             }
             switchPin = device.configureDigitalInputPin(20, attributes: [.triggerRaising, .triggerFalling, .pullup]) {
-                _, value in self.analogStick.indicatorColor = value ? ViewController.indicatorColorNormal : ViewController.indicatorColorPressed
+                _, value in self.analogStick.indicatorColor = value ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             }
-            analogStick.indicatorColor = device.readDigitalPin(onPort: switchPin) ? ViewController.indicatorColorNormal : ViewController.indicatorColorPressed
+            analogStick.indicatorColor = device.readDigitalPin(onPort: switchPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             
             pwmOutPin = device.configurePWMOutputPin(.pin10)
         
@@ -128,7 +135,7 @@ class ViewController: NSViewController {
         frequencyValueLabel.stringValue = "- Hz"
         analogStick.directionX = 0
         analogStick.directionY = 0
-        analogStick.indicatorColor = ViewController.indicatorColorInactive
+        analogStick.indicatorColor = DeviceViewController.indicatorColorInactive
     }
     
     func ledBlink() {

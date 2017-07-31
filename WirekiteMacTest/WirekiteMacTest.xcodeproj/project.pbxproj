@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB23554F1F2FC20E005515F4 /* MainViewController.swift */; };
 		DB80E3F61F2C8B2300321DC2 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */; };
 		DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C341F293ECC00328C0F /* AppDelegate.swift */; };
-		DBC93C371F293ECC00328C0F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C361F293ECC00328C0F /* ViewController.swift */; };
+		DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C361F293ECC00328C0F /* DeviceViewController.swift */; };
 		DBC93C451F2BA41500328C0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C381F293ECC00328C0F /* Assets.xcassets */; };
 		DBC93C461F2BA41A00328C0F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C3A1F293ECC00328C0F /* Main.storyboard */; };
 		DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C471F2BA61700328C0F /* AnalogStick.swift */; };
@@ -18,9 +19,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DB23554F1F2FC20E005515F4 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		DBC93C311F293ECC00328C0F /* Wirekite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wirekite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC93C341F293ECC00328C0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		DBC93C361F293ECC00328C0F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DBC93C361F293ECC00328C0F /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
 		DBC93C381F293ECC00328C0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DBC93C3B1F293ECC00328C0F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		DBC93C3D1F293ECC00328C0F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -76,7 +78,8 @@
 			isa = PBXGroup;
 			children = (
 				DBC93C341F293ECC00328C0F /* AppDelegate.swift */,
-				DBC93C361F293ECC00328C0F /* ViewController.swift */,
+				DB23554F1F2FC20E005515F4 /* MainViewController.swift */,
+				DBC93C361F293ECC00328C0F /* DeviceViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -171,10 +174,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DBC93C371F293ECC00328C0F /* ViewController.swift in Sources */,
+				DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */,
 				DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */,
 				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
 				DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */,
+				DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
