@@ -30,7 +30,8 @@ Port::~Port()
 
 void Port::pushEvent(wk_port_event* event)
 {
-    queue.put(event);
+    if (!queue.put(event))
+        free(event);
 }
 
 

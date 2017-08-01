@@ -21,7 +21,7 @@ public:
     ~Queue();
     
     E waitForNext();
-    void put(E& elem);
+    bool put(E& elem);
     void clear(void(*deleter)(E));
     
 private:
@@ -49,16 +49,20 @@ template <class E> Queue<E>::~Queue()
 }
 
 
-template <class E> void Queue<E>::put(E& elem)
+template <class E> bool Queue<E>::put(E& elem)
 {
     pthread_mutex_lock(&mutex);
-    
-    if (elements.size() == maxSize)
-        elements.pop();  // drop oldest element
-    elements.push(elem);
+   
+    bool success = true;
+    if (elements.size() <= maxSize)
+        elements.push(elem);
+    else
+        success = false; // cannot add; queue is full
     
     pthread_cond_signal(&not_empty);
     pthread_mutex_unlock(&mutex);
+    
+    return success;
 }
 
 

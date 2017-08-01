@@ -61,8 +61,13 @@ class MainViewController : NSViewController, WirekiteServiceDelegate, NSWindowDe
     }
     
     func windowWillClose(_ notification: Notification) {
-        let size = deviceWindowControllers.count
         let w = notification.object as! NSWindow
+
+        if let device = w.contentViewController?.representedObject as? WirekiteDevice {
+            device.resetConfiguration()
+        }
+        
+        let size = deviceWindowControllers.count
         for i in 0 ..< size {
             if deviceWindowControllers[i].window === w {
                 deviceWindowControllers.remove(at: i)

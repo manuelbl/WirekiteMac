@@ -751,7 +751,8 @@ retry:
     
     [self writeMessage:&request.header];
     
-    pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    free(response);
 }
 
 
@@ -770,7 +771,8 @@ retry:
     
     [self writeMessage:&request.header];
     
-    pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    free(response);
 }
 
 
