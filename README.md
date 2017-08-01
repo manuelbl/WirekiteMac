@@ -39,4 +39,4 @@ If not, see [CocoaPods Getting Started](https://guides.cocoapods.org/using/getti
 *Blink* is a simple example that blinks the LED on the Teensy board.
 So you don't need to wire up anything to the Teensy.
 
-The [instructions](xx) guide you through the Xcode project setup.
+The [instructions](https://github.com/manuelbl/WirekiteMac/blob/master/Documents/xcode_project_setup.md) guide you through the Xcode project setup.
