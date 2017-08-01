@@ -19,7 +19,7 @@
 #define kProductID        0x2701
 
 
-static void DeviceAdded(void *refCon, io_iterator_t iterator);
+static void DeviceConnected(void *refCon, io_iterator_t iterator);
 
 
 @interface WirekiteService ()
@@ -87,7 +87,7 @@ static void DeviceAdded(void *refCon, io_iterator_t iterator);
     kern_return_t kr = IOServiceAddMatchingNotification(notifyPort,// notifyPort
                                      kIOFirstMatchNotification,    // notificationType
                                      matchingDict,                 // matching
-                                     DeviceAdded,                  // callback
+                                     DeviceConnected,              // callback
                                      (__bridge void*) self,        // refCon
                                      &addedIter                    // notification
                                      );
@@ -97,14 +97,14 @@ static void DeviceAdded(void *refCon, io_iterator_t iterator);
     }
     
     // Iterate the already connected devices
-    DeviceAdded((__bridge void*) self, addedIter);
+    DeviceConnected((__bridge void*) self, addedIter);
 }
 
 
 /**
  * Called when a device was added
  */
-- (void) onDeviceAdded: (io_iterator_t) iterator
+- (void) onDeviceConnected: (io_iterator_t) iterator
 {
     kern_return_t kr;
     io_service_t usbDevice;
@@ -159,7 +159,7 @@ static void DeviceAdded(void *refCon, io_iterator_t iterator);
         (*deviceInterface)->Release(deviceInterface);
         
         if (_delegate)
-            [_delegate deviceAdded: device];
+            [_delegate connectedDevice: device];
 
         IOObjectRelease(usbDevice);
     }
@@ -172,9 +172,9 @@ static void DeviceAdded(void *refCon, io_iterator_t iterator);
 /**
   * Called when a device was added
   */
-void DeviceAdded(void *refCon, io_iterator_t iterator)
+void DeviceConnected(void *refCon, io_iterator_t iterator)
 {
     WirekiteService* service = (__bridge WirekiteService*) refCon;
-    [service onDeviceAdded: iterator];
+    [service onDeviceConnected: iterator];
 }
 

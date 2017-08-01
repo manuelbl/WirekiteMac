@@ -316,9 +316,9 @@ retry:
     if (messageType == kIOMessageServiceIsTerminated) {
         [self close];
         if (_delegate)
-            [_delegate deviceRemoved: self];
+            [_delegate disconnectedDevice: self];
         if (_wirekiteService.delegate)
-            [_wirekiteService.delegate deviceRemoved: self];
+            [_wirekiteService.delegate disconnectedDevice: self];
     }
 }
 

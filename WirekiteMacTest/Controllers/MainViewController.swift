@@ -24,7 +24,7 @@ class MainViewController : NSViewController, WirekiteServiceDelegate, NSWindowDe
         }
     }
     
-    func deviceAdded(_ newDevice: WirekiteDevice!) {
+    func connectedDevice(_ device: WirekiteDevice!) {
         // create new window
         let storyboard = NSStoryboard(name: "Main", bundle: nil)
         let windowController = storyboard.instantiateController(withIdentifier: "Device Window Controller") as! NSWindowController
@@ -38,7 +38,7 @@ class MainViewController : NSViewController, WirekiteServiceDelegate, NSWindowDe
         w.delegate = self
         
         // set representedObject to be the device
-        windowController.contentViewController!.representedObject = newDevice
+        windowController.contentViewController!.representedObject = device
         
         // show window
         w.makeKeyAndOrderFront(NSApplication.shared())
@@ -47,12 +47,12 @@ class MainViewController : NSViewController, WirekiteServiceDelegate, NSWindowDe
         view.window?.orderOut(self)
     }
     
-    func deviceRemoved(_ removedDevice: WirekiteDevice!) {
+    func disconnectedDevice(_ device: WirekiteDevice!) {
         // Look for window with device
         for wc in deviceWindowControllers {
             let c = wc.contentViewController!
-            let device = c.representedObject as? WirekiteDevice
-            if device == removedDevice {
+            let d = c.representedObject as? WirekiteDevice
+            if d == device {
                 c.representedObject = nil
                 wc.window!.close()
                 return

@@ -149,17 +149,17 @@ extern uint16_t InvalidPortID;
  */
 @protocol WirekiteDeviceDelegate
 
-/*! @brief Called after the device has been removed from the computer.
+/*! @brief Called after the device has been disconnected from the computer.
  
     @discussions All ports are invalid and no longer work.
  
     @param device the removed device
 
-    @remark If a device is removed, both the service delegate and
+    @remark If a device is disconnected, both the service delegate and
         the device delegate are called.
  
  */
-- (void) deviceRemoved: (WirekiteDevice*) device;
+- (void) disconnectedDevice: (WirekiteDevice*) device;
 
 @end
 

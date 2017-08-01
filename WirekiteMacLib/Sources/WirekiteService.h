@@ -15,21 +15,21 @@
  */
 @protocol WirekiteServiceDelegate
 
-/*! @brief Called after a device has been added.
+/*! @brief Called after a device has been connected.
  
- @param newDevice the added device
+ @param device the connected device
  */
--(void)deviceAdded: (WirekiteDevice*) newDevice;
+-(void)connectedDevice: (WirekiteDevice*) device;
 
 
-/*! @brief Called after a device has been removed.
+/*! @brief Called after a device has been disconnected.
 
-    @remark If a device is removed, both the service delegate and 
+    @remark If a device is disconnected, both the service delegate and
         the device delegate are called.
  
- @param removedDevice the removed device
+ @param device the disconnected device
  */
--(void)deviceRemoved: (WirekiteDevice*) removedDevice;
+-(void)disconnectedDevice: (WirekiteDevice*) device;
 
 @end
 
