@@ -1,6 +1,6 @@
-use_frameworks!
 platform :osx, '10.12'
 
 target 'Blink' do
-    pod 'WirekiteMac', :git => 'https://github.com/manuelbl/WirekiteMac.git'
+    use_frameworks!
+    pod 'WirekiteMac'
 end

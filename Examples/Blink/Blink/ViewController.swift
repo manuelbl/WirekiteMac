@@ -26,24 +26,17 @@ class ViewController: NSViewController, WirekiteServiceDelegate {
         service?.start()
     }
 
-    override var representedObject: Any? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-
-    func deviceAdded(_ newDevice: WirekiteDevice!) {
-        device = newDevice
-        device!.resetConfiguration()
-        ledPort = device!.configureDigitalOutputPin(13, attributes: [])
+    func connectedDevice(_ device: WirekiteDevice!) {
+        self.device = device
+        ledPort = device.configureDigitalOutputPin(13, attributes: [])
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
             timer in self.ledBlink()
         }
     }
     
-    func deviceRemoved(_ removedDevice: WirekiteDevice!) {
-        if device == removedDevice {
-            device = nil
+    func disconnectedDevice(_ device: WirekiteDevice!) {
+        if self.device == device {
+            self.device = nil
             timer?.invalidate()
             timer = nil
         }

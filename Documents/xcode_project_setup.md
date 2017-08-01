@@ -61,7 +61,7 @@ Go to terminal and exuecute `pod install`:
 MacBook:Blinky me$ pod install
 Analyzing dependencies
 Downloading dependencies
-Installing WirekiteMac (0.1.0)
+Installing WirekiteMac (0.2.0)
 Generating Pods project
 Integrating client project
 
@@ -104,17 +104,17 @@ class ViewController: NSViewController, WirekiteServiceDelegate {
         service?.start()
     }
 
-    func deviceAdded(_ newDevice: WirekiteDevice!) {
-        device = newDevice
-        ledPort = device!.configureDigitalOutputPin(13, attributes: [])
+    func connectedDevice(_ device: WirekiteDevice!) {
+        self.device = device
+        ledPort = device.configureDigitalOutputPin(13, attributes: [])
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) {
             timer in self.ledBlink()
         }
     }
     
-    func deviceRemoved(_ removedDevice: WirekiteDevice!) {
-        if device == removedDevice {
-            device = nil
+    func disconnectedDevice(_ device: WirekiteDevice!) {
+        if self.device == device {
+            self.device = nil
             timer?.invalidate()
             timer = nil
         }
@@ -126,6 +126,7 @@ class ViewController: NSViewController, WirekiteServiceDelegate {
     }
 }
 ```
+
 Press cmd-R the build the project and run it. The LED on the Teensy board should now blink slowly.
 
 That's it: you have succeeded in building and running your first Wirekite program.
@@ -162,11 +163,11 @@ The view controller registers itself as the service's delegate. So it implements
 class ViewController: NSViewController, WirekiteServiceDelegate {
 ```
 
-When a device connected, `deviceAdded:` is called:
+When a device connected, `connectedDevice:` is called:
 
 ```swift
-func deviceAdded(_ newDevice: WirekiteDevice!) {
-    device = newDevice
+func connectedDevice(_ device: WirekiteDevice!) {
+    self.device = device
 }
 ```
 
@@ -175,7 +176,7 @@ A reference to the device is stored in the instance variable `device`.
 Additionally, an output pin is configured:
 
 ```swift
-ledPort = device!.configureDigitalOutputPin(13, attributes: [])
+ledPort = device.configureDigitalOutputPin(13, attributes: [])
 ```
 
 Pin 13 is connected to the on-board LED on the Teensy LC.
@@ -200,9 +201,9 @@ func ledBlink() {
 If a device is disconnected, the timer should be stopped and the reference to the device released:
 
 ```swift
-func deviceRemoved(_ removedDevice: WirekiteDevice!) {
-    if device == removedDevice {
-        device = nil
+func disconnectedDevice(_ device: WirekiteDevice!) {
+    if self.device == device {
+        self.device = nil
         timer?.invalidate()
         timer = nil
     }
