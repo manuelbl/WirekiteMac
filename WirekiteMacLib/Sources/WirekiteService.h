@@ -17,17 +17,17 @@
 
 /*! @brief Called after a device has been connected.
  
- @param device the connected device
+    @param device the connected device
  */
 -(void)connectedDevice: (WirekiteDevice*) device;
 
 
 /*! @brief Called after a device has been disconnected.
 
-    @remark If a device is disconnected, both the service delegate and
+    @Discussion If a device is disconnected, both the service delegate and
         the device delegate are called.
  
- @param device the disconnected device
+    @param device the disconnected device
  */
 -(void)disconnectedDevice: (WirekiteDevice*) device;
 

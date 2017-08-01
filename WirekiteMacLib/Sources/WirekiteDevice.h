@@ -153,11 +153,10 @@ extern uint16_t InvalidPortID;
  
     @discussions All ports are invalid and no longer work.
  
-    @param device the removed device
-
-    @remark If a device is disconnected, both the service delegate and
-        the device delegate are called.
+    If a device is disconnected, both the service delegate and
+    the device delegate are called.
  
+    @param device the removed device
  */
 - (void) disconnectedDevice: (WirekiteDevice*) device;
 
@@ -167,6 +166,11 @@ extern uint16_t InvalidPortID;
 /*! @brief Wirekit device
  */
 @interface WirekiteDevice : NSObject
+
+
+/*!
+    @name Life-cycle
+ */
 
 
 /*! @brief Delegate for notifications about the device.
@@ -195,6 +199,11 @@ extern uint16_t InvalidPortID;
     @discussion Releases all ports
  */
 - (void) resetConfiguration;
+
+
+/*!
+    @name Working with digital input and output pins
+ */
 
 
 /*! @brief Configures a pin as a digital output.
@@ -288,6 +297,12 @@ extern uint16_t InvalidPortID;
  */
 - (BOOL) readDigitalPinOnPort: (PortID)port;
 
+
+/*!
+ @name Working with analog input pins
+ */
+
+
 /*! @brief Configures a pin as an analog input pin.
  
     @discussion The analog value is read on-demand (requiring an I/O transaction with the device).
@@ -348,6 +363,11 @@ extern uint16_t InvalidPortID;
     @return returns the read value (in the range [-32,768 to 32,767])
  */
 - (int16_t) readAnalogPinOnPort: (PortID)port;
+
+
+/*!
+ @name Working with PWM output
+ */
 
 
 /*! @brief Configures a pin as a PWM output.
