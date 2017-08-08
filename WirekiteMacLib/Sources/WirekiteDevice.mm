@@ -34,6 +34,13 @@ static void ReadCompletion(void *refCon, IOReturn result, void *arg0);
 uint16_t InvalidPortID = 0xffff;
 
 
+enum DeviceStatus {
+    StatusInitializing,
+    StatusReady,
+    StatusClosed
+};
+
+
 @interface WirekiteDevice ()
 {
     io_object_t notification;
@@ -41,6 +48,8 @@ uint16_t InvalidPortID = 0xffff;
     IOUSBInterfaceInterface** interface;
     uint16_t rxBuffer[2][RX_BUFFER_SIZE];
     int pendingBuffer;
+    
+    DeviceStatus deviceStatus;
 
     PendingRequestList pendingRequests;
     PortList portList;
@@ -70,6 +79,7 @@ uint16_t InvalidPortID = 0xffff;
         notification = NULL;
         device = NULL;
         interface = NULL;
+        deviceStatus = StatusInitializing;
     }
     
     return self;
@@ -105,7 +115,11 @@ uint16_t InvalidPortID = 0xffff;
     notification = NULL;
     
     portList.clear();
+    deviceStatus = StatusClosed;
 }
+
+
+#pragma mark - Device initialization
 
 
 - (BOOL) registerNotificationOnPart: (IONotificationPortRef)notifyPort device: (io_service_t) usbDevice
@@ -160,6 +174,7 @@ retry:
     if (! [self setupAsyncComm])
         return NO;
     
+    deviceStatus = StatusReady;
     pendingBuffer = 0;
     [self submitRead];
     
@@ -256,6 +271,34 @@ retry:
 }
 
 
+- (void) resetConfiguration
+{
+    deviceStatus = StatusInitializing;
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.messageSize = sizeof(wk_config_request);
+    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_RESET;
+    request.requestId = 0xffff;
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    free(response);
+    
+    portList.clear();
+    pendingRequests.clear();
+    [digitalInputPinCallbacks removeAllObjects];
+    [digitalInputDispatchQueues removeAllObjects];
+    [analogInputPinCallbacks removeAllObjects];
+    [analogInputDispatchQueues removeAllObjects];
+    deviceStatus = StatusReady;
+}
+
+
+#pragma mark - Basic communication
+
+
 - (BOOL) setupAsyncComm
 {
     CFRunLoopSourceRef runLoopSource = NULL;
@@ -280,13 +323,6 @@ retry:
         NSLog(@"Wirekite: Unable to perform asynchronous bulk read (%08x)", result);
 }
 
-
-- (void) writeString: (NSString*)str
-{
-    const char* cstr = [str cStringUsingEncoding:NSUTF8StringEncoding];
-    size_t size = strlen(cstr);
-    [self writeBytes:(const uint8_t*)cstr size:size];
-}
 
 - (void) writeMessage:(wk_msg_header*)msg
 {
@@ -352,9 +388,12 @@ retry:
         //NSLog(@"%s", MessageDump::dump(header).c_str());
         
         if (header->messageType == WK_MSG_TYPE_CONFIG_RESPONSE) {
-            [self handleConfigResponse: (wk_config_response*)copy];
+            wk_config_response* config_response = (wk_config_response*)copy;
+            if (deviceStatus == StatusReady || config_response->requestId == 0xffff)
+                [self handleConfigResponse: config_response];
         } else if (header->messageType == WK_MSG_TYPE_PORT_EVENT) {
-            [self handlePortEvent: (wk_port_event*)copy];
+            if (deviceStatus == StatusReady)
+                [self handlePortEvent: (wk_port_event*)copy];
         } else {
             NSLog(@"Wirekite: Message of unknown type %d received", msgSize);
             free(copy);
@@ -365,27 +404,7 @@ retry:
 }
 
 
-- (void) resetConfiguration
-{
-    wk_config_request request;
-    memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
-    request.action = WK_CFG_ACTION_RESET;
-    request.requestId = portList.nextRequestId();
-    
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
-    free(response);
-    
-    portList.clear();
-    pendingRequests.clear();
-    [digitalInputPinCallbacks removeAllObjects];
-    [digitalInputDispatchQueues removeAllObjects];
-    [analogInputPinCallbacks removeAllObjects];
-    [analogInputDispatchQueues removeAllObjects];
-}
+#pragma mark - Digital input / output
 
 
 - (PortID) configureDigitalOutputPin: (int)pin attributes: (DigitalOutputPinAttributes)attributes
@@ -552,6 +571,9 @@ retry:
 }
 
 
+#pragma mark - Analog input
+
+
 - (PortID) configureAnalogInputPin:(AnalogPin)pin
 {
     Port* port = [self configureAnalogInputPin:pin interval:0];
@@ -671,6 +693,9 @@ retry:
 }
 
 
+#pragma mark - PWM output
+
+
 - (PortID) configurePWMOutputPin:(PWMPin)pin
 {
     wk_config_request request;
@@ -776,6 +801,9 @@ retry:
 }
 
 
+#pragma - Message handling
+
+
 - (void) handleConfigResponse: (wk_config_response*) response
 {
     pendingRequests.putResponse(response->requestId, response);
@@ -838,6 +866,8 @@ error:
 }
 
 
+#pragma mark - Worker thread
+
 - (void) threadMainRoutine: (id) data
 {
     @autoreleasepool {
@@ -868,6 +898,9 @@ error:
 
 
 @end
+
+
+#pragma mark - Callback helpers
 
 
 void DeviceNotification(void *refCon, io_service_t service, natural_t messageType, void *messageArgument)
