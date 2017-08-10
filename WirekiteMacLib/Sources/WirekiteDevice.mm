@@ -40,6 +40,11 @@ enum DeviceStatus {
     StatusClosed
 };
 
+typedef struct {
+    WirekiteDevice* device;
+    void* buffer;
+} Transfer;
+
 
 @interface WirekiteDevice ()
 {
@@ -333,12 +338,19 @@ retry:
 
 - (void) writeBytes: (const uint8_t*)bytes size: (uint16_t) size
 {
+    // data must be copied
+    Transfer* transfer = (Transfer*)malloc(sizeof(Transfer));
+    memset(transfer, 0, sizeof(Transfer));
+    transfer->device = self;
+    transfer->buffer = malloc(size);
+    memcpy(transfer->buffer, bytes, size);
+    
     IOReturn kr = (*interface)->WritePipeAsync(interface,
                                                EndpointTransmit,
-                                               (void*)bytes,
+                                               (void*)transfer->buffer,
                                                size,
                                                WriteCompletion,
-                                               (__bridge void*)self);
+                                               transfer);
     if (kr)
         NSLog(@"Wirekite: Error on submitting write (0x%08x)", kr);
 }
@@ -912,8 +924,11 @@ void DeviceNotification(void *refCon, io_service_t service, natural_t messageTyp
 
 void WriteCompletion(void *refCon, IOReturn result, void *arg0)
 {
-    WirekiteDevice* device = (__bridge WirekiteDevice*) refCon;
-    [device onWriteCompletedWithResult: result argument: arg0];
+    Transfer* transfer = (Transfer*)refCon;
+    [transfer->device onWriteCompletedWithResult: result argument: arg0];
+    free(transfer->buffer);
+    transfer->device = nil;
+    free(transfer);
 }
 
 
