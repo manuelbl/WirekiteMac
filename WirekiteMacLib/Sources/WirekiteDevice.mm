@@ -179,9 +179,10 @@ retry:
     if (! [self setupAsyncComm])
         return NO;
     
-    deviceStatus = StatusReady;
     pendingBuffer = 0;
     [self submitRead];
+    
+    [self resetConfiguration];
     
     return YES;
 }
@@ -403,9 +404,13 @@ retry:
             wk_config_response* config_response = (wk_config_response*)copy;
             if (deviceStatus == StatusReady || config_response->requestId == 0xffff)
                 [self handleConfigResponse: config_response];
+            else
+                free(copy);
         } else if (header->messageType == WK_MSG_TYPE_PORT_EVENT) {
             if (deviceStatus == StatusReady)
                 [self handlePortEvent: (wk_port_event*)copy];
+            else
+                free(copy);
         } else {
             NSLog(@"Wirekite: Message of unknown type %d received", msgSize);
             free(copy);
