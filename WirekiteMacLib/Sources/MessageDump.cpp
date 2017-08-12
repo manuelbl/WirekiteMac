@@ -22,9 +22,10 @@ static const char* MessageTypes[] = {
 
 static const char* ConfigActions[] = {
     "<invalid>",
-    "config",
+    "config_port",
     "release",
-    "reset"
+    "reset",
+    "config_module"
 };
 
 static const char* PortTypes[] = {
@@ -56,39 +57,39 @@ std::string MessageDump::dump(wk_msg_header* msg)
     std::stringstream buf;
     
     buf << std::hex << "\n";
-    buf << "messageSize: " << msg->messageSize << "\n";
-    buf << "messageType: " << SafeElement(MessageTypes, msg->messageType) << " (" << (int)msg->messageType << ")\n";
+    buf << "message_size: " << msg->message_size << "\n";
+    buf << "message_type: " << SafeElement(MessageTypes, msg->message_type) << " (" << (int)msg->message_type << ")\n";
     
-    if (msg->messageType == WK_MSG_TYPE_CONFIG_REQUEST) {
+    if (msg->message_type == WK_MSG_TYPE_CONFIG_REQUEST) {
         wk_config_request* request = (wk_config_request*)msg;
         buf << "action: " << SafeElement(ConfigActions, request->action) << " (" << (int)request->action << ")\n";
-        buf << "portType: " << SafeElement(PortTypes, request->portType) << " (" << (int)request->portType << ")\n";
-        buf << "portId: " << request->portId << "\n";
-        buf << "requestId: " << request->requestId << "\n";
-        buf << "portAttributes: " << request->portAttributes << "\n";
-        buf << "pinConfig: " << request->pinConfig << "\n";
+        buf << "port_type: " << SafeElement(PortTypes, request->port_type) << " (" << (int)request->port_type << ")\n";
+        buf << "port_id: " << request->port_id << "\n";
+        buf << "request_id: " << request->request_id << "\n";
+        buf << "port_attributes: " << request->port_attributes << "\n";
+        buf << "pin_config: " << request->pin_config << "\n";
         buf << "value1: " << request->value1 << "\n";
-    } else if (msg->messageType == WK_MSG_TYPE_CONFIG_RESPONSE) {
+    } else if (msg->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
         wk_config_response* response = (wk_config_response*)msg;
         buf << "result: " << response->result << "\n";
-        buf << "portId: " << response->portId << "\n";
-        buf << "requestId: " << response->requestId << "\n";
+        buf << "port_id: " << response->port_id << "\n";
+        buf << "request_id: " << response->request_id << "\n";
         buf << "optional1: " << response->optional1 << "\n";
-    } else if (msg->messageType == WK_MSG_TYPE_PORT_REQUEST) {
+    } else if (msg->message_type == WK_MSG_TYPE_PORT_REQUEST) {
         wk_port_request* request = (wk_port_request*)msg;
-        buf << "portId: " << request->portId << "\n";
+        buf << "port_id: " << request->port_id << "\n";
         buf << "action: " << SafeElement(PortActions, request->action) << " (" << (int)request->action << ")\n";
-        buf << "actionAttribute1: " << (int)request->actionAttribute1 << "\n";
-        buf << "actionAttribute2: " << request->actionAttribute2 << "\n";
-        int data_length = msg->messageSize - sizeof(wk_port_request) + 4;
+        buf << "action_attribute1: " << (int)request->action_attribute1 << "\n";
+        buf << "action_attribute2: " << request->action_attribute2 << "\n";
+        int data_length = msg->message_size - sizeof(wk_port_request) + 4;
         dumpData(buf, request->data, data_length);
-    } else if (msg->messageType == WK_MSG_TYPE_PORT_EVENT) {
+    } else if (msg->message_type == WK_MSG_TYPE_PORT_EVENT) {
         wk_port_event* event = (wk_port_event*)msg;
-        buf << "portId: " << event->portId << "\n";
+        buf << "port_id: " << event->port_id << "\n";
         buf << "action: " << SafeElement(PortEvents, event->event) << " (" << (int)event->event << ")\n";
-        buf << "eventAttribute1: " << (int)event->eventAttribute1 << "\n";
-        buf << "requestId: " << event->requestId << "\n";
-        int data_length = msg->messageSize - sizeof(wk_port_event) + 4;
+        buf << "event_attribute1: " << (int)event->event_attribute1 << "\n";
+        buf << "request_id: " << event->request_id << "\n";
+        int data_length = msg->message_size - sizeof(wk_port_event) + 4;
         dumpData(buf, event->data, data_length);
     }
     

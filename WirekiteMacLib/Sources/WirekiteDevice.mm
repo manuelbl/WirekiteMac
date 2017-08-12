@@ -282,14 +282,14 @@ retry:
     deviceStatus = StatusInitializing;
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RESET;
-    request.requestId = 0xffff;
+    request.request_id = 0xffff;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
     free(response);
     
     portList.clear();
@@ -333,7 +333,7 @@ retry:
 - (void) writeMessage:(wk_msg_header*)msg
 {
     //NSLog(@"%s", MessageDump::dump(msg).c_str());
-    [self writeBytes:(const uint8_t*)msg size:msg->messageSize];
+    [self writeBytes:(const uint8_t*)msg size:msg->message_size];
 }
 
 
@@ -394,19 +394,19 @@ retry:
     UInt32 processedBytes = 0;
     while (processedBytes < receivedBytes) {
         wk_msg_header* header = (wk_msg_header*)(rxBuffer[bufIndex] + processedBytes);
-        uint16_t msgSize = header->messageSize;
+        uint16_t msgSize = header->message_size;
         wk_msg_header* copy = (wk_msg_header*) malloc(msgSize);
         memcpy(copy, header, msgSize);
         
         //NSLog(@"%s", MessageDump::dump(header).c_str());
         
-        if (header->messageType == WK_MSG_TYPE_CONFIG_RESPONSE) {
+        if (header->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
             wk_config_response* config_response = (wk_config_response*)copy;
-            if (deviceStatus == StatusReady || config_response->requestId == 0xffff)
+            if (deviceStatus == StatusReady || config_response->request_id == 0xffff)
                 [self handleConfigResponse: config_response];
             else
                 free(copy);
-        } else if (header->messageType == WK_MSG_TYPE_PORT_EVENT) {
+        } else if (header->message_type == WK_MSG_TYPE_PORT_EVENT) {
             if (deviceStatus == StatusReady)
                 [self handlePortEvent: (wk_port_event*)copy];
             else
@@ -487,21 +487,21 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_PORT;
-    request.portType = WK_CFG_PORT_TYPE_DIGI_PIN;
-    request.requestId = portList.nextRequestId();
-    request.portAttributes = attributes;
-    request.pinConfig = pin;
+    request.port_type = WK_CFG_PORT_TYPE_DIGI_PIN;
+    request.request_id = portList.nextRequestId();
+    request.port_attributes = attributes;
+    request.pin_config = pin;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
 
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
-        port = new Port(response->portId, type, 10);
+        port = new Port(response->port_id, type, 10);
         portList.addPort(port);
         if ((attributes & 1) == 0)
             port->setLastSample(response->optional1);
@@ -518,10 +518,10 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
-    request.portId = portId;
+    request.port_id = portId;
     
     [self writeMessage:&request.header];
 
@@ -542,9 +542,9 @@ retry:
 {
     wk_port_request request;
     memset(&request, 0, sizeof(wk_port_request));
-    request.header.messageSize = sizeof(wk_port_request);
-    request.header.messageType = WK_MSG_TYPE_PORT_REQUEST;
-    request.portId = portId;
+    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
     request.data[0] = value ? 1 : 0;
 
@@ -566,13 +566,13 @@ retry:
         return NO;
     
     wk_port_request request;
-    request.header.messageSize = sizeof(wk_port_request);
-    request.header.messageType = WK_MSG_TYPE_PORT_REQUEST;
-    request.portId = portId;
+    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
-    request.actionAttribute1 = 0;
-    request.actionAttribute2 = 0;
-    request.requestId = 0;
+    request.action_attribute1 = 0;
+    request.action_attribute2 = 0;
+    request.request_id = 0;
     request.data[0] = 0;
     request.data[1] = 0;
     request.data[2] = 0;
@@ -632,21 +632,21 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_PORT;
-    request.portType = WK_CFG_PORT_TYPE_ANALOG_IN;
-    request.requestId = portList.nextRequestId();
-    request.pinConfig = pin;
+    request.port_type = WK_CFG_PORT_TYPE_ANALOG_IN;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = pin;
     request.value1 = interval;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
     
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
-        port = new Port(response->portId, interval == 0 ? PortTypeAnalogInputOnDemand : PortTypeAnalogInputSampling, 10);
+        port = new Port(response->port_id, interval == 0 ? PortTypeAnalogInputOnDemand : PortTypeAnalogInputSampling, 10);
         portList.addPort(port);
     } else {
         NSLog(@"Wirekite: Analog input pin configuration failed");
@@ -661,10 +661,10 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
-    request.portId = portId;
+    request.port_id = portId;
     
     [self writeMessage:&request.header];
     
@@ -688,13 +688,13 @@ retry:
         return 0;
     
     wk_port_request request;
-    request.header.messageSize = sizeof(wk_port_request);
-    request.header.messageType = WK_MSG_TYPE_PORT_REQUEST;
-    request.portId = portId;
+    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
-    request.actionAttribute1 = 0;
-    request.actionAttribute2 = 0;
-    request.requestId = 0;
+    request.action_attribute1 = 0;
+    request.action_attribute2 = 0;
+    request.request_id = 0;
     request.data[0] = 0;
     request.data[1] = 0;
     request.data[2] = 0;
@@ -717,21 +717,21 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_PORT;
-    request.portType = WK_CFG_PORT_TYPE_PWM;
-    request.requestId = portList.nextRequestId();
-    request.pinConfig = pin;
+    request.port_type = WK_CFG_PORT_TYPE_PWM;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = pin;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
     
     Port* port = NULL;
     PortID portId = 0;
     if (response->result == WK_RESULT_OK) {
-        portId = response->portId;
+        portId = response->port_id;
         port = new Port(portId, PortTypePWMOutput, 10);
         portList.addPort(port);
     } else {
@@ -747,10 +747,10 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
-    request.portId = portId;
+    request.port_id = portId;
     
     [self writeMessage:&request.header];
     
@@ -767,9 +767,9 @@ retry:
 {
     wk_port_request request;
     memset(&request, 0, sizeof(wk_port_request));
-    request.header.messageSize = sizeof(wk_port_request);
-    request.header.messageType = WK_MSG_TYPE_PORT_REQUEST;
-    request.portId = portId;
+    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
     int16_t* p = (int16_t*) &request.data;
     *p = dutyCycle;
@@ -782,18 +782,18 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
-    request.portType = WK_CFG_MODULE_PWM_TIMER;
-    request.requestId = portList.nextRequestId();
-    request.pinConfig = timer;
-    request.portAttributes = attributes;
+    request.port_type = WK_CFG_MODULE_PWM_TIMER;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = timer;
+    request.port_attributes = attributes;
     request.value1 = frequency;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
     free(response);
 }
 
@@ -802,18 +802,18 @@ retry:
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
-    request.header.messageSize = sizeof(wk_config_request);
-    request.header.messageType = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
-    request.portType = WK_CFG_MODULE_PWM_CHANNEL;
-    request.requestId = portList.nextRequestId();
-    request.pinConfig = timer;
-    request.portAttributes = attributes;
+    request.port_type = WK_CFG_MODULE_PWM_CHANNEL;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = timer;
+    request.port_attributes = attributes;
     request.value1 = channel;
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.requestId);
+    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
     free(response);
 }
 
@@ -823,14 +823,14 @@ retry:
 
 - (void) handleConfigResponse: (wk_config_response*) response
 {
-    pendingRequests.putResponse(response->requestId, response);
+    pendingRequests.putResponse(response->request_id, response);
 }
 
 
 - (void) handlePortEvent: (wk_port_event*) event
 {
     if (event->event == WK_EVENT_SINGLE_SAMPLE) {
-        Port* port = portList.getPort(event->portId);
+        Port* port = portList.getPort(event->port_id);
         if (port == NULL)
             goto error;
         
@@ -878,7 +878,7 @@ retry:
     }
 
 error:
-    NSLog(@"Wirekite: Unknown event (%d) for port (%d) received", event->event, event->portId);
+    NSLog(@"Wirekite: Unknown event (%d) for port (%d) received", event->event, event->port_id);
     free(event);
 }
 
