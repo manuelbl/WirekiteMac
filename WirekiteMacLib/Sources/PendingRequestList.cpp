@@ -27,7 +27,7 @@ PendingRequestList::~PendingRequestList()
 }
 
 
-void PendingRequestList::putResponse(uint16_t requestId, wk_config_response* response)
+void PendingRequestList::putResponse(uint16_t requestId, wk_msg_header* response)
 {
     pthread_mutex_lock(&mutex);
     
@@ -41,7 +41,7 @@ void PendingRequestList::putResponse(uint16_t requestId, wk_config_response* res
 }
 
 
-wk_config_response* PendingRequestList::waitForResponse(uint16_t requestId)
+wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
 {
     pthread_mutex_lock(&mutex);
     
@@ -55,7 +55,7 @@ wk_config_response* PendingRequestList::waitForResponse(uint16_t requestId)
         pthread_cond_wait(&inserted, &mutex);
     }
     
-    wk_config_response* result = (*it).response;
+    wk_msg_header* result = (*it).response;
     requests.erase(it);
     
     pthread_mutex_unlock(&mutex);

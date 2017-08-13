@@ -19,7 +19,8 @@ enum PortType {
     PortTypeDigitalInputTriggering,
     PortTypeAnalogInputOnDemand,
     PortTypeAnalogInputSampling,
-    PortTypePWMOutput
+    PortTypePWMOutput,
+    PortTypeI2C
 };
 
 

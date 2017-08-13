@@ -135,6 +135,32 @@ typedef NS_OPTIONS(NSUInteger, PWMChannelAttributes) {
     PWMChannelAttributesLowPulse = 1
 };
 
+/*! @brief I2C SCL/SDA pin pairs */
+typedef NS_ENUM(NSInteger, I2CPins) {
+    /*! @brief SCL/SDA pin pair 16/17 for I2C module 0 */
+    I2CPinsSCL16_SDA17 = 0,
+    /*! @brief SCL/SDA pin pair 19/18 for I2C module 0 */
+    I2CPinsSCL19_SDA18 = 1,
+    /*! @brief SCL/SDA pin pair 22/23 for I2C module 1 */
+    I2CPinsSCL22_SDA23 = 2
+};
+
+/*! @brief Result code for I2C send and receive transactions */
+typedef NS_ENUM(NSInteger, I2CResult) {
+    /*! @brief Action was successful */
+    I2CResultOK = 0,
+    /*! @brief Action timed out */
+    I2CResultTimeout = 1,
+    /*! @brief Action was cancelled due to a lost bus arbitration */
+    I2CResultArbitrationLost = 2,
+    /*! @brief Slave address was not acknowledged */
+    I2CResultAddressNAK = 3,
+    /*! @brief Transmitted data was not acknowledged */
+    I2CResultDataNAK = 4,
+    /*! @brief Invalid parameters were specified */
+    I2CResultInvalidParameter = 5
+};
+
 
 typedef void (^DigitalInputPinCallback)(PortID, BOOL);
 typedef void (^AnalogInputPinCallback)(PortID, int16_t);
@@ -415,5 +441,66 @@ extern uint16_t InvalidPortID;
  */
 - (void) writePWMPinOnPort: (PortID)port dutyCycle:(int16_t)dutyCycle;
 
+
+/*!
+ @name I2C communication
+ */
+
+/*! @brief Configures an I2C port as a master.
+ 
+    @discussion Each pin pair belongs to a specific I2C module. A single module can only
+        be conntected to a single pin pair at a time.
+ 
+    @param pins the SCL/SDA pin pair for the port
+ 
+    @frequency the frequency of for the I2C communication (in Hz). If in doubt, use 100,000 Hz.
+ 
+    @return the I2C port ID
+ */
+- (PortID) configureI2CMaster: (I2CPins)pins frequency: (uint32_t)frequency;
+
+
+/*! @brief Releases the I2C output
+ 
+    @param port the I2C port ID
+ */
+- (void) releaseI2CPort: (PortID)port;
+
+/*! @brief Send data to an I2C slave
+ 
+    @discussion The operation is executed sychnronously, i.e. the call blocks until the data
+        has been transmitted or the transmission has failed.
+ 
+    @param port the I2C port ID
+ 
+    @param data the data to transmit
+ 
+    @param slave the slave address
+ */
+- (I2CResult) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
+
+/*! @brief Request data from an I2C slave
+ 
+    @discussion The operation is executed sychnronously, i.e. the call blocks until the
+        transaction has been completed or has failed. If the transaction fails,
+        use [WirekiteDevice lastI2CResult] to retrieve the reason.
+ 
+    @param port the I2C port ID
+ 
+    @param slave the slave address
+ 
+    @param length the number of bytes of data requested from the slave
+ 
+    @return the received data or `nil` if it failed
+ */
+- (NSData*) requetDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length;
+
+/*! @brief Result code of the last send or receive
+ 
+    @param port the I2C port ID
+ 
+    @return the result code of the last operation on this port
+ */
+- (I2CResult) lastResultOnI2CPort: (PortID)port;
 
 @end

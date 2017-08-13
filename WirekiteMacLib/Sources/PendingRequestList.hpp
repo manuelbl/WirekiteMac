@@ -17,7 +17,7 @@
 class PendingRequest {
 public:
     uint16_t requestId;
-    wk_config_response* response;
+    wk_msg_header* response;
 };
 
 
@@ -26,8 +26,8 @@ public:
     PendingRequestList();
     ~PendingRequestList();
     
-    void putResponse(uint16_t requestId, wk_config_response* response);
-    wk_config_response* waitForResponse(uint16_t requestId);
+    void putResponse(uint16_t requestId, wk_msg_header* response);
+    wk_msg_header* waitForResponse(uint16_t requestId);
     void clear();
     
 private:

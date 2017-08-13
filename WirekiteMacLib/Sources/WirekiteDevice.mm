@@ -289,7 +289,7 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     free(response);
     
     portList.clear();
@@ -332,7 +332,7 @@ retry:
 
 - (void) writeMessage:(wk_msg_header*)msg
 {
-    //NSLog(@"%s", MessageDump::dump(msg).c_str());
+    NSLog(@"%s", MessageDump::dump(msg).c_str());
     [self writeBytes:(const uint8_t*)msg size:msg->message_size];
 }
 
@@ -398,7 +398,7 @@ retry:
         wk_msg_header* copy = (wk_msg_header*) malloc(msgSize);
         memcpy(copy, header, msgSize);
         
-        //NSLog(@"%s", MessageDump::dump(header).c_str());
+        NSLog(@"%s", MessageDump::dump(header).c_str());
         
         if (header->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
             wk_config_response* config_response = (wk_config_response*)copy;
@@ -497,7 +497,7 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
 
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
@@ -522,10 +522,11 @@ retry:
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
     request.port_id = portId;
+    request.request_id = portList.nextRequestId();
     
     [self writeMessage:&request.header];
 
-    wk_config_response* response = pendingRequests.waitForResponse(portId);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     
     NSNumber* key = [NSNumber numberWithUnsignedShort:portId];
     [digitalInputPinCallbacks removeObjectForKey:key];
@@ -642,7 +643,7 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
@@ -665,10 +666,11 @@ retry:
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
     request.port_id = portId;
+    request.request_id = portList.nextRequestId();
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(portId);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     
     NSNumber* key = [NSNumber numberWithUnsignedShort:portId];
     [analogInputPinCallbacks removeObjectForKey:key];
@@ -726,7 +728,7 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     
     Port* port = NULL;
     PortID portId = 0;
@@ -751,10 +753,11 @@ retry:
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_RELEASE;
     request.port_id = portId;
+    request.request_id = portList.nextRequestId();
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(portId);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     
     Port* port = portList.getPort(portId);
     portList.removePort(portId);
@@ -793,7 +796,7 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     free(response);
 }
 
@@ -813,17 +816,144 @@ retry:
     
     [self writeMessage:&request.header];
     
-    wk_config_response* response = pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
     free(response);
 }
 
 
-#pragma - Message handling
+#pragma mark - I2C communication
+
+- (PortID) configureI2CMaster: (I2CPins)pins frequency: (uint32_t)frequency
+{
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_CONFIG_PORT;
+    request.port_type = WK_CFG_PORT_TYPE_I2C;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = pins;
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    
+    Port* port = NULL;
+    PortID portId = 0;
+    if (response->result == WK_RESULT_OK) {
+        portId = response->port_id;
+        port = new Port(portId, PortTypeI2C, 10);
+        portList.addPort(port);
+    } else {
+        NSLog(@"Wirekite: I2C configuration failed");
+    }
+    
+    free(response);
+    return portId;
+}
+
+
+- (void) releaseI2CPort: (PortID)port
+{
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_RELEASE;
+    request.port_id = port;
+    request.request_id = portList.nextRequestId();
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    
+    Port* p = portList.getPort(port);
+    portList.removePort(port);
+    free(response);
+    delete p;
+}
+
+
+- (I2CResult) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return I2CResultInvalidParameter;
+    
+    NSUInteger len = data.length;
+    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->port_id = port;
+    request->request_id = portList.nextRequestId();
+    request->action = WK_PORT_ACTION_TX_DATA;
+    request->action_attribute2 = slave;
+    memcpy(request->data, data.bytes, len);
+    
+    [self writeMessage:&request->header];
+    uint16_t request_id = request->request_id;
+    free(request);
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    free(response);
+    return result;
+}
+
+
+- (NSData*) requetDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    wk_port_request request;
+    memset(&request, 0, sizeof(wk_port_request));
+    request.header.message_size = sizeof(wk_port_request) - 2;
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = port;
+    request.request_id = portList.nextRequestId();
+    request.action = WK_PORT_ACTION_REQUEST_DATA;
+    request.action_attribute2 = slave;
+    uint16_t* slavePtr = (uint16_t*) &request.data;
+    *slavePtr = length;
+    
+    [self writeMessage:&request.header];
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request.request_id);
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* data = nil;
+    if (result == I2CResultOK) {
+        size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+        data = [NSData dataWithBytes:response->data length:dataLength];
+    }
+    
+    free(response);
+    return data;
+}
+
+
+- (I2CResult) lastResultOnI2CPort: (PortID)port
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return I2CResultInvalidParameter;
+    
+    return (I2CResult)p->lastSample();
+}
+
+
+#pragma mark - Message handling
 
 
 - (void) handleConfigResponse: (wk_config_response*) response
 {
-    pendingRequests.putResponse(response->request_id, response);
+    pendingRequests.putResponse(response->request_id, (wk_msg_header*)response);
 }
 
 
@@ -875,6 +1005,17 @@ retry:
             }
             return;
         }
+        
+    } else if (event->event == WK_EVENT_TX_COMPLETE || event->event == WK_EVENT_DATA_RECV) {
+        Port* port = portList.getPort(event->port_id);
+        if (port == NULL)
+            goto error;
+        
+        PortType portType = port->type();
+        if (portType == PortTypeI2C) {
+            pendingRequests.putResponse(event->request_id, (wk_msg_header*)event);
+            return;
+        }    
     }
 
 error:
