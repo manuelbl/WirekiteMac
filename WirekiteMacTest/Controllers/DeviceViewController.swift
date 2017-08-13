@@ -10,47 +10,73 @@ import Cocoa
 
 class DeviceViewController: NSViewController {
     
+    // Configure attached test board
+    static let hasBuiltInLED = true
+    static let hasThreeLEDs = true
+    static let hasPushButton = true
+    static let hasTwoPotentiometers = true
+    static let hasServo = true
+    static let hasAnalogStick = true
+    static let hasAmmeter = false
+    
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
     static let indicatorColorInactive = NSColor.lightGray
 
-    var device: WirekiteDevice? = nil
-    var timer: Timer? = nil
-    var servoTimer: Timer? = nil
     
+    var device: WirekiteDevice? = nil
+    
+    // built-in LED
+    var ledTimer: Timer? = nil
     var ledPortId: PortID = 0
     var ledOn = true
     
-    var redLedId: PortID = 0
-    var orangeLedId: PortID = 0
-    var greenLedId: PortID = 0
+    // three LEDs
+    var redLedPin: PortID = 0
+    var orangeLedPin: PortID = 0
+    var greenLedPin: PortID = 0
     
-    var switchPortId: PortID = 0
+    // push button
+    var pushButtonPin: PortID = 0
     
+    // two potentiometers
     var dutyCyclePin: PortID = 0
     var frequencyPin: PortID = 0
-    
-    var voltageXPin: PortID = 0
-    var voltageYPin: PortID = 0
-    var switchPin: PortID = 0
-    
     var pwmOutPin: PortID = 0
-    
     var prevFrequencyValue: Int16 = 3000
     
+    // analog stick
+    var voltageXPin: PortID = 0
+    var voltageYPin: PortID = 0
+    var stickPushButtonPin: PortID = 0
+
+    // servo
+    var servoTimer: Timer? = nil
     var servoPin: PortID = 0
     var servoPos: Double = 0
     
+    // ammeter
+    var ammeter: Ammeter? = nil
+    var ammeterTimer: Timer? = nil
     
+    
+    // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
     @IBOutlet weak var checkboxOrange: NSButton!
     @IBOutlet weak var checkboxGreen: NSButton!
 
-    @IBOutlet weak var switchLight: Light!
+    // push button
+    @IBOutlet weak var pushButtonLight: Light!
+    
+    // two potentiometers
     @IBOutlet weak var dutyCycleValueLabel: NSTextField!
     @IBOutlet weak var frequencyValueLabel: NSTextField!
     
+    // analog stick
     @IBOutlet weak var analogStick: AnalogStick!
+    
+    // ammeter
+    @IBOutlet weak var currentValueLabel: NSTextField!
     
     
     override func viewDidLoad() {
@@ -66,71 +92,92 @@ class DeviceViewController: NSViewController {
     }
     
     override func viewDidDisappear() {
-        timer?.invalidate()
-        timer = nil
+        stopTimers()
         device?.close()
         device = nil
+    }
+    
+    func stopTimers() {
+        ledTimer?.invalidate()
+        ledTimer = nil
+        servoTimer?.invalidate()
+        servoTimer = nil
+        ammeterTimer?.invalidate()
+        ammeterTimer = nil
     }
 
     func configurePins() {
         
         if let device = self.device {
+            
             resetUI(enabled: true)
-            device.configurePWMChannel(0, channel: 3, attributes: [])
             
-            ledPortId = device.configureDigitalOutputPin(13, attributes: [])
-            timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in self.ledBlink() }
-            
-            redLedId = device.configureDigitalOutputPin(16, attributes: .highCurrent)
-            orangeLedId = device.configureDigitalOutputPin(17, attributes: .highCurrent)
-            greenLedId = device.configureDigitalOutputPin(21, attributes: .highCurrent)
-            
-            switchPortId = device.configureDigitalInputPin(12,
-                  attributes: [.triggerRaising, .triggerFalling, .pullup]) { _, value in
-                    self.switchLight.on = value
+            if DeviceViewController.hasBuiltInLED {
+                ledPortId = device.configureDigitalOutputPin(13, attributes: [])
+                ledOn = false
+                ledTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in self.ledBlink() }
             }
-            switchLight.on = device.readDigitalPin(onPort: switchPortId)
 
-            dutyCyclePin = device.configureAnalogInputPin(.A4, interval: 127) { _, value in
-                let text = String(format: "%3.0f %%", Double(value) * 100 / 32767)
-                self.dutyCycleValueLabel.stringValue = text
-                self.device!.writePWMPin(onPort: self.pwmOutPin, dutyCycle: value)
+            if DeviceViewController.hasThreeLEDs {
+                redLedPin = device.configureDigitalOutputPin(16, attributes: .highCurrent)
+                orangeLedPin = device.configureDigitalOutputPin(17, attributes: .highCurrent)
+                greenLedPin = device.configureDigitalOutputPin(21, attributes: .highCurrent)
             }
             
-            frequencyPin = device.configureAnalogInputPin(.A1, interval: 149) { _, value in
-                if abs(Int(value - self.prevFrequencyValue)) > 100 {
-                    self.prevFrequencyValue = value
-                    let frequency = UInt32((exp(exp(Double(value) / 32767)) - exp(1)) * 900 + 10)
-                    self.device!.configurePWMTimer(0, frequency: frequency, attributes: [])
-                    let text = String(format: "%d Hz", frequency)
-                    self.frequencyValueLabel.stringValue = text
+            if DeviceViewController.hasPushButton {
+                pushButtonPin = device.configureDigitalInputPin(12,
+                    attributes: [.triggerRaising, .triggerFalling, .pullup]) { _, value in
+                        self.pushButtonLight.on = value
                 }
+                pushButtonLight.on = device.readDigitalPin(onPort: pushButtonPin)
+            }
+            
+            if DeviceViewController.hasTwoPotentiometers {
+                dutyCyclePin = device.configureAnalogInputPin(.A4, interval: 127) { _, value in
+                    let text = String(format: "%3.0f %%", Double(value) * 100 / 32767)
+                    self.dutyCycleValueLabel.stringValue = text
+                    self.device!.writePWMPin(onPort: self.pwmOutPin, dutyCycle: value)
+                }
+                
+                frequencyPin = device.configureAnalogInputPin(.A1, interval: 149) { _, value in
+                    if abs(Int(value - self.prevFrequencyValue)) > 100 {
+                        self.prevFrequencyValue = value
+                        let frequency = UInt32((exp(exp(Double(value) / 32767)) - exp(1)) * 900 + 10)
+                        self.device!.configurePWMTimer(0, frequency: frequency, attributes: [])
+                        let text = String(format: "%d Hz", frequency)
+                        self.frequencyValueLabel.stringValue = text
+                    }
+                }
+                device.configurePWMChannel(0, channel: 3, attributes: [])
+                pwmOutPin = device.configurePWMOutputPin(.pin10)
+            }
+            
+            if DeviceViewController.hasServo {
+                device.configurePWMTimer(2, frequency: 100, attributes: [])
+                servoPin = device.configurePWMOutputPin(.pin4)
+                device.writePWMPin(onPort: servoPin, dutyCycle: 4915)
+                servoTimer = Timer.scheduledTimer(withTimeInterval: 0.005, repeats: true) { timer in self.moveServo() }
             }
  
-            voltageXPin = device.configureAnalogInputPin(.A8, interval: 137) { _, value in
-                self.analogStick.directionX = 1.0 - Double(value) / 16383.0
-            }
-            voltageYPin = device.configureAnalogInputPin(.A9, interval: 139) { _, value in
-                self.analogStick.directionY = 1.0 - Double(value) / 16383.0
+            if DeviceViewController.hasAnalogStick {
+                voltageXPin = device.configureAnalogInputPin(.A8, interval: 137) { _, value in
+                    self.analogStick.directionX = 1.0 - Double(value) / 16383.0
+                }
+                voltageYPin = device.configureAnalogInputPin(.A9, interval: 139) { _, value in
+                    self.analogStick.directionY = 1.0 - Double(value) / 16383.0
+                }
+                stickPushButtonPin = device.configureDigitalInputPin(20, attributes: [.triggerRaising, .triggerFalling, .pullup]) {
+                    _, value in self.analogStick.indicatorColor = value ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
+                }
+                analogStick.indicatorColor = device.readDigitalPin(onPort: stickPushButtonPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             }
             
-            switchPin = device.configureDigitalInputPin(20, attributes: [.triggerRaising, .triggerFalling, .pullup]) {
-                _, value in self.analogStick.indicatorColor = value ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
+            if DeviceViewController.hasAmmeter {
+                ammeter = Ammeter(device: device, i2cPins: .SCL19_SDA18)
+                ammeterTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in self.readAmps() }
             }
-            analogStick.indicatorColor = device.readDigitalPin(onPort: switchPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             
-            pwmOutPin = device.configurePWMOutputPin(.pin10)
-            
-            device.configurePWMTimer(2, frequency: 100, attributes: [])
-            servoPin = device.configurePWMOutputPin(.pin4)
-            device.writePWMPin(onPort: servoPin, dutyCycle: 4915)
-            servoTimer = Timer.scheduledTimer(withTimeInterval: 0.005, repeats: true) { timer in self.moveServo() }
-        
         } else {
-            timer?.invalidate()
-            timer = nil
-            servoTimer?.invalidate()
-            servoTimer = nil
             resetUI(enabled: false)
         }
     }
@@ -139,10 +186,10 @@ class DeviceViewController: NSViewController {
         checkboxRed.state = NSOffState
         checkboxOrange.state = NSOffState
         checkboxGreen.state = NSOffState
-        checkboxRed.isEnabled = enabled
-        checkboxOrange.isEnabled = enabled
-        checkboxGreen.isEnabled = enabled
-        switchLight.on = false
+        checkboxRed.isEnabled = enabled && DeviceViewController.hasThreeLEDs
+        checkboxOrange.isEnabled = enabled && DeviceViewController.hasThreeLEDs
+        checkboxGreen.isEnabled = enabled && DeviceViewController.hasThreeLEDs
+        pushButtonLight.on = false
         dutyCycleValueLabel.stringValue = "- %"
         frequencyValueLabel.stringValue = "- Hz"
         analogStick.directionX = 0
@@ -172,29 +219,25 @@ class DeviceViewController: NSViewController {
         device!.writePWMPin(onPort: servoPin, dutyCycle: dutyCycle)
     }
     
-    func readAnalog() {
-        let value2 = device!.readAnalogPin(onPort: voltageXPin)
-        DispatchQueue.main.async {
-            self.analogStick.directionX = 1.0 - Double(value2) / 16383.0
-        }
-        
-        let value3 = device!.readAnalogPin(onPort: voltageYPin)
-        DispatchQueue.main.async {
-            self.analogStick.directionY = 1.0 - Double(value3) / 16383.0
-        }
-    }
-    
     @IBAction func onCheckboxClicked(_ sender: Any) {
         let button = sender as! NSButton
-        let ledPortId: PortID
+        let ledPin: PortID
         if button == checkboxRed {
-            ledPortId = redLedId
+            ledPin = redLedPin
         } else if button == checkboxOrange {
-            ledPortId = orangeLedId
+            ledPin = orangeLedPin
         } else {
-            ledPortId = greenLedId
+            ledPin = greenLedPin
         }
-        device!.writeDigitalPin(onPort: ledPortId, value: button.state == NSOnState)
+        device!.writeDigitalPin(onPort: ledPin, value: button.state == NSOnState)
+    }
+    
+    
+    func readAmps()
+    {
+        let value = ammeter!.readAmps()
+        let text = String(format: "%3.1f mA", value)
+        currentValueLabel.stringValue = text
     }
 }
 

@@ -136,19 +136,19 @@
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HgY-eP-yVO">
-                                <rect key="frame" x="20" y="220" width="75" height="17"/>
+                                <rect key="frame" x="20" y="214" width="96" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="- Hz" id="Jxl-QJ-Qdu">
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" metaFont="system" size="17"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U83-Zu-DBf">
-                                <rect key="frame" x="136" y="220" width="75" height="17"/>
+                                <rect key="frame" x="136" y="214" width="110" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="- %" id="QvP-DG-YDv">
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" metaFont="system" size="17"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -194,6 +194,24 @@
                                 <rect key="frame" x="320" y="20" width="140" height="140"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             </customView>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xUR-g4-NeB">
+                                <rect key="frame" x="18" y="133" width="77" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Current" id="7vj-LG-JIh">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4f4-KB-H9u">
+                                <rect key="frame" x="20" y="102" width="96" height="23"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="- mA" id="6vp-z4-tsK">
+                                    <font key="font" metaFont="system" size="17"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
                         </subviews>
                     </view>
                     <connections>
@@ -201,9 +219,10 @@
                         <outlet property="checkboxGreen" destination="Cx4-Ra-0Zw" id="Dnc-Y3-fer"/>
                         <outlet property="checkboxOrange" destination="PCf-VQ-kkd" id="cRv-NC-Ey1"/>
                         <outlet property="checkboxRed" destination="egl-r8-dvC" id="Erd-DF-rOn"/>
+                        <outlet property="currentValueLabel" destination="4f4-KB-H9u" id="rR5-zg-ofw"/>
                         <outlet property="dutyCycleValueLabel" destination="U83-Zu-DBf" id="o6e-Nz-bwu"/>
                         <outlet property="frequencyValueLabel" destination="HgY-eP-yVO" id="ugQ-VR-lhv"/>
-                        <outlet property="switchLight" destination="Hpe-ok-h12" id="Eea-L6-O3s"/>
+                        <outlet property="pushButtonLight" destination="Hpe-ok-h12" id="jHE-B2-KOY"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

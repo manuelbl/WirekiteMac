@@ -332,7 +332,7 @@ retry:
 
 - (void) writeMessage:(wk_msg_header*)msg
 {
-    NSLog(@"%s", MessageDump::dump(msg).c_str());
+    //NSLog(@"%s", MessageDump::dump(msg).c_str());
     [self writeBytes:(const uint8_t*)msg size:msg->message_size];
 }
 
@@ -398,7 +398,7 @@ retry:
         wk_msg_header* copy = (wk_msg_header*) malloc(msgSize);
         memcpy(copy, header, msgSize);
         
-        NSLog(@"%s", MessageDump::dump(header).c_str());
+        //NSLog(@"%s", MessageDump::dump(header).c_str());
         
         if (header->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
             wk_config_response* config_response = (wk_config_response*)copy;
