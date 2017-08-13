@@ -833,6 +833,7 @@ retry:
     request.port_type = WK_CFG_PORT_TYPE_I2C;
     request.request_id = portList.nextRequestId();
     request.pin_config = pins;
+    request.value1 = frequency;
     
     [self writeMessage:&request.header];
     
