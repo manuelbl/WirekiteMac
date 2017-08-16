@@ -19,6 +19,7 @@ class DeviceViewController: NSViewController {
     static let hasAnalogStick = false
     static let hasAmmeter = true
     static let hasOLED = false
+    static let hasGyro = true
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -56,12 +57,19 @@ class DeviceViewController: NSViewController {
     var servoPin: PortID = 0
     var servoPos: Double = 0
     
+    // I2C bus
+    var i2cPort: PortID = 0
+    
     // ammeter
     var ammeter: Ammeter? = nil
     var ammeterTimer: Timer? = nil
     
     // OLED display
     var display: OLEDSSH1106? = nil
+    
+    // Gyro / accelerometer
+    var gyro: GyroMPU6050? = nil
+    var gyroTimer: Timer? = nil
     
     
     // three LEDs
@@ -82,6 +90,10 @@ class DeviceViewController: NSViewController {
     // ammeter
     @IBOutlet weak var currentValueLabel: NSTextField!
     
+    // gyro
+    @IBOutlet weak var gyroXLabel: NSTextField!
+    @IBOutlet weak var gyroYLabel: NSTextField!
+    @IBOutlet weak var gyroZLabel: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,6 +120,8 @@ class DeviceViewController: NSViewController {
         servoTimer = nil
         ammeterTimer?.invalidate()
         ammeterTimer = nil
+        gyroTimer?.invalidate()
+        gyroTimer = nil
     }
 
     func configurePins() {
@@ -176,13 +190,24 @@ class DeviceViewController: NSViewController {
                 analogStick.indicatorColor = device.readDigitalPin(onPort: stickPushButtonPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             }
             
+            if DeviceViewController.hasAmmeter || DeviceViewController.hasOLED || DeviceViewController.hasGyro {
+                i2cPort = device.configureI2CMaster(.SCL19_SDA18, frequency: 100000)
+            }
+            
             if DeviceViewController.hasAmmeter {
-                ammeter = Ammeter(device: device, i2cPins: .SCL19_SDA18)
-                ammeterTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in self.readAmps() }
+                ammeter = Ammeter(device: device, i2cPort: i2cPort)
+                ammeterTimer = Timer.scheduledTimer(withTimeInterval: 0.09, repeats: true) { timer in self.readAmps() }
             }
             
             if DeviceViewController.hasOLED {
-                display = OLEDSSH1106(device: device, i2cPins: .SCL19_SDA18)
+                display = OLEDSSH1106(device: device, i2cPort: i2cPort)
+            }
+            
+            if DeviceViewController.hasGyro {
+                gyro = GyroMPU6050(device: device, i2cPort: i2cPort)
+                gyro!.calibrate {
+                    self.gyroTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in self.updateGyro() }
+                }
             }
             
         } else {
@@ -240,12 +265,20 @@ class DeviceViewController: NSViewController {
         device!.writeDigitalPin(onPort: ledPin, value: button.state == NSOnState)
     }
     
-    
-    func readAmps()
-    {
+    func readAmps() {
         let value = ammeter!.readAmps()
         let text = String(format: "%3.1f mA", value)
         currentValueLabel.stringValue = text
+    }
+    
+    func updateGyro() {
+        gyro!.read()
+        let textX = String(format: "X: %d", gyro!.gyroX)
+        gyroXLabel.stringValue = textX
+        let textY = String(format: "Y: %d", gyro!.gyroY)
+        gyroYLabel.stringValue = textY
+        let textZ = String(format: "Z: %d", gyro!.gyroZ)
+        gyroZLabel.stringValue = textZ
     }
 }
 

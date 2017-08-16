@@ -1,9 +1,9 @@
 //
-//  OLEDSSH1106.swift
-//  WirekiteMacTest
+// Wirekite for MacOS
 //
-//  Created by Manuel Bleichenbacher on 15.08.17.
-//  Copyright © 2017 Codecrete. All rights reserved.
+// Copyright (c) 2017 Manuel Bleichenbacher
+// Licensed under MIT License
+// https://opensource.org/licenses/MIT
 //
 
 import Foundation
@@ -48,7 +48,6 @@ class OLEDSSH1106 {
     private static let EXTERNALVCC: UInt8 = 0x1
     private static let SWITCHCAPVCC: UInt8 = 0x2
     
-    // Scrolling private static lets
     private static let ACTIVATE_SCROLL: UInt8 = 0x2F
     private static let DeactivateScroll: UInt8 = 0x2E
     private static let SET_VERTICAL_SCROLL_AREA: UInt8 = 0xA3
