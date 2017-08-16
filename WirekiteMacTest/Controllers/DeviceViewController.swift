@@ -11,13 +11,14 @@ import Cocoa
 class DeviceViewController: NSViewController {
     
     // Configure attached test board
-    static let hasBuiltInLED = true
-    static let hasThreeLEDs = true
-    static let hasPushButton = true
-    static let hasTwoPotentiometers = true
-    static let hasServo = true
-    static let hasAnalogStick = true
-    static let hasAmmeter = false
+    static let hasBuiltInLED = false
+    static let hasThreeLEDs = false
+    static let hasPushButton = false
+    static let hasTwoPotentiometers = false
+    static let hasServo = false
+    static let hasAnalogStick = false
+    static let hasAmmeter = true
+    static let hasOLED = false
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -58,6 +59,9 @@ class DeviceViewController: NSViewController {
     // ammeter
     var ammeter: Ammeter? = nil
     var ammeterTimer: Timer? = nil
+    
+    // OLED display
+    var display: OLEDSSH1106? = nil
     
     
     // three LEDs
@@ -175,6 +179,10 @@ class DeviceViewController: NSViewController {
             if DeviceViewController.hasAmmeter {
                 ammeter = Ammeter(device: device, i2cPins: .SCL19_SDA18)
                 ammeterTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { timer in self.readAmps() }
+            }
+            
+            if DeviceViewController.hasOLED {
+                display = OLEDSSH1106(device: device, i2cPins: .SCL19_SDA18)
             }
             
         } else {
