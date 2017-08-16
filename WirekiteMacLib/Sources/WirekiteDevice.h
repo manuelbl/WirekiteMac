@@ -471,19 +471,24 @@ extern uint16_t InvalidPortID;
     @discussion The operation is executed sychnronously, i.e. the call blocks until the data
         has been transmitted or the transmission has failed.
  
+    @discussion If less than the specified number of bytes are transmitted,
+        [WirekiteDevice lastI2CResult:] returns the associated reason.
+ 
     @param port the I2C port ID
  
     @param data the data to transmit
  
     @param slave the slave address
+ 
+    @return the number of sent bytes
  */
-- (I2CResult) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
+- (int) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
 
 /*! @brief Request data from an I2C slave
  
     @discussion The operation is executed sychnronously, i.e. the call blocks until the
         transaction has been completed or has failed. If the transaction fails,
-        use [WirekiteDevice lastI2CResult] to retrieve the reason.
+        use [WirekiteDevice lastI2CResult:] to retrieve the reason.
  
     @param port the I2C port ID
  

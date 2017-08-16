@@ -856,6 +856,9 @@ retry:
 
 - (void) releaseI2CPort: (PortID)port
 {
+    if (deviceStatus != StatusReady)
+        return;
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -875,11 +878,11 @@ retry:
 }
 
 
-- (I2CResult) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
+- (int) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
 {
     Port* p = portList.getPort(port);
     if (p == nil)
-        return I2CResultInvalidParameter;
+        return 0;
     
     NSUInteger len = data.length;
     size_t msg_len = sizeof(wk_port_request) - 4 + len;
@@ -898,10 +901,10 @@ retry:
     free(request);
     wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
     
-    I2CResult result = (I2CResult)response->event_attribute1;
-    p->setLastSample(result);
+    uint16_t transmitted = response->event_attribute2;
+    p->setLastSample((I2CResult)response->event_attribute1);
     free(response);
-    return result;
+    return transmitted;
 }
 
 
@@ -929,10 +932,9 @@ retry:
     p->setLastSample(result);
     
     NSData* data = nil;
-    if (result == I2CResultOK) {
-        size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    if (dataLength > 0)
         data = [NSData dataWithBytes:response->data length:dataLength];
-    }
     
     free(response);
     return data;
