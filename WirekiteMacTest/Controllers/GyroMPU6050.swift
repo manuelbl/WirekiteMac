@@ -81,13 +81,8 @@ class GyroMPU6050 {
     
     private func readBytes(startRegister: UInt8, numBytes: Int) -> [UInt8] {
         let bytes: [UInt8] = [ startRegister ]
-        let data = Data(bytes: bytes)
-        let len = device!.send(onI2CPort: i2cPort, data: data, toSlave: gyroAddress)
-        if Int(len) != data.count {
-            NSLog("Failed to read gyro values")
-            return []
-        }
-        let result = device!.requetData(onI2CPort: i2cPort, fromSlave: gyroAddress, length: UInt16(numBytes))
+        let txData = Data(bytes: bytes)
+        let result = device!.sendAndRequest(onI2CPort: i2cPort, data: txData, toSlave: gyroAddress, receiveLength: UInt16(numBytes))
         if result?.count != numBytes {
             NSLog("Failed to read gyro values")
             return []

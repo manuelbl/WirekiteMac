@@ -468,7 +468,10 @@ extern uint16_t InvalidPortID;
 
 /*! @brief Send data to an I2C slave
  
-    @discussion The operation is executed sychnronously, i.e. the call blocks until the data
+    @discussion The operation performs a complete I2C transaction, starting with a START condition
+        and ending with a STOP condition.
+ 
+    @discussion The request is executed sychnronously, i.e. the call blocks until the data
         has been transmitted or the transmission has failed.
  
     @discussion If less than the specified number of bytes are transmitted,
@@ -486,6 +489,9 @@ extern uint16_t InvalidPortID;
 
 /*! @brief Request data from an I2C slave
  
+    @discussion The operation performs a complete I2C transaction, starting with a START condition
+        and ending with a STOP condition.
+ 
     @discussion The operation is executed sychnronously, i.e. the call blocks until the
         transaction has been completed or has failed. If the transaction fails,
         use [WirekiteDevice lastI2CResult:] to retrieve the reason.
@@ -496,9 +502,33 @@ extern uint16_t InvalidPortID;
  
     @param length the number of bytes of data requested from the slave
  
-    @return the received data or `nil` if it failed
+    @return the received data or `nil` if it fails
  */
 - (NSData*) requetDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length;
+
+/*! @brief Send data to and request data from an I2C slave in a single operation
+ 
+    @discussion The operation performs a complete I2C transaction, starting with a START condition,
+        a RESTART condition when switching from transmission to receipt, and ending with
+        a STOP condition.
+ 
+    @discussion The request is executed sychnronously, i.e. the call blocks until the data
+        has been transmitted and received, or the transmission has failed.
+ 
+    @discussion If less than the specified number of bytes are transmitted, `nil` is returned and
+        [WirekiteDevice lastI2CResult:] returns the associated reason.
+
+    @param port the I2C port ID
+
+    @param data the data to transmit
+
+    @param slave the slave address
+ 
+    @param receiveLength the number of bytes of data request from the slave
+
+    @return the received data or `nil` if the transaction fails
+ */
+- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave receiveLength: (uint16_t)receiveLength;
 
 /*! @brief Result code of the last send or receive
  

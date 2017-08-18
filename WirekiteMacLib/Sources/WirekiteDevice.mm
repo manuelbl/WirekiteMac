@@ -911,7 +911,7 @@ retry:
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = port;
     request.request_id = portList.nextRequestId();
-    request.action = WK_PORT_ACTION_REQUEST_DATA;
+    request.action = WK_PORT_ACTION_RX_DATA;
     request.action_attribute2 = slave;
     request.value1 = length;
     
@@ -928,6 +928,44 @@ retry:
     
     free(response);
     return data;
+}
+
+
+- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave receiveLength: (uint16_t)receiveLength
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return 0;
+    
+    NSUInteger len = data.length;
+    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->port_id = port;
+    request->request_id = portList.nextRequestId();
+    request->action = WK_PORT_ACTION_TX_N_RX_DATA;
+    request->action_attribute2 = slave;
+    request->value1 = receiveLength;
+    memcpy(request->data, data.bytes, len);
+    
+    [self writeMessage:&request->header];
+    uint16_t request_id = request->request_id;
+    free(request);
+
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
 }
 
 

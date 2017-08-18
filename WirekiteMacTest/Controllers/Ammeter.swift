@@ -62,10 +62,8 @@ class Ammeter {
     
     private func read(register: Int, length: Int) -> Int {
         let bytes: [UInt8] = [ UInt8(register) ]
-        let data = Data(bytes: bytes)
-        device?.send(onI2CPort: i2cPort, data: data, toSlave: ammeterAddress)
-        
-        if let data = device?.requetData(onI2CPort: i2cPort, fromSlave: ammeterAddress, length: 2) {
+        let txData = Data(bytes: bytes)
+        if let data = device!.sendAndRequest(onI2CPort: i2cPort, data: txData, toSlave: ammeterAddress, receiveLength: 2) {
             let bytes = [UInt8](data)
             return Int((Int16(bytes[0]) << 8) | Int16(bytes[1]))
         }
