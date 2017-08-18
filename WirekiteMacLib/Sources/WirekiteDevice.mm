@@ -547,7 +547,7 @@ retry:
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
-    request.data[0] = value ? 1 : 0;
+    request.value1 = value ? 1 : 0;
 
     [self writeMessage:&request.header];
 }
@@ -567,23 +567,19 @@ retry:
         return NO;
     
     wk_port_request request;
-    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_size = sizeof(wk_port_request) - 4;
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
     request.action_attribute1 = 0;
     request.action_attribute2 = 0;
     request.request_id = 0;
-    request.data[0] = 0;
-    request.data[1] = 0;
-    request.data[2] = 0;
-    request.data[3] = 0;
 
     [self writeMessage:&request.header];
 
     wk_port_event* event = port->waitForEvent();
     
-    BOOL result = event->data[0] != 0;
+    BOOL result = event->value1 != 0;
     free(event);
     return result;
 }
@@ -690,23 +686,19 @@ retry:
         return 0;
     
     wk_port_request request;
-    request.header.message_size = sizeof(wk_port_request);
+    request.header.message_size = sizeof(wk_port_request) - 4;
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
     request.action_attribute1 = 0;
     request.action_attribute2 = 0;
     request.request_id = 0;
-    request.data[0] = 0;
-    request.data[1] = 0;
-    request.data[2] = 0;
-    request.data[3] = 0;
     
     [self writeMessage:&request.header];
     
     wk_port_event* event = port->waitForEvent();
     
-    int16_t result = *(int16_t*)(&event->data);
+    int16_t result = (int16_t)event->value1;
     free(event);
     return result;
 }
@@ -774,8 +766,7 @@ retry:
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
-    int16_t* p = (int16_t*) &request.data;
-    *p = dutyCycle;
+    request.value1 = dutyCycle;
     
     [self writeMessage:&request.header];
 }
@@ -922,8 +913,7 @@ retry:
     request.request_id = portList.nextRequestId();
     request.action = WK_PORT_ACTION_REQUEST_DATA;
     request.action_attribute2 = slave;
-    uint16_t* slavePtr = (uint16_t*) &request.data;
-    *slavePtr = length;
+    request.value1 = length;
     
     [self writeMessage:&request.header];
     wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request.request_id);
@@ -973,7 +963,7 @@ retry:
             return;
             
         } else if (portType == PortTypeDigitalInputPrecached || portType == PortTypeDigitalInputTriggering) {
-            uint8_t value = event->data[0];
+            uint8_t value = (uint8_t)event->value1;
             free(event);
             port->setLastSample(value);
             
@@ -994,7 +984,7 @@ retry:
             return;
             
         } else if (portType == PortTypeAnalogInputSampling) {
-            int16_t value = (event->data[1] << 8) | event->data[0];
+            int16_t value = (int16_t)event->value1;
             free(event);
             port->setLastSample(value);
             
