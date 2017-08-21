@@ -18,7 +18,7 @@ class DeviceViewController: NSViewController {
     static let hasServo = false
     static let hasAnalogStick = false
     static let hasAmmeter = true
-    static let hasOLED = false
+    static let hasOLED = true
     static let hasGyro = true
     
     static let indicatorColorNormal = NSColor.black
@@ -66,6 +66,7 @@ class DeviceViewController: NSViewController {
     
     // OLED display
     var display: OLEDSSH1106? = nil
+    var displayTimer: Timer? = nil
     
     // Gyro / accelerometer
     var gyro: GyroMPU6050? = nil
@@ -190,8 +191,8 @@ class DeviceViewController: NSViewController {
                 analogStick.indicatorColor = device.readDigitalPin(onPort: stickPushButtonPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             }
             
-            if DeviceViewController.hasAmmeter || DeviceViewController.hasOLED || DeviceViewController.hasGyro {
-                i2cPort = device.configureI2CMaster(.SCL19_SDA18, frequency: 100000)
+            if DeviceViewController.hasAmmeter || DeviceViewController.hasGyro {
+                i2cPort = device.configureI2CMaster(.SCL16_SDA17, frequency: 100000)
             }
             
             if DeviceViewController.hasAmmeter {
@@ -200,7 +201,8 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasOLED {
-                display = OLEDSSH1106(device: device, i2cPort: i2cPort)
+                display = OLEDSSH1106(device: device, i2cPins: .SCL22_SDA23)
+                displayTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in self.updateDisplay() }
             }
             
             if DeviceViewController.hasGyro {
@@ -279,6 +281,10 @@ class DeviceViewController: NSViewController {
         gyroYLabel.stringValue = textY
         let textZ = String(format: "Z: %d", gyro!.gyroZ)
         gyroZLabel.stringValue = textZ
+    }
+    
+    func updateDisplay() {
+        display!.showTile()
     }
 }
 
