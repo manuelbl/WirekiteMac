@@ -65,7 +65,7 @@ class DeviceViewController: NSViewController {
     var ammeterTimer: Timer? = nil
     
     // OLED display
-    var display: OLEDSSH1106? = nil
+    var display: OLEDDisplay? = nil
     var displayTimer: Timer? = nil
     
     // Gyro / accelerometer
@@ -96,6 +96,7 @@ class DeviceViewController: NSViewController {
     @IBOutlet weak var gyroYLabel: NSTextField!
     @IBOutlet weak var gyroZLabel: NSTextField!
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         resetUI(enabled: false)
@@ -123,6 +124,8 @@ class DeviceViewController: NSViewController {
         ammeterTimer = nil
         gyroTimer?.invalidate()
         gyroTimer = nil
+        displayTimer?.invalidate()
+        displayTimer = nil
     }
 
     func configurePins() {
@@ -201,8 +204,9 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasOLED {
-                display = OLEDSSH1106(device: device, i2cPins: .SCL22_SDA23)
-                displayTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in self.updateDisplay() }
+                display = OLEDDisplay(device: device, i2cPins: .SCL22_SDA23)
+                display!.DisplayOffset = 2
+                displayTimer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { timer in self.updateDisplay() }
             }
             
             if DeviceViewController.hasGyro {
