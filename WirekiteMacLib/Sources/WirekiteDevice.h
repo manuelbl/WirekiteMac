@@ -468,24 +468,40 @@ extern uint16_t InvalidPortID;
 
 /*! @brief Send data to an I2C slave
  
-    @discussion The operation performs a complete I2C transaction, starting with a START condition
+     @discussion The operation performs a complete I2C transaction, starting with a START condition
         and ending with a STOP condition.
- 
-    @discussion The request is executed sychnronously, i.e. the call blocks until the data
+     
+     @discussion The request is executed sychnronously, i.e. the call blocks until the data
         has been transmitted or the transmission has failed.
- 
-    @discussion If less than the specified number of bytes are transmitted,
+     
+     @discussion If less than the specified number of bytes are transmitted,
         [WirekiteDevice lastI2CResult:] returns the associated reason.
- 
-    @param port the I2C port ID
- 
-    @param data the data to transmit
- 
-    @param slave the slave address
- 
-    @return the number of sent bytes
+     
+     @param port the I2C port ID
+     
+     @param data the data to transmit
+     
+     @param slave the slave address
+     
+     @return the number of sent bytes
  */
 - (int) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
+
+/*! @brief Submits data to be sent to an I2C slave
+ 
+     @discussion The operation performs a complete I2C transaction, starting with a START condition
+        and ending with a STOP condition.
+     
+     @discussion The request is executed asychnronously, i.e. the call returns immediately. If the
+        transaction fails, a message appears in the log.
+     
+     @param port the I2C port ID
+     
+     @param data the data to transmit
+     
+     @param slave the slave address
+ */
+- (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
 
 /*! @brief Request data from an I2C slave
  
@@ -504,7 +520,7 @@ extern uint16_t InvalidPortID;
  
     @return the received data or `nil` if it fails
  */
-- (NSData*) requetDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length;
+- (NSData*) requestDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length;
 
 /*! @brief Send data to and request data from an I2C slave in a single operation
  

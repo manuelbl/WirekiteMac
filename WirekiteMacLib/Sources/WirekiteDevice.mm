@@ -875,22 +875,10 @@ retry:
     if (p == nil)
         return 0;
     
-    NSUInteger len = data.length;
-    size_t msg_len = sizeof(wk_port_request) - 4 + len;
-    wk_port_request* request = (wk_port_request*)malloc(msg_len);
-    memset(request, 0, msg_len);
-    request->header.message_size = msg_len;
-    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request->port_id = port;
-    request->request_id = portList.nextRequestId();
-    request->action = WK_PORT_ACTION_TX_DATA;
-    request->action_attribute2 = slave;
-    memcpy(request->data, data.bytes, len);
+    uint16_t requestId = portList.nextRequestId();
+    [self submitSendOnI2CPort:port data:data toSlave:slave requestId:requestId];
     
-    [self writeMessage:&request->header];
-    uint16_t request_id = request->request_id;
-    free(request);
-    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(requestId);
     
     uint16_t transmitted = response->event_attribute2;
     p->setLastSample((I2CResult)response->event_attribute1);
@@ -899,7 +887,36 @@ retry:
 }
 
 
-- (NSData*) requetDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length
+- (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return;
+    
+    [self submitSendOnI2CPort:port data:data toSlave:slave requestId:0];
+}
+
+
+- (void) submitSendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave requestId: (uint16) requestId
+{
+    NSUInteger len = data.length;
+    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->port_id = port;
+    request->request_id = requestId;
+    request->action = WK_PORT_ACTION_TX_DATA;
+    request->action_attribute2 = slave;
+    memcpy(request->data, data.bytes, len);
+    
+    [self writeMessage:&request->header];
+    free(request);
+}
+
+
+- (NSData*) requestDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length
 {
     Port* p = portList.getPort(port);
     if (p == nil)
@@ -1044,7 +1061,11 @@ retry:
         
         PortType portType = port->type();
         if (portType == PortTypeI2C) {
-            pendingRequests.putResponse(event->request_id, (wk_msg_header*)event);
+            if (event->request_id != 0) {
+                pendingRequests.putResponse(event->request_id, (wk_msg_header*)event);
+            } else {
+                free(event);
+            }
             return;
         }    
     }

@@ -177,10 +177,7 @@ class OLEDDisplay {
                 tile[i + 7] = UInt8(byte)
             }
             let data = Data(bytes: tile)
-            let numSent = Int(device!.send(onI2CPort: i2cPort, data: data, toSlave: displayAddress))
-            if numSent != data.count {
-                NSLog("Sending command to OLED display failed")
-            }
+            device!.submit(onI2CPort: i2cPort, data: data, toSlave: displayAddress)
         }
     }
     
