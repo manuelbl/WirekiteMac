@@ -51,8 +51,11 @@ typedef struct {
     io_object_t notification;
     IOUSBDeviceInterface** device;
     IOUSBInterfaceInterface** interface;
-    uint16_t rxBuffer[2][RX_BUFFER_SIZE];
+    uint8_t rxBuffer[2][RX_BUFFER_SIZE];
     int pendingBuffer;
+    wk_msg_header* partialMessage;
+    UInt32 partialMessageSize;
+    UInt32 partialSize;
     
     DeviceStatus deviceStatus;
 
@@ -386,37 +389,104 @@ retry:
         return;
     }
     
-    int bufIndex = pendingBuffer;
+    uint8_t* data = rxBuffer[pendingBuffer];
     pendingBuffer ^= 1;
     [self submitRead];
     
     UInt32 receivedBytes = (UInt32)(unsigned long) arg0;
-    UInt32 processedBytes = 0;
-    while (processedBytes < receivedBytes) {
-        wk_msg_header* header = (wk_msg_header*)(rxBuffer[bufIndex] + processedBytes);
+    
+    if (partialSize > 0) {
+        // there is a partial message from the last USB packet
+        
+        if (partialSize == 1) {
+            // super special case: only half of the first word
+            // was transmitted
+            partialMessageSize += ((UInt32)data[0]) << 8;
+            partialMessage = (wk_msg_header*)malloc(partialMessageSize);
+            partialMessage->message_size = partialMessageSize;
+        }
+        
+        uint16_t len = receivedBytes;
+        if (partialSize + len > partialMessageSize)
+            len = partialMessageSize - partialSize;
+        
+        // append to partial message (buffer is big enough)
+        memcpy(((uint8_t*)partialMessage) + partialSize, data, len);
+        data += len;
+        receivedBytes -= len;
+        partialSize += len;
+        
+        // if message is complete handle it
+        if (partialSize == partialMessageSize) {
+            [self handleMessage:partialMessage];
+            partialSize = 0;
+            partialMessageSize = 0;
+            partialMessage = NULL;
+        }
+    }
+    
+    // Handle entire messages
+    while (receivedBytes >= 2) {
+        wk_msg_header* header = (wk_msg_header*)data;
         uint16_t msgSize = header->message_size;
+        if (receivedBytes < msgSize)
+            break; // partial message
+        
+        if (msgSize < 8) {
+            NSLog(@"Wirkeite: Invalid message of size %d received", msgSize);
+            return;
+        }
+        
+        // create copy
         wk_msg_header* copy = (wk_msg_header*) malloc(msgSize);
         memcpy(copy, header, msgSize);
+
+        [self handleMessage:copy];
         
-        //NSLog(@"%s", MessageDump::dump(header).c_str());
+        data += msgSize;
+        receivedBytes -= msgSize;
+    }
+    
+    // Handle remainder
+    if (receivedBytes > 0) {
+        // a partial message remains
         
-        if (header->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
-            wk_config_response* config_response = (wk_config_response*)copy;
-            if (deviceStatus == StatusReady || config_response->request_id == 0xffff)
-                [self handleConfigResponse: config_response];
-            else
-                free(copy);
-        } else if (header->message_type == WK_MSG_TYPE_PORT_EVENT) {
-            if (deviceStatus == StatusReady)
-                [self handlePortEvent: (wk_port_event*)copy];
-            else
-                free(copy);
+        if (receivedBytes == 1) {
+            // super special case: only 1 byte was transmitted;
+            // we don't know the size of the message
+            partialSize = 1;
+            partialMessageSize = data[0];
+            
         } else {
-            NSLog(@"Wirekite: Message of unknown type %d received", msgSize);
-            free(copy);
+            // allocate buffer
+            wk_msg_header* header = (wk_msg_header*)data;
+            partialMessageSize = header->message_size;
+            partialMessage = (wk_msg_header*)malloc(partialMessageSize);
+            partialSize = receivedBytes;
+            memcpy(partialMessage, data, receivedBytes);
         }
-        processedBytes += msgSize;
-        // TODO: partial messages
+    }
+}
+
+
+- (void)handleMessage: (wk_msg_header*) msg
+{
+    //NSLog(@"%s", MessageDump::dump(msg).c_str());
+
+    if (msg->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
+        wk_config_response* config_response = (wk_config_response*)msg;
+        if (deviceStatus == StatusReady || config_response->request_id == 0xffff)
+            [self handleConfigResponse: config_response];
+        else
+            free(msg);
+    } else if (msg->message_type == WK_MSG_TYPE_PORT_EVENT) {
+        if (deviceStatus == StatusReady)
+            [self handlePortEvent: (wk_port_event*)msg];
+        else
+            free(msg);
+    } else {
+        NSLog(@"Wirekite: Message of unknown type %d received", msg->message_type);
+        free(msg);
     }
 }
 

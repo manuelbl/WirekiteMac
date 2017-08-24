@@ -179,6 +179,19 @@ class OLEDDisplay {
             let data = Data(bytes: tile)
             device!.submit(onI2CPort: i2cPort, data: data, toSlave: displayAddress)
         }
+        
+        /*
+        // Just for the fun of it: read back some of the data
+        let cmd: [UInt8] = [
+            0x80, OLEDDisplay.SetPageAddress + UInt8(4),
+            0x80, OLEDDisplay.SetColumnAddressLow | UInt8(DisplayOffset & 0x0f),
+            0x80, OLEDDisplay.SetColumnAddressHigh | UInt8((DisplayOffset >> 4) & 0x0f),
+            0x40
+        ]
+        let data1 = Data(bytes: cmd)
+        let response = device!.sendAndRequest(onI2CPort: i2cPort, data: data1, toSlave: displayAddress, receiveLength: UInt16(Width))!
+        let responseBytes = [UInt8](response)
+        */
     }
     
     
