@@ -263,12 +263,12 @@ class OLEDDisplay {
                     nextLine[x - 2] += err >> 4
                 }
                 if x < width - 1 {
-                    currLine[x + 1] = err >> 2
-                    nextLine[x + 1] = err >> 3
+                    currLine[x + 1] += err >> 2
+                    nextLine[x + 1] += err >> 3
                 }
                 if x < width - 2 {
-                    currLine[x + 2] = err >> 3
-                    nextLine[x + 2] = err >> 4
+                    currLine[x + 2] += err >> 3
+                    nextLine[x + 2] += err >> 4
                 }
             }
         }
