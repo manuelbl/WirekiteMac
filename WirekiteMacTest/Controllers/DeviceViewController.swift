@@ -194,8 +194,8 @@ class DeviceViewController: NSViewController {
                 analogStick.indicatorColor = device.readDigitalPin(onPort: stickPushButtonPin) ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
             }
             
-            if DeviceViewController.hasAmmeter || DeviceViewController.hasGyro {
-                i2cPort = device.configureI2CMaster(.SCL16_SDA17, frequency: 100000)
+            if DeviceViewController.hasAmmeter || DeviceViewController.hasOLED || DeviceViewController.hasGyro {
+                i2cPort = device.configureI2CMaster(.SCL16_SDA17, frequency: 400000)
             }
             
             if DeviceViewController.hasAmmeter {
@@ -204,7 +204,7 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasOLED {
-                display = OLEDDisplay(device: device, i2cPins: .SCL22_SDA23)
+                display = OLEDDisplay(device: device, i2cPort: i2cPort)
                 display!.DisplayOffset = 2
                 displayTimer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { timer in self.updateDisplay() }
             }
