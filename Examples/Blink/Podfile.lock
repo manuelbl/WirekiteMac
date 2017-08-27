@@ -1,11 +1,11 @@
 PODS:
-  - WirekiteMac (0.2.0)
+  - WirekiteMac (0.3.0)
 
 DEPENDENCIES:
   - WirekiteMac
 
 SPEC CHECKSUMS:
-  WirekiteMac: a87a64bb4ab089064580a4e10a88bf5f7e3c1c3b
+  WirekiteMac: c8fbb0131881afd3106b8003e52d0e4c83ce2869
 
 PODFILE CHECKSUM: ce10f5eabb74b554ccc7d5e68fb3b0f525a68c44
 
