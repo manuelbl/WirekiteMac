@@ -73,7 +73,8 @@ std::string MessageDump::dump(wk_msg_header* msg)
         buf << "request_id: " << request->request_id << "\n";
         buf << "pin_config: " << request->pin_config << "\n";
         buf << "value1: " << request->value1 << "\n";
-        buf << "port_attributes: " << request->port_attributes << "\n";
+        buf << "port_attributes1: " << request->port_attributes1 << "\n";
+        buf << "port_attributes2: " << request->port_attributes2 << "\n";
     } else if (msg->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
         wk_config_response* response = (wk_config_response*)msg;
         buf << "result: " << response->result << "\n";

@@ -562,7 +562,7 @@ retry:
     request.action = WK_CFG_ACTION_CONFIG_PORT;
     request.port_type = WK_CFG_PORT_TYPE_DIGI_PIN;
     request.request_id = portList.nextRequestId();
-    request.port_attributes = attributes;
+    request.port_attributes1 = attributes;
     request.pin_config = pin;
     
     [self writeMessage:&request.header];
@@ -637,13 +637,11 @@ retry:
         return NO;
     
     wk_port_request request;
+    memset(&request, 0, sizeof(request));
     request.header.message_size = sizeof(wk_port_request) - 4;
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
-    request.action_attribute1 = 0;
-    request.action_attribute2 = 0;
-    request.request_id = 0;
 
     [self writeMessage:&request.header];
 
@@ -756,13 +754,11 @@ retry:
         return 0;
     
     wk_port_request request;
+    memset(&request, 0, sizeof(wk_port_request));
     request.header.message_size = sizeof(wk_port_request) - 4;
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
-    request.action_attribute1 = 0;
-    request.action_attribute2 = 0;
-    request.request_id = 0;
     
     [self writeMessage:&request.header];
     
@@ -852,7 +848,7 @@ retry:
     request.port_type = WK_CFG_MODULE_PWM_TIMER;
     request.request_id = portList.nextRequestId();
     request.pin_config = timer;
-    request.port_attributes = attributes;
+    request.port_attributes1 = attributes;
     request.value1 = frequency;
     
     [self writeMessage:&request.header];
@@ -872,7 +868,7 @@ retry:
     request.port_type = WK_CFG_MODULE_PWM_CHANNEL;
     request.request_id = portList.nextRequestId();
     request.pin_config = timer;
-    request.port_attributes = attributes;
+    request.port_attributes1 = attributes;
     request.value1 = channel;
     
     [self writeMessage:&request.header];
