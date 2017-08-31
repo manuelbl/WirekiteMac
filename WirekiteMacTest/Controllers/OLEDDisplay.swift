@@ -180,18 +180,22 @@ class OLEDDisplay {
             device!.submit(onI2CPort: i2cPort, data: data, toSlave: displayAddress)
         }
         
-        /*
         // Just for the fun of it: read back some of the data
+        // It's unclear why the data is offset by 1 pixel and the first byte differs
         let cmd: [UInt8] = [
-            0x80, OLEDDisplay.SetPageAddress + UInt8(4),
-            0x80, OLEDDisplay.SetColumnAddressLow | UInt8(DisplayOffset & 0x0f),
-            0x80, OLEDDisplay.SetColumnAddressHigh | UInt8((DisplayOffset >> 4) & 0x0f),
+            0x80, OLEDDisplay.SetPageAddress + UInt8(7),
+            0x80, OLEDDisplay.SetColumnAddressLow | UInt8((DisplayOffset + 1) & 0x0f),
+            0x80, OLEDDisplay.SetColumnAddressHigh | UInt8(((DisplayOffset + 1) >> 4) & 0x0f),
             0x40
         ]
-        let data1 = Data(bytes: cmd)
-        let response = device!.sendAndRequest(onI2CPort: i2cPort, data: data1, toSlave: displayAddress, receiveLength: UInt16(Width))!
+        let cmdData = Data(bytes: cmd)
+        let response = device!.sendAndRequest(onI2CPort: i2cPort, data: cmdData, toSlave: displayAddress, receiveLength: UInt16(Width))!
         let responseBytes = [UInt8](response)
-        */
+        
+        // compare data
+        for i in 1 ..< Width {
+            assert(tile[i + 7] == responseBytes[i])
+        }
     }
     
     

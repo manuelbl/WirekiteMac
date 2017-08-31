@@ -11,7 +11,7 @@ import Cocoa
 class DeviceViewController: NSViewController {
     
     // Configure attached test board
-    static let hasBuiltInLED = false
+    static let hasBuiltInLED = true
     static let hasThreeLEDs = false
     static let hasPushButton = false
     static let hasTwoPotentiometers = false
@@ -95,6 +95,7 @@ class DeviceViewController: NSViewController {
     @IBOutlet weak var gyroXLabel: NSTextField!
     @IBOutlet weak var gyroYLabel: NSTextField!
     @IBOutlet weak var gyroZLabel: NSTextField!
+    @IBOutlet weak var gyroTempLabel: NSTextField!
     
     
     override func viewDidLoad() {
@@ -285,6 +286,8 @@ class DeviceViewController: NSViewController {
         gyroYLabel.stringValue = textY
         let textZ = String(format: "Z: %d", gyro!.gyroZ)
         gyroZLabel.stringValue = textZ
+        let textTemp = String(format: "Temp: %3.1f", gyro!.temperature)
+        gyroTempLabel.stringValue = textTemp
     }
     
     func updateDisplay() {
