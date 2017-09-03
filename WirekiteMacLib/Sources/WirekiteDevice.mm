@@ -773,7 +773,7 @@ retry:
 #pragma mark - PWM output
 
 
-- (PortID) configurePWMOutputPin:(PWMPin)pin
+- (PortID) configurePWMOutputPin:(int)pin
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));

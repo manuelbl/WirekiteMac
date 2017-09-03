@@ -78,6 +78,22 @@ typedef NS_ENUM(NSInteger, AnalogPin) {
     AnalogPinA11 = 11,
     /*! @brief Analog pin A12 */
     AnalogPinA12 = 12,
+    /*! @brief Analog pin A13 */
+    AnalogPinA13 = 13,
+    /*! @brief Analog pin A14 */
+    AnalogPinA14 = 14,
+    /*! @brief Analog pin A15 */
+    AnalogPinA15 = 15,
+    /*! @brief Analog pin A16 */
+    AnalogPinA16 = 16,
+    /*! @brief Analog pin A17 */
+    AnalogPinA17 = 17,
+    /*! @brief Analog pin A18 */
+    AnalogPinA18 = 18,
+    /*! @brief Analog pin A19 */
+    AnalogPinA19 = 19,
+    /*! @brief Analog pin A20 */
+    AnalogPinA20 = 20,
     /*! @brief Vref / Vref high */
     AnalogPinVREF = 128,
     /*! @brief Temperature */
@@ -86,31 +102,6 @@ typedef NS_ENUM(NSInteger, AnalogPin) {
     AnalogPinVREFL = 130,
     /*! @brief Band gap */
     AnalogPinBandGap = 131
-};
-
-
-/*! @brief PWM pin */
-typedef NS_ENUM(NSInteger, PWMPin) {
-    /*! @brief Pin 3 */
-    PWMPin3 = 0,
-    /*! @brief Pin 4 */
-    PWMPin4 = 1,
-    /*! @brief Pin 6 */
-    PWMPin6 = 2,
-    /*! @brief Pin 9 */
-    PWMPin9 = 3,
-    /*! @brief Pin 10 */
-    PWMPin10 = 4,
-    /*! @brief Pin 16 */
-    PWMPin16 = 5,
-    /*! @brief Pin 17 */
-    PWMPin17 = 6,
-    /*! @brief Pin 20 */
-    PWMPin20 = 7,
-    /*! @brief Pin 22 */
-    PWMPin22 = 8,
-    /*! @brief Pin 23 */
-    PWMPin23 = 9
 };
 
 
@@ -141,8 +132,10 @@ typedef NS_ENUM(NSInteger, I2CPins) {
     I2CPinsSCL16_SDA17 = 0,
     /*! @brief SCL/SDA pin pair 19/18 for I2C module 0 */
     I2CPinsSCL19_SDA18 = 1,
-    /*! @brief SCL/SDA pin pair 22/23 for I2C module 1 */
-    I2CPinsSCL22_SDA23 = 2
+    /*! @brief SCL/SDA pin pair 22/23 for I2C module 1 (Teensy LC only) */
+    I2CPinsSCL22_SDA23 = 2,
+    /*! @brief SCL/SDA pin pair 29/30 for I2C module 1 (Teensy 3.2 only)*/
+    I2CPinsSCL29_SDA30 = 2
 };
 
 /*! @brief Result code for I2C send and receive transactions */
@@ -157,8 +150,14 @@ typedef NS_ENUM(NSInteger, I2CResult) {
     I2CResultAddressNAK = 3,
     /*! @brief Transmitted data was not acknowledged */
     I2CResultDataNAK = 4,
-    /*! @brief Invalid parameters were specified */
-    I2CResultInvalidParameter = 5
+    /*! @brief Wirekite has insufficient memory to buffer the data */
+    I2CResultOutOfMemory = 5,
+    /*! @brief I2C bus is budy */
+    I2CResultBusBusy = 6,
+    /*! @brief Unknown error occurred */
+    I2CResultUnknownError = 7,
+    /*! @brief An invalid parameter was specified */
+    I2CResultInvalidParameter = 8
 };
 
 
@@ -398,11 +397,11 @@ extern uint16_t InvalidPortID;
 
 /*! @brief Configures a pin as a PWM output.
  
-    @param pin the PWM pin
+    @param pin the pin number as labelled on board
  
     @return the port ID
  */
-- (PortID) configurePWMOutputPin: (PWMPin)pin;
+- (PortID) configurePWMOutputPin: (int)pin;
 
 /*! @brief Releases the PWM output
  

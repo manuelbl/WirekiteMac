@@ -172,12 +172,12 @@ class DeviceViewController: NSViewController {
                     }
                 }
                 device.configurePWMChannel(0, channel: 3, attributes: [])
-                pwmOutPin = device.configurePWMOutputPin(.pin10)
+                pwmOutPin = device.configurePWMOutputPin(10)
             }
             
             if DeviceViewController.hasServo {
-                device.configurePWMTimer(2, frequency: 100, attributes: [])
-                servoPin = device.configurePWMOutputPin(.pin4)
+                device.configurePWMTimer(1, frequency: 100, attributes: [])
+                servoPin = device.configurePWMOutputPin(4)
                 device.writePWMPin(onPort: servoPin, dutyCycle: 4915)
                 servoTimer = Timer.scheduledTimer(withTimeInterval: 0.005, repeats: true) { timer in self.moveServo() }
             }
