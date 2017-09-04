@@ -12,14 +12,14 @@ class DeviceViewController: NSViewController {
     
     // Configure attached test board
     static let hasBuiltInLED = true
-    static let hasThreeLEDs = false
-    static let hasPushButton = false
-    static let hasTwoPotentiometers = false
-    static let hasServo = false
-    static let hasAnalogStick = false
-    static let hasAmmeter = true
-    static let hasOLED = true
-    static let hasGyro = true
+    static let hasThreeLEDs = true
+    static let hasPushButton = true
+    static let hasTwoPotentiometers = true
+    static let hasServo = true
+    static let hasAnalogStick = true
+    static let hasAmmeter = false
+    static let hasOLED = false
+    static let hasGyro = false
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -45,7 +45,7 @@ class DeviceViewController: NSViewController {
     var dutyCyclePin: PortID = 0
     var frequencyPin: PortID = 0
     var pwmOutPin: PortID = 0
-    var prevFrequencyValue: Int16 = 3000
+    var prevFrequencyValue: Double = 3000
     
     // analog stick
     var voltageXPin: PortID = 0
@@ -54,7 +54,7 @@ class DeviceViewController: NSViewController {
 
     // servo
     var servoTimer: Timer? = nil
-    var servoPin: PortID = 0
+    var servo: Servo? = nil
     var servoPos: Double = 0
     
     // I2C bus
@@ -157,15 +157,15 @@ class DeviceViewController: NSViewController {
             
             if DeviceViewController.hasTwoPotentiometers {
                 dutyCyclePin = device.configureAnalogInputPin(.A4, interval: 127) { _, value in
-                    let text = String(format: "%3.0f %%", Double(value) * 100 / 32767)
+                    let text = String(format: "%3.0f %%", value * 100)
                     self.dutyCycleValueLabel.stringValue = text
                     self.device!.writePWMPin(onPort: self.pwmOutPin, dutyCycle: value)
                 }
                 
                 frequencyPin = device.configureAnalogInputPin(.A1, interval: 149) { _, value in
-                    if abs(Int(value - self.prevFrequencyValue)) > 100 {
+                    if abs(value - self.prevFrequencyValue) > 0.005 {
                         self.prevFrequencyValue = value
-                        let frequency = UInt32((exp(exp(Double(value) / 32767)) - exp(1)) * 900 + 10)
+                        let frequency = Int((exp(exp(value)) - exp(1)) * 900 + 10)
                         self.device!.configurePWMTimer(0, frequency: frequency, attributes: [])
                         let text = String(format: "%d Hz", frequency)
                         self.frequencyValueLabel.stringValue = text
@@ -177,17 +177,17 @@ class DeviceViewController: NSViewController {
             
             if DeviceViewController.hasServo {
                 device.configurePWMTimer(1, frequency: 100, attributes: [])
-                servoPin = device.configurePWMOutputPin(4)
-                device.writePWMPin(onPort: servoPin, dutyCycle: 4915)
+                servo = Servo(device: device, pin: 4)
+                servo!.turnOn(initialAngle: 0)
                 servoTimer = Timer.scheduledTimer(withTimeInterval: 0.005, repeats: true) { timer in self.moveServo() }
             }
  
             if DeviceViewController.hasAnalogStick {
                 voltageXPin = device.configureAnalogInputPin(.A8, interval: 137) { _, value in
-                    self.analogStick.directionX = 1.0 - Double(value) / 16383.0
+                    self.analogStick.directionX = 1.0 - value * 2
                 }
                 voltageYPin = device.configureAnalogInputPin(.A9, interval: 139) { _, value in
-                    self.analogStick.directionY = 1.0 - Double(value) / 16383.0
+                    self.analogStick.directionY = 1.0 - value * 2
                 }
                 stickPushButtonPin = device.configureDigitalInputPin(20, attributes: [.triggerRaising, .triggerFalling, .pullup]) {
                     _, value in self.analogStick.indicatorColor = value ? DeviceViewController.indicatorColorNormal : DeviceViewController.indicatorColorPressed
@@ -247,16 +247,7 @@ class DeviceViewController: NSViewController {
         if servoPos > 210 {
             servoPos = -30
         }
-        
-        let pulseWidth0Deg = 0.54
-        let pulseWidth180Deg = 2.14
-        let dutyCycleRange = 32767.0
-        let frequency = 100.0
-        
-        let pos = servoPos < 0 ? 0 : (servoPos > 180 ? 180 : servoPos)
-        let length_ms = pos / Double(180) * (pulseWidth180Deg - pulseWidth0Deg) + pulseWidth0Deg
-        let dutyCycle = Int16(length_ms / (1000 / frequency) * dutyCycleRange + 0.5)
-        device!.writePWMPin(onPort: servoPin, dutyCycle: dutyCycle)
+        servo!.move(toAngle: servoPos)
     }
     
     @IBAction func onCheckboxClicked(_ sender: Any) {

@@ -46,7 +46,7 @@ class OLEDDisplay {
     private var offset = 0
     
     /** I2C slave address */
-    var displayAddress: UInt16 = 0x3C
+    var displayAddress: Int = 0x3C
     
     /** Display width (in pixel) */
     let Width = 128
@@ -189,7 +189,7 @@ class OLEDDisplay {
             0x40
         ]
         let cmdData = Data(bytes: cmd)
-        let response = device!.sendAndRequest(onI2CPort: i2cPort, data: cmdData, toSlave: displayAddress, receiveLength: UInt16(Width))!
+        let response = device!.sendAndRequest(onI2CPort: i2cPort, data: cmdData, toSlave: displayAddress, receiveLength: Width)!
         let responseBytes = [UInt8](response)
         
         // compare data

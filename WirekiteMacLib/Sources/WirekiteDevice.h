@@ -12,7 +12,7 @@
 @class WirekiteDevice;
 @class WirekiteService;
 
-typedef uint16_t PortID;
+typedef long PortID;
 
 
 /*! @brief Additional features of digital inputs.*/
@@ -162,12 +162,12 @@ typedef NS_ENUM(NSInteger, I2CResult) {
 
 
 typedef void (^DigitalInputPinCallback)(PortID, BOOL);
-typedef void (^AnalogInputPinCallback)(PortID, int16_t);
+typedef void (^AnalogInputPinCallback)(PortID, double);
 
 
 /*! @brief Invalid port ID
  */
-extern uint16_t InvalidPortID;
+extern long InvalidPortID;
 
 
 /*! @brief Delegate protocol for notifications about the device
@@ -183,7 +183,7 @@ extern uint16_t InvalidPortID;
  
     @param device the removed device
  */
-- (void) disconnectedDevice: (WirekiteDevice*) device;
+- (void) disconnectedDevice: (WirekiteDevice* _Nonnull) device;
 
 @end
 
@@ -200,17 +200,17 @@ extern uint16_t InvalidPortID;
 
 /*! @brief Delegate for notifications about the device.
  */
-@property (weak) id<WirekiteDeviceDelegate> delegate;
+@property (weak) id<WirekiteDeviceDelegate> _Nullable delegate;
 
 /*! @brief Wirekite serivce that created this device.
  */
-@property WirekiteService* wirekiteService;
+@property WirekiteService* _Nullable wirekiteService;
 
 /*! @brief Creates a device
  
     @discussion Do not create devices yourself. Instead have the @[WirekiteService] create them.
  */
-- (instancetype) init;
+- (instancetype _Nonnull ) init;
 
 /*! @brief Closes the communication to the device.
  
@@ -238,8 +238,20 @@ extern uint16_t InvalidPortID;
     @param attributes attributes of the digital output (such as current strength)
  
     @return the port ID
-*/
-- (PortID) configureDigitalOutputPin: (int)pin attributes: (DigitalOutputPinAttributes)attributes;
+ */
+- (PortID) configureDigitalOutputPin: (long)pin attributes: (DigitalOutputPinAttributes)attributes;
+
+/*! @brief Configures a pin as a digital output.
+ 
+    @param pin the pin number
+ 
+    @param attributes attributes of the digital output (such as current strength)
+ 
+    @param initialValue the initial value of the output: YES / true / 1 for high, NO / false / 0 for low
+ 
+    @return the port ID
+ */
+- (PortID) configureDigitalOutputPin: (long)pin attributes: (DigitalOutputPinAttributes)attributes initialValue: (BOOL)initialValue;
 
 /*! @brief Configures a pin as a digital input.
  
@@ -253,7 +265,7 @@ extern uint16_t InvalidPortID;
 
     @return the port ID
  */
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes
                       communication: (InputCommunication) communication;
 
 /*! @brief Configures a pin as a digital input and notifies about all changes.
@@ -273,7 +285,7 @@ extern uint16_t InvalidPortID;
  
     @return the port ID
  */
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes notification: (DigitalInputPinCallback)notifyBlock;
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes notification: (DigitalInputPinCallback _Nullable)notifyBlock;
 
 /*! @brief Configures a pin as a digital input and notifies about all changes.
  
@@ -292,7 +304,7 @@ extern uint16_t InvalidPortID;
  
     @return the port ID
  */
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes dispatchQueue: (dispatch_queue_t)dispatchQueue notification: (DigitalInputPinCallback)notifyBlock;
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes dispatchQueue: (dispatch_queue_t _Nonnull)dispatchQueue notification: (DigitalInputPinCallback _Nullable)notifyBlock;
 
 /*! @brief Releases the digital input or output pin
  
@@ -352,7 +364,7 @@ extern uint16_t InvalidPortID;
  
     @return the port ID
  */
-- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(uint32_t)interval notification: (AnalogInputPinCallback)notifyBlock;
+- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(long)interval notification: (AnalogInputPinCallback _Nullable)notifyBlock;
 
 /*! @brief Configures a pin as an analog input pin with automatic sampling at a specified interval.
  
@@ -370,7 +382,7 @@ extern uint16_t InvalidPortID;
  
     @return the port ID
  */
-- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(uint32_t)interval dispatchQueue: (dispatch_queue_t)dispatchQueue notification: (AnalogInputPinCallback)notifyBlock;
+- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(long)interval dispatchQueue: (dispatch_queue_t _Nonnull)dispatchQueue notification: (AnalogInputPinCallback _Nullable)notifyBlock;
 
 /*! @brief Releases the analog input or output pin
  
@@ -385,9 +397,9 @@ extern uint16_t InvalidPortID;
  
     @param port the port ID of the pin
  
-    @return returns the read value (in the range [-32,768 to 32,767])
+    @return returns the read value (in the range [-1 to 1])
  */
-- (int16_t) readAnalogPinOnPort: (PortID)port;
+- (double) readAnalogPinOnPort: (PortID)port;
 
 
 /*!
@@ -401,7 +413,17 @@ extern uint16_t InvalidPortID;
  
     @return the port ID
  */
-- (PortID) configurePWMOutputPin: (int)pin;
+- (PortID) configurePWMOutputPin: (long)pin;
+
+/*! @brief Configures a pin as a PWM output.
+ 
+    @param pin the pin number as labelled on board
+ 
+    @param initialDutyCycle intitial duty cycle between 0 (for 0%) and 1 (for 100%)
+ 
+    @return the port ID
+ */
+- (PortID) configurePWMOutputPin: (long)pin initialDutyCycle: (double)initialDutyCycle;
 
 /*! @brief Releases the PWM output
  
@@ -420,7 +442,7 @@ extern uint16_t InvalidPortID;
     @param attributes PWM attributes such as edge/center aligned
  */
 
-- (void) configurePWMTimer: (uint8_t) timer frequency: (uint32_t) frequency attributes: (PWMTimerAttributes) attributes;
+- (void) configurePWMTimer: (long) timer frequency: (long) frequency attributes: (PWMTimerAttributes) attributes;
 
 /*! @brief Configures a timer associated with PWM outputs.
  
@@ -432,13 +454,13 @@ extern uint16_t InvalidPortID;
  
     @param attributes PWM attributes such as edge/center aligned
  */
-- (void) configurePWMChannel: (uint8_t) timer channel: (uint8_t) channel attributes: (PWMChannelAttributes) attributes;
+- (void) configurePWMChannel:(long)timer channel:(long)channel attributes: (PWMChannelAttributes) attributes;
 
 /*! @brief Sets the duty cycle of a PWM output
  
-    @param dutyCycle the duty cycle between 0 (for 0%) and 32,767 (for 100%)
+    @param dutyCycle the duty cycle between 0 (for 0%) and 1 (for 100%)
  */
-- (void) writePWMPinOnPort: (PortID)port dutyCycle:(int16_t)dutyCycle;
+- (void) writePWMPinOnPort: (PortID)port dutyCycle:(double)dutyCycle;
 
 
 /*!
@@ -456,7 +478,7 @@ extern uint16_t InvalidPortID;
  
     @return the I2C port ID
  */
-- (PortID) configureI2CMaster: (I2CPins)pins frequency: (uint32_t)frequency;
+- (PortID) configureI2CMaster: (I2CPins)pins frequency:(long)frequency;
 
 
 /*! @brief Releases the I2C output
@@ -484,7 +506,7 @@ extern uint16_t InvalidPortID;
      
      @return the number of sent bytes
  */
-- (int) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
+- (long) sendOnI2CPort: (PortID)port data: (NSData* _Nonnull)data toSlave: (long)slave;
 
 /*! @brief Submits data to be sent to an I2C slave
  
@@ -500,7 +522,7 @@ extern uint16_t InvalidPortID;
      
      @param slave the slave address
  */
-- (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave;
+- (void) submitOnI2CPort: (PortID)port data: (NSData* _Nonnull)data toSlave: (long)slave;
 
 /*! @brief Request data from an I2C slave
  
@@ -519,7 +541,7 @@ extern uint16_t InvalidPortID;
  
     @return the received data or `nil` if it fails
  */
-- (NSData*) requestDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length;
+- (NSData* _Nullable) requestDataOnI2CPort: (PortID)port fromSlave: (long)slave length: (long)length;
 
 /*! @brief Send data to and request data from an I2C slave in a single operation
  
@@ -543,7 +565,7 @@ extern uint16_t InvalidPortID;
 
     @return the received data or `nil` if the transaction fails
  */
-- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave receiveLength: (uint16_t)receiveLength;
+- (NSData* _Nullable) sendAndRequestOnI2CPort: (PortID)port data: (NSData* _Nonnull)data toSlave: (long)slave receiveLength: (long)receiveLength;
 
 /*! @brief Result code of the last send or receive
  

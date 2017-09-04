@@ -31,7 +31,7 @@ static void DeviceNotification(void *refCon, io_service_t service, natural_t mes
 static void WriteCompletion(void *refCon, IOReturn result, void *arg0);
 static void ReadCompletion(void *refCon, IOReturn result, void *arg0);
 
-uint16_t InvalidPortID = 0xffff;
+long InvalidPortID = 0xffff;
 
 
 enum DeviceStatus {
@@ -494,14 +494,21 @@ retry:
 #pragma mark - Digital input / output
 
 
-- (PortID) configureDigitalOutputPin: (int)pin attributes: (DigitalOutputPinAttributes)attributes
+- (PortID) configureDigitalOutputPin: (long)pin attributes: (DigitalOutputPinAttributes)attributes
 {
-    Port* port = [self configureDigitalPin:pin type:PortTypeDigitalOutput attributes:(1 | (uint16_t) attributes)];
+    Port* port = [self configureDigitalPin:pin type:PortTypeDigitalOutput attributes:(1 | (uint16_t) attributes) initialValue:0];
     return port != nil ? port->portId() : InvalidPortID;
 }
 
 
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes communication:(InputCommunication)communication
+- (PortID) configureDigitalOutputPin: (long)pin attributes: (DigitalOutputPinAttributes)attributes initialValue:(BOOL)initialValue
+{
+    Port* port = [self configureDigitalPin:pin type:PortTypeDigitalOutput attributes:(1 | (uint16_t) attributes) initialValue:initialValue];
+    return port != nil ? port->portId() : InvalidPortID;
+}
+
+
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes communication:(InputCommunication)communication
 {
     if (communication != InputCommunicationOnDemand && communication != InputCommunicationPrecached) {
         NSLog(@"Wirekite: Digital input pin witout notification must use communication \"OnDemand\" or \"Precached\"");
@@ -519,25 +526,25 @@ retry:
         type = PortTypeDigitalInputPrecached;
         attributes |= DigitalInputPinAttributesTriggerRaising | DigitalInputPinAttributesTriggerFalling;
     }
-    Port* port = [self configureDigitalPin:pin type:type attributes:(uint16_t)attributes];
+    Port* port = [self configureDigitalPin:pin type:type attributes:(uint16_t)attributes initialValue:0];
     return port != nil ? port->portId() : InvalidPortID;
 }
 
 
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes notification: (DigitalInputPinCallback)notifyBlock
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes notification: (DigitalInputPinCallback)notifyBlock
 {
     return [self configureDigitalInputPin:pin attributes:attributes dispatchQueue:dispatch_get_main_queue() notification:notifyBlock];
 }
 
 
-- (PortID) configureDigitalInputPin: (int)pin attributes: (DigitalInputPinAttributes)attributes dispatchQueue: (dispatch_queue_t) dispatchQueue notification: (DigitalInputPinCallback)notifyBlock
+- (PortID) configureDigitalInputPin: (long)pin attributes: (DigitalInputPinAttributes)attributes dispatchQueue: (dispatch_queue_t) dispatchQueue notification: (DigitalInputPinCallback)notifyBlock
 {
     if ((attributes & (DigitalInputPinAttributesTriggerRaising | DigitalInputPinAttributesTriggerFalling)) == 0) {
         NSLog(@"Wirekite: Digital input pin with notification requires attribute DigiInPinTriggerRaising and/or DigiInPinTriggerFalling");
         return InvalidPortID;
     }
     
-    Port* port = [self configureDigitalPin:pin type:PortTypeDigitalInputTriggering attributes:(uint16_t)attributes];
+    Port* port = [self configureDigitalPin:pin type:PortTypeDigitalInputTriggering attributes:(uint16_t)attributes initialValue:0];
     if (port == nil)
         return InvalidPortID;
     
@@ -553,7 +560,7 @@ retry:
 }
 
 
-- (Port*) configureDigitalPin: (int)pin type: (PortType)type attributes: (uint16_t)attributes
+- (Port*) configureDigitalPin: (long)pin type: (PortType)type attributes: (uint16_t)attributes initialValue: (BOOL)initialValue
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -564,6 +571,7 @@ retry:
     request.request_id = portList.nextRequestId();
     request.port_attributes1 = attributes;
     request.pin_config = pin;
+    request.value1 = initialValue ? 1 : 0;
     
     [self writeMessage:&request.header];
     
@@ -663,13 +671,13 @@ retry:
 }
 
 
-- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(uint32_t)interval notification: (AnalogInputPinCallback)notifyBlock
+- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(long)interval notification: (AnalogInputPinCallback)notifyBlock
 {
     return [self configureAnalogInputPin:pin interval:interval dispatchQueue:dispatch_get_main_queue() notification:notifyBlock];
 }
 
 
-- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(uint32_t)interval dispatchQueue: (dispatch_queue_t)dispatchQueue notification: (AnalogInputPinCallback)notifyBlock
+- (PortID) configureAnalogInputPin: (AnalogPin)pin interval:(long)interval dispatchQueue: (dispatch_queue_t)dispatchQueue notification: (AnalogInputPinCallback)notifyBlock
 {
     if (interval == 0) {
         NSLog(@"Wirekite: Analog inputwith automatic sampling requires interval > 0");
@@ -693,7 +701,7 @@ retry:
 
 
 
-- (Port*) configureAnalogInputPin:(AnalogPin)pin interval:(uint32_t)interval
+- (Port*) configureAnalogInputPin:(AnalogPin)pin interval:(long)interval
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -703,7 +711,7 @@ retry:
     request.port_type = WK_CFG_PORT_TYPE_ANALOG_IN;
     request.request_id = portList.nextRequestId();
     request.pin_config = pin;
-    request.value1 = interval;
+    request.value1 = (int32_t)interval;
     
     [self writeMessage:&request.header];
     
@@ -747,7 +755,7 @@ retry:
 }
 
 
-- (int16_t) readAnalogPinOnPort: (PortID)portId
+- (double) readAnalogPinOnPort: (PortID)portId
 {
     Port* port = portList.getPort(portId);
     if (port == NULL)
@@ -764,16 +772,23 @@ retry:
     
     wk_port_event* event = port->waitForEvent();
     
-    int16_t result = (int16_t)event->value1;
+    int32_t r = (int32_t)event->value1;
     free(event);
-    return result;
+
+    return r < 0 ? r / 2147483648.0 : r / 2147483647.0;
 }
 
 
 #pragma mark - PWM output
 
 
-- (PortID) configurePWMOutputPin:(int)pin
+- (PortID) configurePWMOutputPin:(long)pin
+{
+    return [self configurePWMOutputPin:pin initialDutyCycle:0];
+}
+
+
+- (PortID) configurePWMOutputPin:(long)pin initialDutyCycle:(double)initialDutyCycle
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -783,6 +798,7 @@ retry:
     request.port_type = WK_CFG_PORT_TYPE_PWM;
     request.request_id = portList.nextRequestId();
     request.pin_config = pin;
+    request.value1 = (uint32_t)(initialDutyCycle * 2147483647 + 0.5);
     
     [self writeMessage:&request.header];
     
@@ -824,7 +840,7 @@ retry:
 }
 
 
-- (void) writePWMPinOnPort:(PortID)portId dutyCycle:(int16_t)dutyCycle
+- (void) writePWMPinOnPort:(PortID)portId dutyCycle:(double)dutyCycle
 {
     wk_port_request request;
     memset(&request, 0, sizeof(wk_port_request));
@@ -832,13 +848,13 @@ retry:
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
-    request.value1 = dutyCycle;
+    request.value1 = (uint32_t)(dutyCycle * 2147483647 + 0.5);
     
     [self writeMessage:&request.header];
 }
 
 
-- (void) configurePWMTimer: (uint8_t) timer frequency: (uint32_t) frequency attributes: (PWMTimerAttributes) attributes
+- (void) configurePWMTimer: (long) timer frequency: (long) frequency attributes: (PWMTimerAttributes) attributes
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -847,9 +863,9 @@ retry:
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
     request.port_type = WK_CFG_MODULE_PWM_TIMER;
     request.request_id = portList.nextRequestId();
-    request.pin_config = timer;
+    request.pin_config = (uint8_t)timer;
     request.port_attributes1 = attributes;
-    request.value1 = frequency;
+    request.value1 = (int32_t)frequency;
     
     [self writeMessage:&request.header];
     
@@ -858,7 +874,7 @@ retry:
 }
 
 
-- (void) configurePWMChannel: (uint8_t) timer channel: (uint8_t) channel attributes: (PWMChannelAttributes) attributes
+- (void) configurePWMChannel: (long) timer channel: (long) channel attributes: (PWMChannelAttributes) attributes
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -867,9 +883,9 @@ retry:
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
     request.port_type = WK_CFG_MODULE_PWM_CHANNEL;
     request.request_id = portList.nextRequestId();
-    request.pin_config = timer;
+    request.pin_config = (uint8_t)timer;
     request.port_attributes1 = attributes;
-    request.value1 = channel;
+    request.value1 = (uint8_t)channel;
     
     [self writeMessage:&request.header];
     
@@ -880,7 +896,7 @@ retry:
 
 #pragma mark - I2C communication
 
-- (PortID) configureI2CMaster: (I2CPins)pins frequency: (uint32_t)frequency
+- (PortID) configureI2CMaster: (I2CPins)pins frequency: (long)frequency
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -890,7 +906,7 @@ retry:
     request.port_type = WK_CFG_PORT_TYPE_I2C;
     request.request_id = portList.nextRequestId();
     request.pin_config = pins;
-    request.value1 = frequency;
+    request.value1 = (int32_t)frequency;
     
     [self writeMessage:&request.header];
     
@@ -935,14 +951,14 @@ retry:
 }
 
 
-- (int) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
+- (long) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
     
     uint16_t requestId = portList.nextRequestId();
-    [self submitSendOnI2CPort:port data:data toSlave:slave requestId:requestId];
+    [self submitSendOnI2CPort:port data:data toSlave:(uint16_t)slave requestId:requestId];
     
     wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(requestId);
     
@@ -953,17 +969,17 @@ retry:
 }
 
 
-- (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave
+- (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
     Port* p = portList.getPort(port);
     if (p == nil)
         return;
     
-    [self submitSendOnI2CPort:port data:data toSlave:slave requestId:0];
+    [self submitSendOnI2CPort:port data:data toSlave:(uint16_t)slave requestId:0];
 }
 
 
-- (void) submitSendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave requestId: (uint16) requestId
+- (void) submitSendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave requestId: (uint16) requestId
 {
     NSUInteger len = data.length;
     size_t msg_len = sizeof(wk_port_request) - 4 + len;
@@ -974,7 +990,7 @@ retry:
     request->port_id = port;
     request->request_id = requestId;
     request->action = WK_PORT_ACTION_TX_DATA;
-    request->action_attribute2 = slave;
+    request->action_attribute2 = (uint16_t)slave;
     memcpy(request->data, data.bytes, len);
     
     [self writeMessage:&request->header];
@@ -982,7 +998,7 @@ retry:
 }
 
 
-- (NSData*) requestDataOnI2CPort: (PortID)port fromSlave: (uint16_t)slave length: (uint16_t)length
+- (NSData*) requestDataOnI2CPort: (PortID)port fromSlave: (long)slave length: (long)length
 {
     Port* p = portList.getPort(port);
     if (p == nil)
@@ -995,8 +1011,8 @@ retry:
     request.port_id = port;
     request.request_id = portList.nextRequestId();
     request.action = WK_PORT_ACTION_RX_DATA;
-    request.action_attribute2 = slave;
-    request.value1 = length;
+    request.action_attribute2 = (uint16_t)slave;
+    request.value1 = (uint16_t)length;
     
     [self writeMessage:&request.header];
     wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request.request_id);
@@ -1014,7 +1030,7 @@ retry:
 }
 
 
-- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (uint16_t)slave receiveLength: (uint16_t)receiveLength
+- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave receiveLength: (long)receiveLength
 {
     Port* p = portList.getPort(port);
     if (p == nil)
@@ -1029,8 +1045,8 @@ retry:
     request->port_id = port;
     request->request_id = portList.nextRequestId();
     request->action = WK_PORT_ACTION_TX_N_RX_DATA;
-    request->action_attribute2 = slave;
-    request->value1 = receiveLength;
+    request->action_attribute2 = (uint16_t)slave;
+    request->value1 = (uint16_t)receiveLength;
     memcpy(request->data, data.bytes, len);
     
     [self writeMessage:&request->header];
@@ -1105,7 +1121,7 @@ retry:
             return;
             
         } else if (portType == PortTypeAnalogInputSampling) {
-            int16_t value = (int16_t)event->value1;
+            int32_t value = (int32_t)event->value1;
             free(event);
             port->setLastSample(value);
             
@@ -1114,7 +1130,8 @@ retry:
             dispatch_queue_t dispatchQueue = analogInputDispatchQueues[key];
             if (callback != nil && dispatchQueue != nil) {
                 dispatch_async(dispatchQueue, ^{
-                    callback(port->portId(), value);
+                    double v = value < 0 ? value / 2147483648.0 : value / 2147483647.0;
+                    callback(port->portId(), v);
                 });
             }
             return;

@@ -15,7 +15,7 @@ class Ammeter {
     private let device: WirekiteDevice?
     private let i2cPort: PortID
     private let releasePort: Bool
-    var ammeterAddress: UInt16 = 0x40
+    var ammeterAddress: Int = 0x40
     
     init(device: WirekiteDevice, i2cPins: I2CPins) {
         self.device = device

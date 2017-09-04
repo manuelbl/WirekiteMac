@@ -33,8 +33,8 @@ public:
     uint16_t portId() { return _portId; }
     PortType type() { return _type; }
     
-    uint16_t lastSample() { return _lastSample; }
-    void setLastSample(uint16_t sample) { _lastSample = sample; }
+    int32_t lastSample() { return _lastSample; }
+    void setLastSample(int32_t sample) { _lastSample = sample; }
     
     void pushEvent(wk_port_event* event);
     wk_port_event* waitForEvent();
@@ -42,7 +42,7 @@ public:
 private:
     uint16_t _portId;
     PortType _type;
-    uint16_t _lastSample;
+    int32_t _lastSample;
     Queue<wk_port_event*> queue;
 };
 

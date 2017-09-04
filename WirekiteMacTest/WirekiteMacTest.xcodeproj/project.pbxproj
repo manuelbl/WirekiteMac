@@ -19,6 +19,7 @@
 		DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C471F2BA61700328C0F /* AnalogStick.swift */; };
 		DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C481F2BA61700328C0F /* Light.swift */; };
 		DBC93C4E1F2BA78A00328C0F /* libWirekiteMacLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */; };
+		DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		DBC93C481F2BA61700328C0F /* Light.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
 		DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWirekiteMacLib.a; path = ../WirekiteMacLib/build/Debug/libWirekiteMacLib.a; sourceTree = "<group>"; };
 		DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Servo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				DB0A293F1F40789200287E20 /* Ammeter.swift */,
 				DB0A29411F43735A00287E20 /* OLEDDisplay.swift */,
 				DB0A29431F44C87100287E20 /* GyroMPU6050.swift */,
+				DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -189,6 +192,7 @@
 				DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */,
 				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
 				DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */,
+				DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */,
 				DB0A29421F43735A00287E20 /* OLEDDisplay.swift in Sources */,
 				DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */,
 			);
