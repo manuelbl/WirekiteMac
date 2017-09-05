@@ -133,6 +133,11 @@ class DeviceViewController: NSViewController {
         
         if let device = self.device {
             
+            let mem = device.boardInfo(.availableMemory)
+            NSLog("Available memory: \(mem)")
+            let maxBlock = device.boardInfo(.maximumMemoryBlock)
+            NSLog("Maximum memory block: \(maxBlock)")
+            
             resetUI(enabled: true)
             
             if DeviceViewController.hasBuiltInLED {

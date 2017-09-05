@@ -161,6 +161,17 @@ typedef NS_ENUM(NSInteger, I2CResult) {
 };
 
 
+/*! @brief Board information item that can be queried */
+typedef NS_ENUM(NSInteger, BoardInfo) {
+    /*! @brief Number of bytes available for buffering messages */
+    BoardInfoAvailableMemory = 1,
+    /*! @brief Maxium message size that can currently be buffered */
+    BoardInfoMaximumMemoryBlock = 2,
+    /*! @brief Board type: 1 for Teensy LC, 2 for Teensy 3.2 */
+    BoardInfoBoardType = 3
+};
+
+
 typedef void (^DigitalInputPinCallback)(PortID, BOOL);
 typedef void (^AnalogInputPinCallback)(PortID, double);
 
@@ -225,6 +236,19 @@ extern long InvalidPortID;
  */
 - (void) resetConfiguration;
 
+
+/*!
+    @name Board information
+ */
+
+/*!
+    @brief Queries an information item of the board.
+ 
+    @param boardInfo the information item to query
+ 
+    @return the value of the information item
+ */
+- (long) boardInfo:(BoardInfo)boardInfo;
 
 /*!
     @name Working with digital input and output pins

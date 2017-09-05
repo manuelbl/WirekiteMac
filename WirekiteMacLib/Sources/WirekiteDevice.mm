@@ -491,6 +491,35 @@ retry:
 }
 
 
+#pragma mark - Board information
+
+- (long) boardInfo:(BoardInfo)boardInfo
+{
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_QUERY;
+    request.port_type = boardInfo;
+    request.request_id = portList.nextRequestId();
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    
+    long result;
+    if (response->result == WK_RESULT_OK) {
+        result = response->value1;
+    } else {
+        result = 0;
+        NSLog(@"Wirekite: Querying board information failed");
+    }
+    
+    free(response);
+    return result;
+}
+
+
 #pragma mark - Digital input / output
 
 
