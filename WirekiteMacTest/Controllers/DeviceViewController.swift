@@ -137,6 +137,16 @@ class DeviceViewController: NSViewController {
             NSLog("Available memory: \(mem)")
             let maxBlock = device.boardInfo(.maximumMemoryBlock)
             NSLog("Maximum memory block: \(maxBlock)")
+            let version = device.boardInfo(.firmwareVersion)
+            let versionChars = [
+                Character(UnicodeScalar(48 + ((version >> 12) & 0xf))!),
+                Character(UnicodeScalar(48 + ((version >> 8) & 0xf))!),
+                ".",
+                Character(UnicodeScalar(48 + ((version >> 4) & 0xf))!),
+                Character(UnicodeScalar(48 + (version & 0xf))!)
+            ];
+            let versionString = String(versionChars)
+            NSLog("Version: \(versionString)")
             
             resetUI(enabled: true)
             

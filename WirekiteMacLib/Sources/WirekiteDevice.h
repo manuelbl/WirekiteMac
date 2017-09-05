@@ -168,7 +168,9 @@ typedef NS_ENUM(NSInteger, BoardInfo) {
     /*! @brief Maxium message size that can currently be buffered */
     BoardInfoMaximumMemoryBlock = 2,
     /*! @brief Board type: 1 for Teensy LC, 2 for Teensy 3.2 */
-    BoardInfoBoardType = 3
+    BoardInfoBoardType = 3,
+    /*! @brief Firmware version in BCD */
+    BoardInfoFirmwareVersion = 4
 };
 
 
