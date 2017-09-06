@@ -14,6 +14,8 @@ class GyroMPU6050 {
     private let i2cPort: PortID
     private let releasePort: Bool
     
+    var isCalibrating = false
+    
     var gyroAddress: Int = 0x68
     
     private var gyroXOffset: Int = 0
@@ -56,6 +58,7 @@ class GyroMPU6050 {
         set(register: 0x1b, value: 0x00)
         set(register: 0x1c, value: 0x08)
         set(register: 0x1a, value: 0x03)
+        startCalibration()
     }
     
     func read() {
@@ -90,8 +93,16 @@ class GyroMPU6050 {
         
         return [UInt8](result!)
     }
+    
+    private func startCalibration() {
+        isCalibrating = true
+        DispatchQueue.global(qos: .background).async {
+            self.calibrate()
+            self.isCalibrating = false
+        }
+    }
 
-    func calibrate(completed: () -> ()) {
+    func calibrate() {
         var offsetX = 0
         var offsetY = 0
         var offsetZ = 0
@@ -102,12 +113,11 @@ class GyroMPU6050 {
             offsetX += Int((Int16(data[0]) << 8) | Int16(data[1]))
             offsetY += Int((Int16(data[2]) << 8) | Int16(data[3]))
             offsetZ += Int((Int16(data[4]) << 8) | Int16(data[5]))
+            Thread.sleep(forTimeInterval: 0.001)
         }
         
         gyroXOffset = -(offsetX + numSamples / 2) / numSamples
         gyroYOffset = -(offsetY + numSamples / 2) / numSamples
         gyroZOffset = -(offsetZ + numSamples / 2) / numSamples
-        
-        completed()
     }
 }

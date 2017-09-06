@@ -191,7 +191,8 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasServo {
-                device.configurePWMTimer(1, frequency: 100, attributes: [])
+                let boardType = device.boardInfo(.boardType)
+                device.configurePWMTimer(boardType == 1 ? 2 : 1, frequency: 100, attributes: [])
                 servo = Servo(device: device, pin: 4)
                 servo!.turnOn(initialAngle: 0)
                 servoTimer = Timer.scheduledTimer(withTimeInterval: 0.005, repeats: true) { timer in self.moveServo() }
@@ -227,9 +228,7 @@ class DeviceViewController: NSViewController {
             
             if DeviceViewController.hasGyro {
                 gyro = GyroMPU6050(device: device, i2cPort: i2cPort)
-                gyro!.calibrate {
-                    self.gyroTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in self.updateGyro() }
-                }
+                gyroTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in self.updateGyro() }
             }
             
         } else {
@@ -285,15 +284,22 @@ class DeviceViewController: NSViewController {
     }
     
     func updateGyro() {
-        gyro!.read()
-        let textX = String(format: "X: %d", gyro!.gyroX)
-        gyroXLabel.stringValue = textX
-        let textY = String(format: "Y: %d", gyro!.gyroY)
-        gyroYLabel.stringValue = textY
-        let textZ = String(format: "Z: %d", gyro!.gyroZ)
-        gyroZLabel.stringValue = textZ
-        let textTemp = String(format: "Temp: %3.1f", gyro!.temperature)
-        gyroTempLabel.stringValue = textTemp
+        if (gyro!.isCalibrating) {
+            gyroXLabel.stringValue = "Calibrating..."
+            gyroYLabel.stringValue = ""
+            gyroZLabel.stringValue = ""
+            gyroTempLabel.stringValue = ""
+        } else {
+            gyro!.read()
+            let textX = String(format: "X: %d", gyro!.gyroX)
+            gyroXLabel.stringValue = textX
+            let textY = String(format: "Y: %d", gyro!.gyroY)
+            gyroYLabel.stringValue = textY
+            let textZ = String(format: "Z: %d", gyro!.gyroZ)
+            gyroZLabel.stringValue = textZ
+            let textTemp = String(format: "Temp: %3.1f", gyro!.temperature)
+            gyroTempLabel.stringValue = textTemp
+        }
     }
     
     func updateDisplay() {
