@@ -4,7 +4,8 @@ Wire up digital and analog IOs to your Mac and control them with your Swift or O
 
 To connect the inputs and outputs, use a [Teensy development board](https://www.pjrc.com/teensy/) connected via USB. It looks a lot like an Arduino Nano connected for programming. Yet with Wirekite the custom code is written for and run on your computer – not for the microcontroller.
 
-This repository contains the MacOS code. There are separate repositories for the [Teensy code](https://github.com/manuelbl/Wirekite) and the [Windows code](https://github.com/manuelbl/WirekiteWin).
+See the [Wiki](https://github.com/manuelbl/Wirekite/wiki) for more information and [how to get started](https://github.com/manuelbl/Wirekite/wiki/Xcode-Project-Setup).
+
 
 ## Supported boards
 
@@ -21,23 +22,16 @@ This repository contains the MacOS code. There are separate repositories for the
 - SPI (soon)
 
 
-# Getting started
+## Repositories
 
-### 1. Prepare the Teensy board for Wirekite
+There are three repositories:
 
-Download the ready-to-use code for the Teensy and install it on your Teensy board. This is a one-time step.
+ - [Wirekite](https://github.com/manuelbl/Wirekite) – code for the Teensy board and home of the [Wiki](https://github.com/manuelbl/Wirekite/wiki)
+ - [WirekiteMac](https://github.com/manuelbl/WirekiteMac) – the Mac libraries for using the Wirekite in Objective-C or Swift on a Macintosh (this repository)
+ - [WirekiteWin](https://github.com/manuelbl/WirekiteWin) – the .NET libraries for using the Wirekite in C# or VB.NET on a Windows computer
 
-[See instructions](https://github.com/manuelbl/Wirekite/blob/master/docs/prepare_teensy.md)
 
-### 2. Install CocoaPods
+## Coming soon
 
-CocoaPods manages libraries for your Xcode projects. If you have been writing software with Xcode, you probably have it installed already.
-
-If not, see [CocoaPods Getting Started](https://guides.cocoapods.org/using/getting-started.html) for instructions.
-
-### 3. Setup a new Xcode project
-
-*Blinky* is a simple example that blinks the LED on the Teensy board.
-So you don't need to wire up anything to the Teensy for your first project.
-
-The [instructions](https://github.com/manuelbl/WirekiteMac/blob/master/Documents/xcode_project_setup.md) guide you through the Xcode project setup.
+- SPI
+- More options for analog inputs
