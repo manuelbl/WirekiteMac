@@ -1,0 +1,383 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5D8156A5D3008F898D389DAF /* Pods_Nunchuck.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39ADD2E01EEFD5B003D82209 /* Pods_Nunchuck.framework */; };
+		DB55E3E81F68505A00747CDC /* Nunchuck.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB55E3E71F68505A00747CDC /* Nunchuck.swift */; };
+		DBB516C91F6849D100B77D4B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB516C81F6849D100B77D4B /* AppDelegate.swift */; };
+		DBB516CB1F6849D100B77D4B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB516CA1F6849D100B77D4B /* ViewController.swift */; };
+		DBB516CD1F6849D100B77D4B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBB516CC1F6849D100B77D4B /* Assets.xcassets */; };
+		DBB516D01F6849D100B77D4B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBB516CE1F6849D100B77D4B /* Main.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		39ADD2E01EEFD5B003D82209 /* Pods_Nunchuck.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nunchuck.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		473962B30A0C835AF2DC5C3F /* Pods-Nunchuck.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nunchuck.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Nunchuck/Pods-Nunchuck.debug.xcconfig"; sourceTree = "<group>"; };
+		D83FFEAE1559626A2389BD24 /* Pods-Nunchuck.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Nunchuck.release.xcconfig"; path = "Pods/Target Support Files/Pods-Nunchuck/Pods-Nunchuck.release.xcconfig"; sourceTree = "<group>"; };
+		DB55E3E71F68505A00747CDC /* Nunchuck.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Nunchuck.swift; sourceTree = "<group>"; };
+		DBB516C51F6849D100B77D4B /* Nunchuck.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nunchuck.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBB516C81F6849D100B77D4B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DBB516CA1F6849D100B77D4B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DBB516CC1F6849D100B77D4B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DBB516CF1F6849D100B77D4B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DBB516D11F6849D100B77D4B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DBB516C21F6849D100B77D4B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D8156A5D3008F898D389DAF /* Pods_Nunchuck.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A89730491221FF6851102DAA /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				473962B30A0C835AF2DC5C3F /* Pods-Nunchuck.debug.xcconfig */,
+				D83FFEAE1559626A2389BD24 /* Pods-Nunchuck.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C93F19ACF4C66D212D77E159 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				39ADD2E01EEFD5B003D82209 /* Pods_Nunchuck.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DBB516BC1F6849D100B77D4B = {
+			isa = PBXGroup;
+			children = (
+				DBB516C71F6849D100B77D4B /* Nunchuck */,
+				DBB516C61F6849D100B77D4B /* Products */,
+				A89730491221FF6851102DAA /* Pods */,
+				C93F19ACF4C66D212D77E159 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DBB516C61F6849D100B77D4B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DBB516C51F6849D100B77D4B /* Nunchuck.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DBB516C71F6849D100B77D4B /* Nunchuck */ = {
+			isa = PBXGroup;
+			children = (
+				DBB516C81F6849D100B77D4B /* AppDelegate.swift */,
+				DBB516CA1F6849D100B77D4B /* ViewController.swift */,
+				DB55E3E71F68505A00747CDC /* Nunchuck.swift */,
+				DBB516CC1F6849D100B77D4B /* Assets.xcassets */,
+				DBB516CE1F6849D100B77D4B /* Main.storyboard */,
+				DBB516D11F6849D100B77D4B /* Info.plist */,
+			);
+			path = Nunchuck;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DBB516C41F6849D100B77D4B /* Nunchuck */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DBB516D41F6849D100B77D4B /* Build configuration list for PBXNativeTarget "Nunchuck" */;
+			buildPhases = (
+				36B86E57B6FAC183F774FB6D /* [CP] Check Pods Manifest.lock */,
+				DBB516C11F6849D100B77D4B /* Sources */,
+				DBB516C21F6849D100B77D4B /* Frameworks */,
+				DBB516C31F6849D100B77D4B /* Resources */,
+				3C12C2231A42BA3A7A66DEC1 /* [CP] Embed Pods Frameworks */,
+				4F7140AD6BEF7C60C92E9E37 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Nunchuck;
+			productName = Nunchuck;
+			productReference = DBB516C51F6849D100B77D4B /* Nunchuck.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DBB516BD1F6849D100B77D4B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0830;
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DBB516C41F6849D100B77D4B = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DBB516C01F6849D100B77D4B /* Build configuration list for PBXProject "Nunchuck" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DBB516BC1F6849D100B77D4B;
+			productRefGroup = DBB516C61F6849D100B77D4B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DBB516C41F6849D100B77D4B /* Nunchuck */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DBB516C31F6849D100B77D4B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBB516CD1F6849D100B77D4B /* Assets.xcassets in Resources */,
+				DBB516D01F6849D100B77D4B /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		36B86E57B6FAC183F774FB6D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Nunchuck-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3C12C2231A42BA3A7A66DEC1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Nunchuck/Pods-Nunchuck-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/WirekiteMac/WirekiteMac.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WirekiteMac.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Nunchuck/Pods-Nunchuck-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4F7140AD6BEF7C60C92E9E37 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Nunchuck/Pods-Nunchuck-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DBB516C11F6849D100B77D4B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBB516CB1F6849D100B77D4B /* ViewController.swift in Sources */,
+				DBB516C91F6849D100B77D4B /* AppDelegate.swift in Sources */,
+				DB55E3E81F68505A00747CDC /* Nunchuck.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DBB516CE1F6849D100B77D4B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DBB516CF1F6849D100B77D4B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DBB516D21F6849D100B77D4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DBB516D31F6849D100B77D4B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		DBB516D51F6849D100B77D4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 473962B30A0C835AF2DC5C3F /* Pods-Nunchuck.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Nunchuck/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.Nunchuck;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		DBB516D61F6849D100B77D4B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D83FFEAE1559626A2389BD24 /* Pods-Nunchuck.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Nunchuck/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.Nunchuck;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DBB516C01F6849D100B77D4B /* Build configuration list for PBXProject "Nunchuck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBB516D21F6849D100B77D4B /* Debug */,
+				DBB516D31F6849D100B77D4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DBB516D41F6849D100B77D4B /* Build configuration list for PBXNativeTarget "Nunchuck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBB516D51F6849D100B77D4B /* Debug */,
+				DBB516D61F6849D100B77D4B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DBB516BD1F6849D100B77D4B /* Project object */;
+}

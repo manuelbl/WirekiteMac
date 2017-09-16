@@ -1,0 +1,6 @@
+platform :osx, '10.12'
+
+target 'Nunchuck' do
+    use_frameworks!
+    pod 'WirekiteMac'
+end
