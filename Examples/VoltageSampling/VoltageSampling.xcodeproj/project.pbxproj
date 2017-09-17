@@ -1,0 +1,378 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0BFB3BC07A63D35D7D304D45 /* Pods_VoltageSampling.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD4A2C03BF6923F08577B51 /* Pods_VoltageSampling.framework */; };
+		DB6433451F6ED02800BD1F1D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6433441F6ED02800BD1F1D /* AppDelegate.swift */; };
+		DB6433471F6ED02800BD1F1D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6433461F6ED02800BD1F1D /* ViewController.swift */; };
+		DB6433491F6ED02800BD1F1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB6433481F6ED02800BD1F1D /* Assets.xcassets */; };
+		DB64334C1F6ED02800BD1F1D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DB64334A1F6ED02800BD1F1D /* Main.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0101DFC0B0F5714358E78A63 /* Pods-VoltageSampling.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoltageSampling.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VoltageSampling/Pods-VoltageSampling.debug.xcconfig"; sourceTree = "<group>"; };
+		AAD4A2C03BF6923F08577B51 /* Pods_VoltageSampling.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VoltageSampling.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB6433411F6ED02800BD1F1D /* VoltageSampling.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoltageSampling.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB6433441F6ED02800BD1F1D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DB6433461F6ED02800BD1F1D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DB6433481F6ED02800BD1F1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DB64334B1F6ED02800BD1F1D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DB64334D1F6ED02800BD1F1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EF9252F9B407A313153223C9 /* Pods-VoltageSampling.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VoltageSampling.release.xcconfig"; path = "Pods/Target Support Files/Pods-VoltageSampling/Pods-VoltageSampling.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DB64333E1F6ED02800BD1F1D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0BFB3BC07A63D35D7D304D45 /* Pods_VoltageSampling.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1533B087126ED80703A20573 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AAD4A2C03BF6923F08577B51 /* Pods_VoltageSampling.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DB6433381F6ED02800BD1F1D = {
+			isa = PBXGroup;
+			children = (
+				DB6433431F6ED02800BD1F1D /* VoltageSampling */,
+				DB6433421F6ED02800BD1F1D /* Products */,
+				EC21FCC3F956550367E17EBA /* Pods */,
+				1533B087126ED80703A20573 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DB6433421F6ED02800BD1F1D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB6433411F6ED02800BD1F1D /* VoltageSampling.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DB6433431F6ED02800BD1F1D /* VoltageSampling */ = {
+			isa = PBXGroup;
+			children = (
+				DB6433441F6ED02800BD1F1D /* AppDelegate.swift */,
+				DB6433461F6ED02800BD1F1D /* ViewController.swift */,
+				DB6433481F6ED02800BD1F1D /* Assets.xcassets */,
+				DB64334A1F6ED02800BD1F1D /* Main.storyboard */,
+				DB64334D1F6ED02800BD1F1D /* Info.plist */,
+			);
+			path = VoltageSampling;
+			sourceTree = "<group>";
+		};
+		EC21FCC3F956550367E17EBA /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0101DFC0B0F5714358E78A63 /* Pods-VoltageSampling.debug.xcconfig */,
+				EF9252F9B407A313153223C9 /* Pods-VoltageSampling.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DB6433401F6ED02800BD1F1D /* VoltageSampling */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DB6433501F6ED02800BD1F1D /* Build configuration list for PBXNativeTarget "VoltageSampling" */;
+			buildPhases = (
+				3FA5221AF0C19ECD681D8A64 /* [CP] Check Pods Manifest.lock */,
+				DB64333D1F6ED02800BD1F1D /* Sources */,
+				DB64333E1F6ED02800BD1F1D /* Frameworks */,
+				DB64333F1F6ED02800BD1F1D /* Resources */,
+				2098766C4FE96337D4711B4E /* [CP] Embed Pods Frameworks */,
+				458B9E341F60F353D761A15F /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoltageSampling;
+			productName = VoltageSampling;
+			productReference = DB6433411F6ED02800BD1F1D /* VoltageSampling.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DB6433391F6ED02800BD1F1D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0830;
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DB6433401F6ED02800BD1F1D = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DB64333C1F6ED02800BD1F1D /* Build configuration list for PBXProject "VoltageSampling" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DB6433381F6ED02800BD1F1D;
+			productRefGroup = DB6433421F6ED02800BD1F1D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DB6433401F6ED02800BD1F1D /* VoltageSampling */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DB64333F1F6ED02800BD1F1D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB6433491F6ED02800BD1F1D /* Assets.xcassets in Resources */,
+				DB64334C1F6ED02800BD1F1D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2098766C4FE96337D4711B4E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-VoltageSampling/Pods-VoltageSampling-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/WirekiteMac/WirekiteMac.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WirekiteMac.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VoltageSampling/Pods-VoltageSampling-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		3FA5221AF0C19ECD681D8A64 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VoltageSampling-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		458B9E341F60F353D761A15F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-VoltageSampling/Pods-VoltageSampling-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DB64333D1F6ED02800BD1F1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB6433471F6ED02800BD1F1D /* ViewController.swift in Sources */,
+				DB6433451F6ED02800BD1F1D /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DB64334A1F6ED02800BD1F1D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DB64334B1F6ED02800BD1F1D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DB64334E1F6ED02800BD1F1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DB64334F1F6ED02800BD1F1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		DB6433511F6ED02800BD1F1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0101DFC0B0F5714358E78A63 /* Pods-VoltageSampling.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = VoltageSampling/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.VoltageSampling;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		DB6433521F6ED02800BD1F1D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF9252F9B407A313153223C9 /* Pods-VoltageSampling.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = VoltageSampling/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = net.codecrete.VoltageSampling;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DB64333C1F6ED02800BD1F1D /* Build configuration list for PBXProject "VoltageSampling" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB64334E1F6ED02800BD1F1D /* Debug */,
+				DB64334F1F6ED02800BD1F1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DB6433501F6ED02800BD1F1D /* Build configuration list for PBXNativeTarget "VoltageSampling" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB6433511F6ED02800BD1F1D /* Debug */,
+				DB6433521F6ED02800BD1F1D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DB6433391F6ED02800BD1F1D /* Project object */;
+}
