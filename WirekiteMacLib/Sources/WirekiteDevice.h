@@ -160,6 +160,36 @@ typedef NS_ENUM(NSInteger, I2CResult) {
     I2CResultInvalidParameter = 8
 };
 
+/*! @brief Additional settings for SPI bus */
+typedef NS_OPTIONS(NSUInteger, SPIAttributes) {
+    /*! @brief Default. No special features enabled. */
+    SPIAttributesDefault = 0,
+    /*! @brief Transmit/receive most significant bit (MSB) first */
+    SPIAttributesMSBFirst = 0,
+    /*! @brief Transmit/receive least significant bit (LSB) first */
+    SPIAttributesLSBFirst = 1,
+    /*! @brief Transmit/receive in SPI mode 0 (CPOL = 0 / clock idles in low / CPHA = 0 / "out" changes on trailing clock edge / "in" is cpatured on leading clock edge  */
+    SPIAttributesMode0 = 0,
+    /*! @brief Transmit/receive in SPI mode 1 (CPOL = 0 / clock idles in low / CPHA = 1 / "out" changes on leading clock edge / "in" is cpatured on trailing clock edge  */
+    SPIAttributesMode1 = 4,
+    /*! @brief Transmit/receive in SPI mode 2 (CPOL = 1 / clock idles in high / CPHA = 0 / "out" changes on trailing clock edge / "in" is cpatured on leading clock edge  */
+    SPIAttributesMode2 = 8,
+    /*! @brief Transmit/receive in SPI mode 3 (CPOL = 1 / clock idles in high / CPHA = 1 / "out" changes on leading clock edge / "in" is cpatured on trailing clock edge  */
+    SPIAttributesMode3 = 16
+};
+
+/*! @brief Result code for SPI send and receive transactions */
+typedef NS_ENUM(NSInteger, SPIResult) {
+    /*! @brief Action was successful */
+    SPIResultOK = 0,
+    /*! @brief Action timed out */
+    SPIResultTimeout = 1,
+    /*! @brief Unknown error occurred */
+    SPIResultUnknownError = 7,
+    /*! @brief An invalid parameter was specified */
+    SPIResultInvalidParameter = 8
+};
+
 
 /*! @brief Board information item that can be queried */
 typedef NS_ENUM(NSInteger, BoardInfo) {
@@ -600,5 +630,87 @@ extern long InvalidPortID;
     @return the result code of the last operation on this port
  */
 - (I2CResult) lastResultOnI2CPort: (PortID)port;
+
+
+/*!
+ @name SPI communication
+ */
+
+/*! @brief Configures a SPI port as a master.
+ 
+    @discussion The pins are specified with the index as printed on the Teensy board.
+         The MISO pin is optional and can be ommitted if there is no communication from
+         the slave to the master.
+ 
+    @param sckPin the index of the pin to use for the SCK signal (serial clock)
+ 
+    @param mosiPin the index of the pin to use for the MOSI signal (master out - slave in)
+ 
+    @param misoPin the index of the pin to use for the MISO signal (master in - slave out) or -1 if not used
+ 
+    @frequency the frequency for the SPI communication (in Hz). If in doubt, use 100,000 Hz.
+ 
+    @attributes additional settings of the SPI bus
+ 
+    @return the SPI port ID
+ */
+-(PortID) configureSPIMasterSCKPin: (long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes;
+
+
+/*! @brief Releases the SPI port
+ 
+    @param port the SPI port ID
+ */
+-(void) releaseSPIPort: (PortID)port;
+
+
+/*! @brief Transmit data to a SPI slave
+ 
+    @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+        transation and transmits the data. Optionally, a digital output can be used as the chip select (CS),
+        which is then held low for the duration of the transaction and set to high at the end of the transaction.
+ 
+     @discussion The request is executed sychnronously, i.e. the call blocks until the data
+         has been transmitted or the transmission has failed.
+ 
+     @discussion If less than the specified number of bytes are transmitted,
+         [WirekiteDevice lastSPIResult:] returns the associated reason.
+ 
+    @param port the SPI port ID
+ 
+    @param data the data to transmit
+ 
+    @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+    @return the number of sent bytes
+ */
+-(long) transmitOnSPIPort:(PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
+
+/*! @brief Submits data to be transmitted to an SPI slave
+ 
+    @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+        transation and transmits the data. Optionally, a digital output can be used as the chip select (CS),
+        which is then held low for the duration of the transaction and set to high at the end of the transaction.
+
+    @discussion The request is executed asychnronously, i.e. the call returns immediately. If the
+        transaction fails, a message appears in the log.
+ 
+    @param port the SPI port ID
+ 
+    @param data the data to transmit
+ 
+    @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ */
+-(void) submitOnSPIPort:(PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
+/*! @brief Result code of the last transmission or receipt
+ 
+    @param port the SPI port ID
+ 
+    @return the result code of the last operation on this port
+ */
+-(SPIResult) lastResultOnSPIPort:(PortID)port;
+
 
 @end

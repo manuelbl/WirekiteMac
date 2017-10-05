@@ -38,7 +38,8 @@ extern "C" {
 #define WK_CFG_PORT_TYPE_ANALOG_IN 2
 #define WK_CFG_PORT_TYPE_PWM 3
 #define WK_CFG_PORT_TYPE_I2C 4
-    
+#define WK_CFG_PORT_TYPE_SPI 5
+
 #define WK_CFG_QUERY_MEM_AVAIL 1
 #define WK_CFG_QUERY_MEM_MAX_BLOCK 2
 #define WK_CFG_QUERY_MEM_MCU 3

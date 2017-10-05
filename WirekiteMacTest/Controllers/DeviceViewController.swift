@@ -17,9 +17,10 @@ class DeviceViewController: NSViewController {
     static let hasTwoPotentiometers = false
     static let hasServo = false
     static let hasAnalogStick = false
-    static let hasAmmeter = true
-    static let hasOLED = true
-    static let hasGyro = true
+    static let hasAmmeter = false
+    static let hasOLED = false
+    static let hasGyro = false
+    static let hasEPaper = true
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -72,6 +73,9 @@ class DeviceViewController: NSViewController {
     var gyro: GyroMPU6050? = nil
     var gyroTimer: Timer? = nil
     
+    // E-Paper
+    var spi: PortID = 0
+    var ePaper: EPaper? = nil
     
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
@@ -229,6 +233,26 @@ class DeviceViewController: NSViewController {
             if DeviceViewController.hasGyro {
                 gyro = GyroMPU6050(device: device, i2cPort: i2cPort)
                 gyroTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in self.updateGyro() }
+            }
+            
+            if DeviceViewController.hasEPaper {
+                spi = device.configureSPIMasterSCKPin(14, mosiPin: 11, misoPin: InvalidPortID, frequency: 100000, attributes: [])
+                ePaper = EPaper(device: device, spiPort: spi, csPin: 10, dcPin: 15, busyPin: 20, resetPin: 16)
+                ePaper!.initDevice()
+                let gc = ePaper!.prepareForDrawing()
+                gc.setFillColor(CGColor.white)
+                gc.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
+                gc.setStrokeColor(CGColor.black)
+                gc.stroke(CGRect(x: 2, y: 2, width: 196, height: 196), width: 4)
+                let font = NSFont(name: "Helvetica", size: 128)!
+                let attr: [String: Any] = [
+                    NSFontAttributeName: font,
+                    NSForegroundColorAttributeName: NSColor.black
+                ]
+                
+                let s = "🐢🐢" as NSString
+                s.draw(at: NSMakePoint(20, 20), withAttributes: attr)
+                ePaper!.finishDrawing(graphicsContext: gc)
             }
             
         } else {

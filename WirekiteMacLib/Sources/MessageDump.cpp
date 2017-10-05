@@ -33,7 +33,8 @@ static const char* PortTypes[] = {
     "digi_pin",
     "analog_in",
     "pwm_out",
-    "i2c"
+    "i2c",
+    "spi"
 };
 
 static const char* PortActions[] = {

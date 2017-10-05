@@ -1107,6 +1107,193 @@ retry:
 }
 
 
+#pragma mark - SPI communication
+
+-(PortID)configureSPIMasterSCKPin:(long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes
+{
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_CONFIG_PORT;
+    request.port_type = WK_CFG_PORT_TYPE_SPI;
+    request.request_id = portList.nextRequestId();
+    request.pin_config = (sckPin & 0xff) | ((mosiPin & 0xff) << 8);
+    request.port_attributes2 = (misoPin & 0xff);
+    request.port_attributes1 = attributes;
+    request.value1 = (int32_t)frequency;
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    
+    Port* port = NULL;
+    PortID portId = 0;
+    if (response->result == WK_RESULT_OK) {
+        portId = response->port_id;
+        port = new Port(portId, PortTypeSPI, 10);
+        portList.addPort(port);
+    } else {
+        NSLog(@"Wirekite: SPI configuration failed");
+    }
+    
+    free(response);
+    return portId;
+}
+
+
+-(void)releaseSPIPort: (PortID)port
+{
+    if (deviceStatus != StatusReady)
+        return;
+    
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.action = WK_CFG_ACTION_RELEASE;
+    request.port_id = port;
+    request.request_id = portList.nextRequestId();
+    
+    [self writeMessage:&request.header];
+    
+    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    
+    Port* p = portList.getPort(port);
+    portList.removePort(port);
+    free(response);
+    delete p;
+}
+
+
+-(long)transmitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return 0;
+    
+    uint16_t requestId = portList.nextRequestId();
+    [self submitTransmitOnSPIPort:port data:data chipSelect:chipSelect requestId:requestId];
+    
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(requestId);
+    
+    uint16_t transmitted = response->event_attribute2;
+    p->setLastSample((SPIResult)response->event_attribute1);
+    free(response);
+    return transmitted;
+}
+
+
+-(void)submitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return;
+    
+    [self submitTransmitOnSPIPort:port data:data chipSelect:chipSelect requestId:0];
+}
+
+
+-(void)submitTransmitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect requestId:(uint16)requestId
+{
+    NSUInteger len = data.length;
+    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->port_id = port;
+    request->request_id = requestId;
+    request->action = WK_PORT_ACTION_TX_DATA;
+    request->action_attribute2 = chipSelect;
+    memcpy(request->data, data.bytes, len);
+    
+    [self writeMessage:&request->header];
+    free(request);
+}
+
+
+/*
+- (NSData*) requestDataOnSPIPort: (PortID)port chipSelect:(PortID)chipSelect length: (long)length
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    wk_port_request request;
+    memset(&request, 0, sizeof(wk_port_request));
+    request.header.message_size = sizeof(wk_port_request) - 2;
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.port_id = port;
+    request.request_id = portList.nextRequestId();
+    request.action = WK_PORT_ACTION_RX_DATA;
+    request.action_attribute2 = (uint16_t)slave;
+    request.value1 = (uint16_t)length;
+    
+    [self writeMessage:&request.header];
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request.request_id);
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* data = nil;
+    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    if (dataLength > 0)
+        data = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return data;
+}
+
+
+- (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave receiveLength: (long)receiveLength
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return 0;
+    
+    NSUInteger len = data.length;
+    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->port_id = port;
+    request->request_id = portList.nextRequestId();
+    request->action = WK_PORT_ACTION_TX_N_RX_DATA;
+    request->action_attribute2 = (uint16_t)slave;
+    request->value1 = (uint16_t)receiveLength;
+    memcpy(request->data, data.bytes, len);
+    
+    [self writeMessage:&request->header];
+    uint16_t request_id = request->request_id;
+    free(request);
+    
+    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
+}
+*/
+
+-(SPIResult) lastResultOnSPIPort: (PortID)port
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return SPIResultInvalidParameter;
+    
+    return (SPIResult)p->lastSample();
+}
+
+
 #pragma mark - Message handling
 
 
@@ -1172,7 +1359,7 @@ retry:
             goto error;
         
         PortType portType = port->type();
-        if (portType == PortTypeI2C) {
+        if (portType == PortTypeI2C || portType == PortTypeSPI) {
             if (event->request_id != 0) {
                 pendingRequests.putResponse(event->request_id, (wk_msg_header*)event);
             } else {

@@ -12,6 +12,8 @@
 		DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0A29431F44C87100287E20 /* GyroMPU6050.swift */; };
 		DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB23554F1F2FC20E005515F4 /* MainViewController.swift */; };
 		DB80E3F61F2C8B2300321DC2 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */; };
+		DBB31CB91F83E794009D6A76 /* EPaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB31CB81F83E794009D6A76 /* EPaper.swift */; };
+		DBB31CBB1F8573DE009D6A76 /* Dither.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB31CBA1F8573DE009D6A76 /* Dither.swift */; };
 		DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C341F293ECC00328C0F /* AppDelegate.swift */; };
 		DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C361F293ECC00328C0F /* DeviceViewController.swift */; };
 		DBC93C451F2BA41500328C0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C381F293ECC00328C0F /* Assets.xcassets */; };
@@ -27,6 +29,8 @@
 		DB0A29411F43735A00287E20 /* OLEDDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OLEDDisplay.swift; sourceTree = "<group>"; };
 		DB0A29431F44C87100287E20 /* GyroMPU6050.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GyroMPU6050.swift; sourceTree = "<group>"; };
 		DB23554F1F2FC20E005515F4 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		DBB31CB81F83E794009D6A76 /* EPaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPaper.swift; sourceTree = "<group>"; };
+		DBB31CBA1F8573DE009D6A76 /* Dither.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dither.swift; sourceTree = "<group>"; };
 		DBC93C311F293ECC00328C0F /* Wirekite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wirekite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC93C341F293ECC00328C0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DBC93C361F293ECC00328C0F /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
@@ -92,6 +96,8 @@
 				DB0A29411F43735A00287E20 /* OLEDDisplay.swift */,
 				DB0A29431F44C87100287E20 /* GyroMPU6050.swift */,
 				DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */,
+				DBB31CB81F83E794009D6A76 /* EPaper.swift */,
+				DBB31CBA1F8573DE009D6A76 /* Dither.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -192,9 +198,11 @@
 				DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */,
 				DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */,
 				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
+				DBB31CBB1F8573DE009D6A76 /* Dither.swift in Sources */,
 				DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */,
 				DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */,
 				DB0A29421F43735A00287E20 /* OLEDDisplay.swift in Sources */,
+				DBB31CB91F83E794009D6A76 /* EPaper.swift in Sources */,
 				DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
