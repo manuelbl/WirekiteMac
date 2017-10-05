@@ -85,11 +85,6 @@ class EPaper: NSObject {
         sendCommand(EPaper.DataEntryModeSetting, data: [ 0x03 ])
         
         sendCommand(EPaper.WriteLUTRegister, data: EPaper.LUTFullUpdate)
-        
-//        clearFrameMemory()
-//        displayFrame()
-//        clearFrameMemory()
-//        displayFrame()
     }
     
     func prepareForDrawing() -> CGContext {
@@ -98,11 +93,16 @@ class EPaper: NSObject {
         return graphics!
     }
     
-    func finishDrawing(graphicsContext: CGContext) {
+    func finishDrawing(shouldDither: Bool) {
         let data = graphics!.data
         let dataPtr = data!.bindMemory(to: UInt8.self, capacity: Width * Height)
         let dataBuffer = UnsafeBufferPointer(start: dataPtr, count: Width * Height)
-        let pixels = Dither.burkesDither(pixelData: [UInt8](dataBuffer), width: Width)
+        let pixels: [UInt8]
+        if shouldDither {
+            pixels = Dither.burkesDither(pixelData: [UInt8](dataBuffer), width: Width)
+        } else {
+            pixels = [UInt8](dataBuffer)
+        }
 
         let stride = Width / 8
         var buf = [UInt8](repeating: 0xff, count: Height * stride)
@@ -129,11 +129,6 @@ class EPaper: NSObject {
         setMemoryPointer(x: 0, y: 0)
         sendCommand(EPaper.WriteRAM, data: buf)
         displayFrame()
-
-//        setMemoryArea(x: 0, y: 0, width: Width - 1, height: Height - 1)
-//        setMemoryPointer(x: 0, y: 0)
-//        sendCommand(EPaper.WriteRAM, data: buf)
-//        displayFrame()
     }
     
     private func reset() {

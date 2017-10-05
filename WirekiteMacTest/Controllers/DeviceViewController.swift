@@ -76,7 +76,9 @@ class DeviceViewController: NSViewController {
     // E-Paper
     var spi: PortID = 0
     var ePaper: EPaper? = nil
-    
+    var ePaperTimer: Timer? = nil
+    var ePaperCharacter = 65
+
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
     @IBOutlet weak var checkboxOrange: NSButton!
@@ -131,6 +133,8 @@ class DeviceViewController: NSViewController {
         gyroTimer = nil
         displayTimer?.invalidate()
         displayTimer = nil
+        ePaperTimer?.invalidate()
+        ePaperTimer = nil
     }
 
     func configurePins() {
@@ -239,20 +243,8 @@ class DeviceViewController: NSViewController {
                 spi = device.configureSPIMasterSCKPin(14, mosiPin: 11, misoPin: InvalidPortID, frequency: 100000, attributes: [])
                 ePaper = EPaper(device: device, spiPort: spi, csPin: 10, dcPin: 15, busyPin: 20, resetPin: 16)
                 ePaper!.initDevice()
-                let gc = ePaper!.prepareForDrawing()
-                gc.setFillColor(CGColor.white)
-                gc.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
-                gc.setStrokeColor(CGColor.black)
-                gc.stroke(CGRect(x: 2, y: 2, width: 196, height: 196), width: 4)
-                let font = NSFont(name: "Helvetica", size: 128)!
-                let attr: [String: Any] = [
-                    NSFontAttributeName: font,
-                    NSForegroundColorAttributeName: NSColor.black
-                ]
-                
-                let s = "🐢🐢" as NSString
-                s.draw(at: NSMakePoint(20, 20), withAttributes: attr)
-                ePaper!.finishDrawing(graphicsContext: gc)
+                ePaperTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in self.updateEPaper() }
+                ePaperTimer!.fire()
             }
             
         } else {
@@ -328,6 +320,32 @@ class DeviceViewController: NSViewController {
     
     func updateDisplay() {
         display!.showTile()
+    }
+    
+    func updateEPaper() {
+        let gc = ePaper!.prepareForDrawing()
+        gc.setShouldAntialias(false)
+        gc.setShouldSmoothFonts(false)
+        gc.setFillColor(CGColor.white)
+        gc.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
+        gc.setStrokeColor(CGColor.black)
+        gc.stroke(CGRect(x: 2, y: 2, width: 196, height: 196), width: 4)
+
+        let font = NSFont(name: "Helvetica-Bold", size: 128)!
+        let attr: [String: Any] = [
+            NSFontAttributeName: font,
+            NSForegroundColorAttributeName: NSColor.black
+        ]
+        
+        let s = String(describing: UnicodeScalar(ePaperCharacter)!) as NSString
+        let w = s.size(withAttributes: attr)
+        s.draw(at: NSMakePoint(100 - w.width / 2, 30), withAttributes: attr)
+        ePaper!.finishDrawing(shouldDither: false)
+        
+        ePaperCharacter += 1
+        if ePaperCharacter >= 91 {
+            ePaperCharacter = 65
+        }
     }
 }
 
