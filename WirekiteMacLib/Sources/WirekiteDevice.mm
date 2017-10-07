@@ -1109,7 +1109,7 @@ retry:
 
 #pragma mark - SPI communication
 
--(PortID)configureSPIMasterSCKPin:(long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes
+-(PortID)configureSPIMasterForSCKPin:(long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes
 {
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));

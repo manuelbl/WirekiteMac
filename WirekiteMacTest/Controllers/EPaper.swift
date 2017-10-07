@@ -53,7 +53,7 @@ class EPaper: NSObject {
     private var busyPort: PortID
     private var resetPort: PortID
     
-    private var graphics: CGContext?
+    private var graphics: GraphicsBuffer?
 
     init(device: WirekiteDevice, spiPort: PortID, csPin: Int, dcPin: Int, busyPin: Int, resetPin: Int) {
         self.device = device
@@ -73,7 +73,7 @@ class EPaper: NSObject {
     }
     
     func initDevice() {
-        graphics = CGContext(data: nil, width: Width, height: Height, bitsPerComponent: 8, bytesPerRow: Width, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        graphics = GraphicsBuffer(width: Width, height: Height, isColor: false)
 
         reset()
         
@@ -88,21 +88,11 @@ class EPaper: NSObject {
     }
     
     func prepareForDrawing() -> CGContext {
-        let gc = NSGraphicsContext(cgContext: graphics!, flipped: false)
-        NSGraphicsContext.setCurrent(gc)
-        return graphics!
+        return graphics!.prepareForDrawing()
     }
     
     func finishDrawing(shouldDither: Bool) {
-        let data = graphics!.data
-        let dataPtr = data!.bindMemory(to: UInt8.self, capacity: Width * Height)
-        let dataBuffer = UnsafeBufferPointer(start: dataPtr, count: Width * Height)
-        let pixels: [UInt8]
-        if shouldDither {
-            pixels = Dither.burkesDither(pixelData: [UInt8](dataBuffer), width: Width)
-        } else {
-            pixels = [UInt8](dataBuffer)
-        }
+        let pixels = graphics!.finishDrawing(format: shouldDither ? .BlackAndWhiteDithered : .Grayscale)
 
         let stride = Width / 8
         var buf = [UInt8](repeating: 0xff, count: Height * stride)

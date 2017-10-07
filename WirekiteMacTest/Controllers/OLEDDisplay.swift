@@ -6,7 +6,7 @@
 // https://opensource.org/licenses/MIT
 //
 
-import Foundation
+import CoreFoundation
 import Cocoa
 
 
@@ -61,7 +61,7 @@ class OLEDDisplay {
     */
     var DisplayOffset = 0
     
-    private var graphics: CGContext?
+    private var graphics: GraphicsBuffer?
     
     
     init(device: WirekiteDevice, i2cPins: I2CPins) {
@@ -110,16 +110,18 @@ class OLEDDisplay {
             return
         }
 
-        graphics = CGContext(data: nil, width: Width, height: Height, bitsPerComponent: 8, bytesPerRow: Width, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        graphics = GraphicsBuffer(width: Width, height: Height, isColor: false)
     }
     
     func draw(offset: Int) {
         
-        graphics!.setFillColor(CGColor.black)
-        graphics!.fill(CGRect(x: 0, y: 0, width: 128, height: 64))
+        let gc = graphics!.prepareForDrawing()
         
-        let gc = NSGraphicsContext(cgContext: graphics!, flipped: false)
-        NSGraphicsContext.setCurrent(gc)
+        gc.setFillColor(CGColor.black)
+        gc.fill(CGRect(x: 0, y: 0, width: 128, height: 64))
+        
+        let ngc = NSGraphicsContext(cgContext: gc, flipped: false)
+        NSGraphicsContext.setCurrent(ngc)
         let font = NSFont(name: "Helvetica", size: 64)!
         let attr: [String: Any] = [
             NSFontAttributeName: font,
@@ -143,10 +145,7 @@ class OLEDDisplay {
             offset = 0
         }
         
-        let data = graphics!.data
-        let dataPtr = data!.bindMemory(to: UInt8.self, capacity: Width * Height)
-        let dataBuffer = UnsafeBufferPointer(start: dataPtr, count: Width * Height)
-        let pixels = Dither.burkesDither(pixelData: [UInt8](dataBuffer), width: Width)
+        let pixels = graphics!.finishDrawing(format: .BlackAndWhiteDithered)
         
         var tile = [UInt8](repeating: 0, count: Width + 7)
 

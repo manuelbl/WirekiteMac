@@ -17,10 +17,10 @@ class DeviceViewController: NSViewController {
     static let hasTwoPotentiometers = false
     static let hasServo = false
     static let hasAnalogStick = false
-    static let hasAmmeter = false
-    static let hasOLED = false
-    static let hasGyro = false
-    static let hasEPaper = true
+    static let hasAmmeter = true
+    static let hasOLED = true
+    static let hasGyro = true
+    static let hasEPaper = false
     
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -240,7 +240,7 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasEPaper {
-                spi = device.configureSPIMasterSCKPin(14, mosiPin: 11, misoPin: InvalidPortID, frequency: 100000, attributes: [])
+                spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: InvalidPortID, frequency: 100000, attributes: [])
                 ePaper = EPaper(device: device, spiPort: spi, csPin: 10, dcPin: 15, busyPin: 20, resetPin: 16)
                 ePaper!.initDevice()
                 ePaperTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in self.updateEPaper() }

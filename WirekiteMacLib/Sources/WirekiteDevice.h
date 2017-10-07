@@ -654,7 +654,7 @@ extern long InvalidPortID;
  
     @return the SPI port ID
  */
--(PortID) configureSPIMasterSCKPin: (long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes;
+-(PortID) configureSPIMasterForSCKPin: (long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes;
 
 
 /*! @brief Releases the SPI port

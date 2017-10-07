@@ -7,8 +7,95 @@
 //
 
 import Cocoa
+import Accelerate
 
-class Dither: NSObject {
+
+class GraphicsBuffer {
+    
+    enum GraphicsFormat {
+        case Grayscale
+        case BlackAndWhiteDithered
+        case RGB565
+    }
+
+    private let width: Int
+    private let height: Int
+    private let isColor: Bool
+    private var graphics: CGContext
+    
+    init(width: Int, height: Int, isColor: Bool) {
+        self.width = width
+        self.height = height
+        self.isColor = isColor
+        
+        let colorSpace: CGColorSpace
+        let bytesPerRow: Int
+        if isColor {
+            colorSpace = CGColorSpaceCreateDeviceRGB()
+            bytesPerRow = width * 4
+        } else {
+            colorSpace = CGColorSpaceCreateDeviceGray()
+            bytesPerRow = width
+        }
+        
+        graphics = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+    }
+
+    func prepareForDrawing() -> CGContext {
+        let gc = NSGraphicsContext(cgContext: graphics, flipped: false)
+        NSGraphicsContext.setCurrent(gc)
+        return graphics
+    }
+    
+    func finishDrawing(format: GraphicsFormat) -> [UInt8] {
+        switch format {
+        case .Grayscale:
+            return toGrayscale()
+        case .BlackAndWhiteDithered:
+            return GraphicsBuffer.burkesDither(pixelData: toGrayscale(), width: width)
+        case .RGB565:
+            return toRGB565()
+        }
+    }
+    
+    private func toGrayscale() -> [UInt8] {
+        let data = graphics.data
+        let numBytes = isColor ? width * height * 4 : width * height
+        let dataPtr = data!.bindMemory(to: UInt8.self, capacity: numBytes)
+        let dataBuffer = UnsafeBufferPointer(start: dataPtr, count: numBytes)
+        
+        return [UInt8](dataBuffer)
+    }
+    
+    private func toRGB565() -> [UInt8] {
+        let srcSize = width * height * 4
+        let destSize = width * height * 2
+        
+        var src = UnsafeMutablePointer<vImage_Buffer>.allocate(capacity: 1)
+        defer {
+            src.deallocate(capacity: 1)
+        }
+        src.initialize(to: vImage_Buffer(data: graphics.data, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: srcSize))
+        
+        var destData = UnsafeMutablePointer<UInt8>.allocate(capacity: destSize)
+        defer {
+            destData.deallocate(capacity: destSize)
+        }
+        
+        var dest = UnsafeMutablePointer<vImage_Buffer>.allocate(capacity: 1)
+        defer {
+            dest.deallocate(capacity: 1)
+        }
+        dest.initialize(to: vImage_Buffer(data: destData, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: destSize))
+        
+        vImageConvert_ARGB8888toRGB565(src, dest, 0)
+        
+        let dataBuffer = UnsafeMutableBufferPointer(start: destData, count: destSize)
+        return [UInt8](dataBuffer)
+    }
+    
+    
+    // MARK: - Dithering
 
     private static let OrderedDitheringMatrix: [UInt8] = [
         0, 48, 12, 60,  3, 51, 15, 63,
