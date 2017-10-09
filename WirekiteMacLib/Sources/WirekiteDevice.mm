@@ -126,6 +126,10 @@ typedef struct {
     deviceStatus = StatusClosed;
 }
 
+-(bool)isClosed {
+    return interface == NULL;
+}
+
 
 #pragma mark - Device initialization
 
@@ -342,6 +346,9 @@ retry:
 
 - (void) writeBytes: (const uint8_t*)bytes size: (uint16_t) size
 {
+    if (self->interface == NULL)
+        return; // has probably been disconnected
+    
     // data must be copied
     Transfer* transfer = (Transfer*)malloc(sizeof(Transfer));
     memset(transfer, 0, sizeof(Transfer));
@@ -623,6 +630,9 @@ retry:
 
 - (void) releaseDigitalPinOnPort: (PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -648,6 +658,11 @@ retry:
 
 - (void) writeDigitalPinOnPort: (PortID)portId value:(BOOL)value
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. Digital port operation is ignored.");
+        return;
+    }
+    
     wk_port_request request;
     memset(&request, 0, sizeof(wk_port_request));
     request.header.message_size = sizeof(wk_port_request);
@@ -761,6 +776,9 @@ retry:
 
 - (void) releaseAnalogPinOnPort: (PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -850,6 +868,9 @@ retry:
 
 - (void) releasePWMPinOnPort:(PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -871,6 +892,11 @@ retry:
 
 - (void) writePWMPinOnPort:(PortID)portId dutyCycle:(double)dutyCycle
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_port_request request;
     memset(&request, 0, sizeof(wk_port_request));
     request.header.message_size = sizeof(wk_port_request);
@@ -885,6 +911,11 @@ retry:
 
 - (void) configurePWMTimer: (long) timer frequency: (long) frequency attributes: (PWMTimerAttributes) attributes
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -905,6 +936,11 @@ retry:
 
 - (void) configurePWMChannel: (long) timer channel: (long) channel attributes: (PWMChannelAttributes) attributes
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
@@ -958,8 +994,8 @@ retry:
 
 - (void) releaseI2CPort: (PortID)port
 {
-    if (deviceStatus != StatusReady)
-        return;
+    if ([self isClosed])
+        return; // silently ignore
     
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -982,6 +1018,11 @@ retry:
 
 - (long) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return 0;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
@@ -1000,6 +1041,11 @@ retry:
 
 - (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return;
@@ -1061,6 +1107,11 @@ retry:
 
 - (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave receiveLength: (long)receiveLength
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return 0;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
@@ -1144,8 +1195,8 @@ retry:
 
 -(void)releaseSPIPort: (PortID)port
 {
-    if (deviceStatus != StatusReady)
-        return;
+    if ([self isClosed])
+        return; // silently ignore
     
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
@@ -1168,6 +1219,11 @@ retry:
 
 -(long)transmitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return 0;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
@@ -1186,6 +1242,11 @@ retry:
 
 -(void)submitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return;

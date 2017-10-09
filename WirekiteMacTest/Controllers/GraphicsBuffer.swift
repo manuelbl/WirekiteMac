@@ -13,9 +13,10 @@ import Accelerate
 class GraphicsBuffer {
     
     enum GraphicsFormat {
-        case Grayscale
-        case BlackAndWhiteDithered
-        case RGB565
+        case grayscale
+        case blackAndWhiteDithered
+        case rgb565
+        case rgb565Rotated90
     }
 
     private let width: Int
@@ -29,16 +30,16 @@ class GraphicsBuffer {
         self.isColor = isColor
         
         let colorSpace: CGColorSpace
-        let bytesPerRow: Int
+        let bitmapInfo: UInt32
         if isColor {
             colorSpace = CGColorSpaceCreateDeviceRGB()
-            bytesPerRow = width * 4
+            bitmapInfo = CGImageAlphaInfo.premultipliedFirst.rawValue
         } else {
             colorSpace = CGColorSpaceCreateDeviceGray()
-            bytesPerRow = width
+            bitmapInfo = CGImageAlphaInfo.none.rawValue
         }
         
-        graphics = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+        graphics = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo)!
     }
 
     func prepareForDrawing() -> CGContext {
@@ -49,12 +50,14 @@ class GraphicsBuffer {
     
     func finishDrawing(format: GraphicsFormat) -> [UInt8] {
         switch format {
-        case .Grayscale:
+        case .grayscale:
             return toGrayscale()
-        case .BlackAndWhiteDithered:
+        case .blackAndWhiteDithered:
             return GraphicsBuffer.burkesDither(pixelData: toGrayscale(), width: width)
-        case .RGB565:
+        case .rgb565:
             return toRGB565()
+        case .rgb565Rotated90:
+            return toRotatedRGB565()
         }
     }
     
@@ -68,30 +71,31 @@ class GraphicsBuffer {
     }
     
     private func toRGB565() -> [UInt8] {
-        let srcSize = width * height * 4
-        let destSize = width * height * 2
+        var src = vImage_Buffer(data: graphics.data, height: vImagePixelCount(graphics.height), width: vImagePixelCount(graphics.width), rowBytes: graphics.bytesPerRow)
         
-        var src = UnsafeMutablePointer<vImage_Buffer>.allocate(capacity: 1)
-        defer {
-            src.deallocate(capacity: 1)
-        }
-        src.initialize(to: vImage_Buffer(data: graphics.data, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: srcSize))
+        var destData = [UInt8](repeating: 0, count: width * height * 2)
+        var dest = vImage_Buffer(data: &destData, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: width * 2)
         
-        var destData = UnsafeMutablePointer<UInt8>.allocate(capacity: destSize)
-        defer {
-            destData.deallocate(capacity: destSize)
-        }
+        vImageConvert_ARGB8888toRGB565(&src, &dest, 0)
         
-        var dest = UnsafeMutablePointer<vImage_Buffer>.allocate(capacity: 1)
-        defer {
-            dest.deallocate(capacity: 1)
-        }
-        dest.initialize(to: vImage_Buffer(data: destData, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: destSize))
+        return destData
+    }
+    
+    
+    private func toRotatedRGB565() -> [UInt8] {
+        var src = vImage_Buffer(data: graphics.data, height: vImagePixelCount(graphics.height), width: vImagePixelCount(graphics.width), rowBytes: graphics.bytesPerRow)
         
-        vImageConvert_ARGB8888toRGB565(src, dest, 0)
+        var intermedData = [UInt8](repeating: 0, count: width * height * 4)
+        var intermed = vImage_Buffer(data: &intermedData, height: vImagePixelCount(width), width: vImagePixelCount(height), rowBytes: height * 4)
+        var backgroundColor: [UInt8] = [ 255, 0, 255, 0 ]
+        vImageRotate90_ARGB8888(&src, &intermed, UInt8(kRotate90DegreesClockwise), &backgroundColor, 0)
         
-        let dataBuffer = UnsafeMutableBufferPointer(start: destData, count: destSize)
-        return [UInt8](dataBuffer)
+        var destData = [UInt8](repeating: 0, count: width * height * 2)
+        var dest = vImage_Buffer(data: &destData, height: vImagePixelCount(width), width: vImagePixelCount(height), rowBytes: height * 2)
+        
+        vImageConvert_ARGB8888toRGB565(&intermed, &dest, 0)
+        
+        return destData
     }
     
     

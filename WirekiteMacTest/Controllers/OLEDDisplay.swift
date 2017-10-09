@@ -145,7 +145,7 @@ class OLEDDisplay {
             offset = 0
         }
         
-        let pixels = graphics!.finishDrawing(format: .BlackAndWhiteDithered)
+        let pixels = graphics!.finishDrawing(format: .blackAndWhiteDithered)
         
         var tile = [UInt8](repeating: 0, count: Width + 7)
 

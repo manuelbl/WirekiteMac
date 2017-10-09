@@ -17,11 +17,12 @@ class DeviceViewController: NSViewController {
     static let hasTwoPotentiometers = false
     static let hasServo = false
     static let hasAnalogStick = false
-    static let hasAmmeter = true
-    static let hasOLED = true
-    static let hasGyro = true
+    static let hasAmmeter = false
+    static let hasOLED = false
+    static let hasGyro = false
     static let hasEPaper = false
-    
+    static let hasColorTFT = true
+
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
     static let indicatorColorInactive = NSColor.lightGray
@@ -78,6 +79,11 @@ class DeviceViewController: NSViewController {
     var ePaper: EPaper? = nil
     var ePaperTimer: Timer? = nil
     var ePaperCharacter = 65
+    
+    // Color TFT
+    var colorTFT: ColorTFT? = nil
+    var colorTFTTimer: Timer? = nil
+    var colorTFTOffset = 0
 
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
@@ -135,6 +141,8 @@ class DeviceViewController: NSViewController {
         displayTimer = nil
         ePaperTimer?.invalidate()
         ePaperTimer = nil
+        colorTFTTimer?.invalidate()
+        colorTFTTimer = nil
     }
 
     func configurePins() {
@@ -247,6 +255,14 @@ class DeviceViewController: NSViewController {
                 ePaperTimer!.fire()
             }
             
+            if DeviceViewController.hasColorTFT {
+                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 1000000, attributes: [])
+                colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
+                colorTFT!.SPIFrequency = 1000000
+                colorTFT!.initDevice()
+                colorTFTTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in self.updateTFT() }
+            }
+
         } else {
             resetUI(enabled: false)
         }
@@ -330,7 +346,7 @@ class DeviceViewController: NSViewController {
         gc.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
         gc.setStrokeColor(CGColor.black)
         gc.stroke(CGRect(x: 2, y: 2, width: 196, height: 196), width: 4)
-
+        
         let font = NSFont(name: "Helvetica-Bold", size: 128)!
         let attr: [String: Any] = [
             NSFontAttributeName: font,
@@ -346,6 +362,31 @@ class DeviceViewController: NSViewController {
         if ePaperCharacter >= 91 {
             ePaperCharacter = 65
         }
+    }
+    
+    func updateTFT() {
+        let gc = colorTFT!.prepareForDrawing()
+        gc.setShouldAntialias(true)
+        gc.setShouldSmoothFonts(true)
+        gc.setShouldSubpixelPositionFonts(false)
+        gc.setShouldSubpixelQuantizeFonts(false)
+        gc.setFillColor(CGColor.white)
+        gc.fill(CGRect(x: 0, y: 0, width: 160, height: 128))
+        
+        let font = NSFont(name: "Helvetica-Bold", size: 64)!
+        let attr: [String: Any] = [
+            NSFontAttributeName: font,
+            NSForegroundColorAttributeName: NSColor.black
+        ]
+        
+        let s = "😱✌️🎃🐢☠️😨💩😱✌️🎃" as NSString
+        s.draw(at: NSMakePoint(CGFloat(10 + colorTFTOffset), 30), withAttributes: attr)
+        colorTFTOffset -= 10
+        if colorTFTOffset <= -480 {
+            colorTFTOffset = 0
+        }
+
+        colorTFT!.finishDrawing()
     }
 }
 

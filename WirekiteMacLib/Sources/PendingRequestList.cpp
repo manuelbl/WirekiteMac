@@ -13,7 +13,8 @@
 
 PendingRequestList::PendingRequestList()
 :   mutex(PTHREAD_MUTEX_INITIALIZER),
-    inserted(PTHREAD_COND_INITIALIZER)
+    inserted(PTHREAD_COND_INITIALIZER),
+    isDestroyed(false)
 {
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&inserted, NULL);
@@ -22,6 +23,7 @@ PendingRequestList::PendingRequestList()
 
 PendingRequestList::~PendingRequestList()
 {
+    isDestroyed = true;
     pthread_cond_destroy(&inserted);
     pthread_mutex_destroy(&mutex);
 }
@@ -46,7 +48,7 @@ wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
     pthread_mutex_lock(&mutex);
     
     std::vector<PendingRequest>::iterator it;
-    while (true) {
+    while (!isDestroyed) {
         for (it = requests.begin(); it != requests.end(); it++)
             if ((*it).requestId == requestId)
                 break;
@@ -55,8 +57,12 @@ wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
         pthread_cond_wait(&inserted, &mutex);
     }
     
-    wk_msg_header* result = (*it).response;
-    requests.erase(it);
+    wk_msg_header* result = NULL;
+    if (!isDestroyed)
+    {
+        result = (*it).response;
+        requests.erase(it);
+    }
     
     pthread_mutex_unlock(&mutex);
     

@@ -92,7 +92,7 @@ class EPaper: NSObject {
     }
     
     func finishDrawing(shouldDither: Bool) {
-        let pixels = graphics!.finishDrawing(format: shouldDither ? .BlackAndWhiteDithered : .Grayscale)
+        let pixels = graphics!.finishDrawing(format: shouldDither ? .blackAndWhiteDithered : .grayscale)
 
         let stride = Width / 8
         var buf = [UInt8](repeating: 0xff, count: Height * stride)

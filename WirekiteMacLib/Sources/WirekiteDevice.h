@@ -268,6 +268,10 @@ extern long InvalidPortID;
  */
 - (void) resetConfiguration;
 
+/*! @brief Indicates if the device has been closed (or disconnected).
+ */
+-(bool)isClosed;
+
 
 /*!
     @name Board information

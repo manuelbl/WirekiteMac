@@ -21,6 +21,7 @@
 		DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C471F2BA61700328C0F /* AnalogStick.swift */; };
 		DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C481F2BA61700328C0F /* Light.swift */; };
 		DBC93C4E1F2BA78A00328C0F /* libWirekiteMacLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */; };
+		DBE2105B1F895DC900EC157E /* ColorTFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE2105A1F895DC900EC157E /* ColorTFT.swift */; };
 		DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 		DBC93C481F2BA61700328C0F /* Light.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
 		DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWirekiteMacLib.a; path = ../WirekiteMacLib/build/Debug/libWirekiteMacLib.a; sourceTree = "<group>"; };
 		DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		DBE2105A1F895DC900EC157E /* ColorTFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTFT.swift; sourceTree = "<group>"; };
 		DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Servo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -98,6 +100,7 @@
 				DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */,
 				DBB31CB81F83E794009D6A76 /* EPaper.swift */,
 				DBB31CBA1F8573DE009D6A76 /* GraphicsBuffer.swift */,
+				DBE2105A1F895DC900EC157E /* ColorTFT.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -195,6 +198,7 @@
 			files = (
 				DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */,
 				DB0A29401F40789200287E20 /* Ammeter.swift in Sources */,
+				DBE2105B1F895DC900EC157E /* ColorTFT.swift in Sources */,
 				DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */,
 				DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */,
 				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
