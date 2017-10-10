@@ -140,8 +140,10 @@ class ColorTFT: NSObject {
             p += 2
         }
         
-        setAddressWindow(x: 0, y: 0, w: Height, h: Width)
-        sendCommand(ColorTFT.RAMWR, data: pixels, asynchronous: true)
+        DispatchQueue.global(qos: .userInteractive).async {
+            self.setAddressWindow(x: 0, y: 0, w: self.Height, h: self.Width)
+            self.sendCommand(ColorTFT.RAMWR, data: pixels, asynchronous: true)
+        }
     }
     
     private func reset() {

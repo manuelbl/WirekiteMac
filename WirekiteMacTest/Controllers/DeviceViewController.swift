@@ -388,5 +388,14 @@ class DeviceViewController: NSViewController {
 
         colorTFT!.finishDrawing()
     }
+    
+    static func scheduleBackgroundTimer(withTimeInterval interval: DispatchTimeInterval, block: @escaping () -> ()) -> DispatchSourceTimer {
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .background))
+        timer.scheduleRepeating(deadline: DispatchTime.now(), interval: interval, leeway: DispatchTimeInterval.milliseconds(10))
+        let workItem = DispatchWorkItem(block: block)
+        timer.setEventHandler(handler: workItem)
+        timer.resume()
+        return timer
+    }
 }
 
