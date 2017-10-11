@@ -1,0 +1,403 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3B5EE0E30551796C79B053E9 /* Pods_Clock_Generator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB67DA435A946E6FD70DE7C /* Pods_Clock_Generator.framework */; };
+		DBE210691F8D309E00EC157E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE210681F8D309E00EC157E /* AppDelegate.swift */; };
+		DBE2106B1F8D309E00EC157E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE2106A1F8D309E00EC157E /* ViewController.swift */; };
+		DBE2106D1F8D309E00EC157E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBE2106C1F8D309E00EC157E /* Assets.xcassets */; };
+		DBE210701F8D309E00EC157E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DBE2106E1F8D309E00EC157E /* Main.storyboard */; };
+		DBE210791F8D38DE00EC157E /* ClockGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE210781F8D38DE00EC157E /* ClockGenerator.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		199E9CA3A520C7E02662CF12 /* Pods-Clock Generator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Clock Generator.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Clock Generator/Pods-Clock Generator.debug.xcconfig"; sourceTree = "<group>"; };
+		954A161D0603DE21A0C9209E /* Pods-Clock Generator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Clock Generator.release.xcconfig"; path = "Pods/Target Support Files/Pods-Clock Generator/Pods-Clock Generator.release.xcconfig"; sourceTree = "<group>"; };
+		DBE210651F8D309E00EC157E /* Clock Generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Clock Generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBE210681F8D309E00EC157E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DBE2106A1F8D309E00EC157E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DBE2106C1F8D309E00EC157E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DBE2106F1F8D309E00EC157E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DBE210711F8D309E00EC157E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DBE210721F8D309E00EC157E /* Clock_Generator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Clock_Generator.entitlements; sourceTree = "<group>"; };
+		DBE210781F8D38DE00EC157E /* ClockGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockGenerator.swift; sourceTree = "<group>"; };
+		FBB67DA435A946E6FD70DE7C /* Pods_Clock_Generator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Clock_Generator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DBE210621F8D309E00EC157E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3B5EE0E30551796C79B053E9 /* Pods_Clock_Generator.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6F0F1F3A2FBF0EDE65477BC3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				199E9CA3A520C7E02662CF12 /* Pods-Clock Generator.debug.xcconfig */,
+				954A161D0603DE21A0C9209E /* Pods-Clock Generator.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		DBE2105C1F8D309E00EC157E = {
+			isa = PBXGroup;
+			children = (
+				DBE210671F8D309E00EC157E /* Clock Generator */,
+				DBE210661F8D309E00EC157E /* Products */,
+				6F0F1F3A2FBF0EDE65477BC3 /* Pods */,
+				F035A92C44B586BBD01A9309 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DBE210661F8D309E00EC157E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DBE210651F8D309E00EC157E /* Clock Generator.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DBE210671F8D309E00EC157E /* Clock Generator */ = {
+			isa = PBXGroup;
+			children = (
+				DBE210681F8D309E00EC157E /* AppDelegate.swift */,
+				DBE2106A1F8D309E00EC157E /* ViewController.swift */,
+				DBE2106C1F8D309E00EC157E /* Assets.xcassets */,
+				DBE2106E1F8D309E00EC157E /* Main.storyboard */,
+				DBE210711F8D309E00EC157E /* Info.plist */,
+				DBE210721F8D309E00EC157E /* Clock_Generator.entitlements */,
+				DBE210781F8D38DE00EC157E /* ClockGenerator.swift */,
+			);
+			path = "Clock Generator";
+			sourceTree = "<group>";
+		};
+		F035A92C44B586BBD01A9309 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FBB67DA435A946E6FD70DE7C /* Pods_Clock_Generator.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DBE210641F8D309E00EC157E /* Clock Generator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DBE210751F8D309E00EC157E /* Build configuration list for PBXNativeTarget "Clock Generator" */;
+			buildPhases = (
+				213B25FD5F46815C0656C7A6 /* [CP] Check Pods Manifest.lock */,
+				DBE210611F8D309E00EC157E /* Sources */,
+				DBE210621F8D309E00EC157E /* Frameworks */,
+				DBE210631F8D309E00EC157E /* Resources */,
+				45F4237029F7963324BEEDF3 /* [CP] Embed Pods Frameworks */,
+				B1CC09410C2F839FC7EF2814 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Clock Generator";
+			productName = "Clock Generator";
+			productReference = DBE210651F8D309E00EC157E /* Clock Generator.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DBE2105D1F8D309E00EC157E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0900;
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = Codecrete;
+				TargetAttributes = {
+					DBE210641F8D309E00EC157E = {
+						CreatedOnToolsVersion = 9.0;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DBE210601F8D309E00EC157E /* Build configuration list for PBXProject "Clock Generator" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DBE2105C1F8D309E00EC157E;
+			productRefGroup = DBE210661F8D309E00EC157E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DBE210641F8D309E00EC157E /* Clock Generator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DBE210631F8D309E00EC157E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBE2106D1F8D309E00EC157E /* Assets.xcassets in Resources */,
+				DBE210701F8D309E00EC157E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		213B25FD5F46815C0656C7A6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Clock Generator-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		45F4237029F7963324BEEDF3 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Clock Generator/Pods-Clock Generator-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/WirekiteMac/WirekiteMac.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WirekiteMac.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Clock Generator/Pods-Clock Generator-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B1CC09410C2F839FC7EF2814 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Clock Generator/Pods-Clock Generator-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DBE210611F8D309E00EC157E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBE2106B1F8D309E00EC157E /* ViewController.swift in Sources */,
+				DBE210791F8D38DE00EC157E /* ClockGenerator.swift in Sources */,
+				DBE210691F8D309E00EC157E /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DBE2106E1F8D309E00EC157E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DBE2106F1F8D309E00EC157E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DBE210731F8D309E00EC157E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DBE210741F8D309E00EC157E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+			};
+			name = Release;
+		};
+		DBE210761F8D309E00EC157E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 199E9CA3A520C7E02662CF12 /* Pods-Clock Generator.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Clock Generator/Clock_Generator.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Clock Generator/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codecrete.Clock-Generator";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		DBE210771F8D309E00EC157E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 954A161D0603DE21A0C9209E /* Pods-Clock Generator.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Clock Generator/Clock_Generator.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Clock Generator/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "net.codecrete.Clock-Generator";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DBE210601F8D309E00EC157E /* Build configuration list for PBXProject "Clock Generator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBE210731F8D309E00EC157E /* Debug */,
+				DBE210741F8D309E00EC157E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DBE210751F8D309E00EC157E /* Build configuration list for PBXNativeTarget "Clock Generator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBE210761F8D309E00EC157E /* Debug */,
+				DBE210771F8D309E00EC157E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DBE2105D1F8D309E00EC157E /* Project object */;
+}
