@@ -187,16 +187,16 @@ class ColorTFT: NSObject {
                     }
                 }
             } else {
-                var nextPacketTime = Date()
+                //var nextPacketTime = Date()
                 var offset = 0
                 while offset < data.count {
                     let end = min(offset + 2048, data.count)
                     let commandLoad = Data(bytes: data[offset ..< end])
                     
                     if asynchronous {
-                        Thread.sleep(until: nextPacketTime)
+                        //Thread.sleep(until: nextPacketTime)
                         device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
-                        nextPacketTime = nextPacketTime.addingTimeInterval(2048 * 16 / Double(SPIFrequency))
+                        //nextPacketTime = nextPacketTime.addingTimeInterval(2048 * 16 / Double(SPIFrequency))
                     } else {
                         guard device!.transmit(onSPIPort: spi, data: commandLoad, chipSelect: csPort) == commandLoad.count else {
                             NSLog("ColorTFT: Transmitting command data failed")

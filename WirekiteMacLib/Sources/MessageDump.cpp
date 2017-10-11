@@ -42,7 +42,8 @@ static const char* PortActions[] = {
     "set_value",
     "get_value",
     "tx_data",
-    "request_data"
+    "rx_data",
+    "tx_n_rx_data"
 };
 
 static const char* PortEvents[] = {
@@ -65,13 +66,13 @@ std::string MessageDump::dump(wk_msg_header* msg)
     buf << std::hex << "\n";
     buf << "message_size: " << msg->message_size << "\n";
     buf << "message_type: " << SafeElement(MessageTypes, msg->message_type) << " (" << (int)msg->message_type << ")\n";
-    
+    buf << "port_id: " << msg->port_id << "\n";
+    buf << "request_id: " << msg->request_id << "\n";
+
     if (msg->message_type == WK_MSG_TYPE_CONFIG_REQUEST) {
         wk_config_request* request = (wk_config_request*)msg;
         buf << "action: " << SafeElement(ConfigActions, request->action) << " (" << (int)request->action << ")\n";
         buf << "port_type: " << SafeElement(PortTypes, request->port_type) << " (" << (int)request->port_type << ")\n";
-        buf << "port_id: " << request->port_id << "\n";
-        buf << "request_id: " << request->request_id << "\n";
         buf << "pin_config: " << request->pin_config << "\n";
         buf << "value1: " << request->value1 << "\n";
         buf << "port_attributes1: " << request->port_attributes1 << "\n";
@@ -79,26 +80,23 @@ std::string MessageDump::dump(wk_msg_header* msg)
     } else if (msg->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
         wk_config_response* response = (wk_config_response*)msg;
         buf << "result: " << response->result << "\n";
-        buf << "port_id: " << response->port_id << "\n";
-        buf << "request_id: " << response->request_id << "\n";
         buf << "optional1: " << response->optional1 << "\n";
+        buf << "value1: " << response->value1 << "\n";
     } else if (msg->message_type == WK_MSG_TYPE_PORT_REQUEST) {
         wk_port_request* request = (wk_port_request*)msg;
-        buf << "port_id: " << request->port_id << "\n";
         buf << "action: " << SafeElement(PortActions, request->action) << " (" << (int)request->action << ")\n";
         buf << "action_attribute1: " << (int)request->action_attribute1 << "\n";
         buf << "action_attribute2: " << request->action_attribute2 << "\n";
-        buf << "request_id: " << request->request_id << "\n";
+        buf << "value1: " << request->value1 << "\n";
         int data_length = msg->message_size - sizeof(wk_port_request) + 4;
         dumpData(buf, request->data, data_length);
     } else if (msg->message_type == WK_MSG_TYPE_PORT_EVENT) {
         wk_port_event* event = (wk_port_event*)msg;
-        buf << "port_id: " << event->port_id << "\n";
         buf << "event: " << SafeElement(PortEvents, event->event) << " (" << (int)event->event << ")\n";
         buf << "event_attribute1: " << (int)event->event_attribute1 << "\n";
         buf << "event_attribute2: " << (int)event->event_attribute2 << "\n";
-        buf << "request_id: " << event->request_id << "\n";
-        int data_length = msg->message_size - sizeof(wk_port_event) + 4;
+        buf << "value1: " << event->value1 << "\n";
+       int data_length = msg->message_size - sizeof(wk_port_event) + 4;
         dumpData(buf, event->data, data_length);
     }
     

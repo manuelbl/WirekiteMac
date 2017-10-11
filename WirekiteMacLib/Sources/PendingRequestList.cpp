@@ -33,12 +33,20 @@ void PendingRequestList::putResponse(uint16_t requestId, wk_msg_header* response
 {
     pthread_mutex_lock(&mutex);
     
-    PendingRequest request;
-    request.requestId = requestId;
-    request.response = response;
-    requests.push_back(request);
+    if (waitingForRequests.count(requestId) > 0)
+    {
+        PendingRequest request;
+        request.requestId = requestId;
+        request.response = response;
+        completedRequests.push_back(request);
+        
+        pthread_cond_broadcast(&inserted);
+    }
+    else
+    {
+        free(response);
+    }
     
-    pthread_cond_broadcast(&inserted);
     pthread_mutex_unlock(&mutex);
 }
 
@@ -47,12 +55,14 @@ wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
 {
     pthread_mutex_lock(&mutex);
     
+    waitingForRequests.insert(requestId);
+    
     std::vector<PendingRequest>::iterator it;
     while (!isDestroyed) {
-        for (it = requests.begin(); it != requests.end(); it++)
+        for (it = completedRequests.begin(); it != completedRequests.end(); it++)
             if ((*it).requestId == requestId)
                 break;
-        if (it != requests.end())
+        if (it != completedRequests.end())
             break;
         pthread_cond_wait(&inserted, &mutex);
     }
@@ -61,8 +71,10 @@ wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
     if (!isDestroyed)
     {
         result = (*it).response;
-        requests.erase(it);
+        completedRequests.erase(it);
     }
+    
+    waitingForRequests.erase(requestId);
     
     pthread_mutex_unlock(&mutex);
     
@@ -74,9 +86,10 @@ void PendingRequestList::clear()
 {
     pthread_mutex_lock(&mutex);
     
-    for (std::vector<PendingRequest>::iterator it = requests.begin(); it != requests.end(); it++)
+    for (std::vector<PendingRequest>::iterator it = completedRequests.begin(); it != completedRequests.end(); it++)
         free((*it).response);
-    requests.clear();
+    completedRequests.clear();
+    waitingForRequests.clear();
     
     pthread_mutex_unlock(&mutex);
 }
