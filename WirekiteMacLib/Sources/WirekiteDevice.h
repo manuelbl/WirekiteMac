@@ -716,5 +716,20 @@ extern long InvalidPortID;
  */
 -(SPIResult) lastResultOnSPIPort:(PortID)port;
 
+/*! @brief Writes a value to the digital output pin synchronized with an SPI port
+ 
+    @discussion Writing a value is an asynchronous operations. The function returns immediately
+        without awaiting a confirmation that it has been succeeded. However, the action is not executed
+        until all already submitted SPI actions have been executed and before SPI actions submitted later.
+        This is useful to change a signal relevant for the SPI communication such as a data/command signal.
+ 
+    @param port the port ID of the pin
+ 
+    @param value value to set the pin to: YES / true / 1 for high, NO / false / 0 for low
+ 
+    @param spiPort the SPI port ID
+ */
+- (void) writeDigitalPinOnPort: (PortID)port value:(BOOL)value synchronizedWithSPIPort:(PortID)spiPort;
+
 
 @end

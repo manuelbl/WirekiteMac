@@ -27,6 +27,7 @@ public:
     PendingRequestList();
     ~PendingRequestList();
     
+    void announceRequest(uint16_t requestId);
     void putResponse(uint16_t requestId, wk_msg_header* response);
     wk_msg_header* waitForResponse(uint16_t requestId);
     void clear();

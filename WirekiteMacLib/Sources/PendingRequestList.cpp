@@ -51,6 +51,14 @@ void PendingRequestList::putResponse(uint16_t requestId, wk_msg_header* response
 }
 
 
+void PendingRequestList::announceRequest(uint16_t requestId)
+{
+    pthread_mutex_lock(&mutex);
+    waitingForRequests.insert(requestId);
+    pthread_mutex_unlock(&mutex);
+}
+
+
 wk_msg_header* PendingRequestList::waitForResponse(uint16_t requestId)
 {
     pthread_mutex_lock(&mutex);

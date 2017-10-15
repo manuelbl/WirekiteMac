@@ -139,10 +139,10 @@ class ColorTFT: NSObject {
             p += 2
         }
         
-        DispatchQueue.global(qos: .userInteractive).async {
+//        DispatchQueue.global(qos: .userInteractive).async {
             self.setAddressWindow(x: 0, y: 0, w: self.Height, h: self.Width)
-            self.sendCommand(ColorTFT.RAMWR, data: pixels, asynchronous: true)
-        }
+            self.sendCommand(ColorTFT.RAMWR, data: pixels)
+//        }
     }
     
     private func reset() {
@@ -161,50 +161,27 @@ class ColorTFT: NSObject {
         sendCommand(ColorTFT.RASET, data: [ 0x00, UInt8(y), 0x00, UInt8(y + h - 1) ])
     }
     
-    private func sendCommand(_ command: UInt8, data: [UInt8], asynchronous: Bool = false) {
+    private func sendCommand(_ command: UInt8, data: [UInt8]) {
+        
         // select command mode
-        device!.writeDigitalPin(onPort: dcPort, value: false)
+        device!.writeDigitalPin(onPort: dcPort, value: false, synchronizedWithSPIPort: spi)
         
         let commandData = Data(bytes: [ command ])
-        guard device!.transmit(onSPIPort: spi, data: commandData, chipSelect: csPort) == 1 else {
-            NSLog("ColorTFT: Transmitting command byte failed")
+        device!.submit(onSPIPort: spi, data: commandData, chipSelect: csPort)
+        
+        // select data mode
+        device!.writeDigitalPin(onPort: dcPort, value: true, synchronizedWithSPIPort: spi)
+        
+        if data.count == 0 {
             return
         }
         
-        // select data mode
-        device!.writeDigitalPin(onPort: dcPort, value: true)
-        
-        if data.count > 0 {
-            if data.count <= 2048 {
-                let commandLoad = Data(bytes: data)
-                if asynchronous {
-                    device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
-                } else {
-                    guard device!.transmit(onSPIPort: spi, data: commandLoad, chipSelect: csPort) == commandLoad.count else {
-                        NSLog("ColorTFT: Transmitting command data failed")
-                        return
-                    }
-                }
-            } else {
-                //var nextPacketTime = Date()
-                var offset = 0
-                while offset < data.count {
-                    let end = min(offset + 2048, data.count)
-                    let commandLoad = Data(bytes: data[offset ..< end])
-                    
-                    if asynchronous {
-                        //Thread.sleep(until: nextPacketTime)
-                        device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
-                        //nextPacketTime = nextPacketTime.addingTimeInterval(2048 * 16 / Double(SPIFrequency))
-                    } else {
-                        guard device!.transmit(onSPIPort: spi, data: commandLoad, chipSelect: csPort) == commandLoad.count else {
-                            NSLog("ColorTFT: Transmitting command data failed")
-                            return
-                        }
-                    }
-                    offset = end
-                }
-            }
+        var offset = 0
+        while offset < data.count {
+            let end = min(offset + 2048, data.count)
+            let commandLoad = Data(bytes: data[offset ..< end])
+            device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
+            offset = end
         }
     }
 }

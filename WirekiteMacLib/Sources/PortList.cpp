@@ -71,6 +71,8 @@ uint16_t PortList::nextRequestId()
     pthread_mutex_lock(&port_mutex);
     
     lastRequestId++;
+    if (lastRequestId >= 0xff00)
+        lastRequestId = 1;
     uint16_t result = lastRequestId;
     
     pthread_mutex_unlock(&port_mutex);

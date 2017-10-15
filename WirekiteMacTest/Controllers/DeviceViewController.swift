@@ -82,9 +82,8 @@ class DeviceViewController: NSViewController {
     
     // Color TFT
     var colorTFT: ColorTFT? = nil
-    var colorTFTTimer: Timer? = nil
+    var colorTFTThread: Thread? = nil
     var colorTFTOffset = 0
-    let colorTFTLock = NSObject()
 
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
@@ -142,8 +141,8 @@ class DeviceViewController: NSViewController {
         displayTimer = nil
         ePaperTimer?.invalidate()
         ePaperTimer = nil
-        colorTFTTimer?.invalidate()
-        colorTFTTimer = nil
+        colorTFTThread?.cancel()
+        colorTFTThread = nil
     }
 
     func configurePins() {
@@ -259,8 +258,11 @@ class DeviceViewController: NSViewController {
             if DeviceViewController.hasColorTFT {
                 spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 4000000, attributes: [])
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
-                colorTFT!.initDevice()
-                colorTFTTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { timer in self.updateTFT() }
+                colorTFTThread = Thread() {
+                    self.continuouslyUpdateTFT()
+                }
+                colorTFTThread!.name = "Color TFT"
+                colorTFTThread!.start()
             }
 
         } else {
@@ -364,9 +366,10 @@ class DeviceViewController: NSViewController {
         }
     }
     
-    func updateTFT() {
-        synced(colorTFTLock) {
-            self.updateTFTInner()
+    func continuouslyUpdateTFT() {
+        colorTFT!.initDevice()
+        while !Thread.current.isCancelled {
+            updateTFTInner()
         }
     }
     
@@ -404,10 +407,12 @@ class DeviceViewController: NSViewController {
         return timer
     }
     
-    func synced(_ lock: Any, closure: () -> ()) {
+    func synchronized(_ lock: Any, block: () -> ()) {
         objc_sync_enter(lock)
-        closure()
-        objc_sync_exit(lock)
+        defer {
+            objc_sync_exit(lock)
+        }
+        block()
     }
 }
 
