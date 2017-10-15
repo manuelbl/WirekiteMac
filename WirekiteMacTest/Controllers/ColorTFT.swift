@@ -60,7 +60,6 @@ class ColorTFT: NSObject {
     
     var Width = 160
     var Height = 128
-    var SPIFrequency = 1000000
     
     private var device: WirekiteDevice?
     private var spi: PortID

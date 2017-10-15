@@ -84,6 +84,7 @@ class DeviceViewController: NSViewController {
     var colorTFT: ColorTFT? = nil
     var colorTFTTimer: Timer? = nil
     var colorTFTOffset = 0
+    let colorTFTLock = NSObject()
 
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
@@ -256,11 +257,10 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasColorTFT {
-                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 1000000, attributes: [])
+                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 3000000, attributes: [])
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
-                colorTFT!.SPIFrequency = 1000000
                 colorTFT!.initDevice()
-                colorTFTTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in self.updateTFT() }
+                colorTFTTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in self.updateTFT() }
             }
 
         } else {
@@ -365,6 +365,12 @@ class DeviceViewController: NSViewController {
     }
     
     func updateTFT() {
+        synced(colorTFTLock) {
+            self.updateTFTInner()
+        }
+    }
+    
+    func updateTFTInner() {
         let gc = colorTFT!.prepareForDrawing()
         gc.setShouldAntialias(true)
         gc.setShouldSmoothFonts(true)
@@ -382,8 +388,8 @@ class DeviceViewController: NSViewController {
         let s = "😱✌️🎃🐢☠️😨💩😱✌️🎃" as NSString
         s.draw(at: NSMakePoint(CGFloat(10 + colorTFTOffset), 30), withAttributes: attr)
         colorTFTOffset -= 10
-        if colorTFTOffset <= -480 {
-            colorTFTOffset = 0
+        if colorTFTOffset <= -448 {
+            colorTFTOffset += 448 // 448 = 7 * 64: 7 emojis - each one 64 pixel wide
         }
 
         colorTFT!.finishDrawing()
@@ -396,6 +402,12 @@ class DeviceViewController: NSViewController {
         timer.setEventHandler(handler: workItem)
         timer.resume()
         return timer
+    }
+    
+    func synced(_ lock: Any, closure: () -> ()) {
+        objc_sync_enter(lock)
+        closure()
+        objc_sync_exit(lock)
     }
 }
 
