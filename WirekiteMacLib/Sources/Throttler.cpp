@@ -12,8 +12,10 @@
 
 
 Throttler::Throttler()
-:   memSize(4200),
+:   memSize(4000),
     occupiedSize(0),
+    maxOutstandingRequests(20),
+    outstandingRequests(0),
     mutex(PTHREAD_MUTEX_INITIALIZER),
     available(PTHREAD_COND_INITIALIZER),
     isDestroyed(false)
@@ -50,12 +52,33 @@ void Throttler::configureMemorySize(int size)
 }
 
 
+int Throttler::maximumOutstanding()
+{
+    return maxOutstandingRequests;
+}
+
+
+void Throttler::configureMaximumOutstanding(int maxReq)
+{
+    pthread_mutex_lock(&mutex);
+    int oldMaxRequests = maxOutstandingRequests;
+    maxOutstandingRequests = maxReq;
+    
+    if (maxOutstandingRequests > oldMaxRequests)
+        pthread_cond_broadcast(&available);
+    
+    pthread_mutex_unlock(&mutex);
+}
+
+
 void Throttler::waitUntilAvailable(uint16_t requestId, uint16_t requiredMemSize)
 {
+    requiredMemSize += 8;
     pthread_mutex_lock(&mutex);
     
     while (!isDestroyed) {
-        if (memSize - occupiedSize >= requiredMemSize)
+        if (memSize - occupiedSize >= requiredMemSize
+                && outstandingRequests < maxOutstandingRequests)
             break;
         pthread_cond_wait(&available, &mutex);
     }
@@ -63,6 +86,7 @@ void Throttler::waitUntilAvailable(uint16_t requestId, uint16_t requiredMemSize)
     if (!isDestroyed)
     {
         occupiedSize += requiredMemSize;
+        outstandingRequests++;
         requests[requestId] = requiredMemSize;
     }
     
@@ -77,6 +101,7 @@ void Throttler::requestCompleted(uint16_t requestId)
     uint16_t requestSize = requests[requestId];
     requests.erase(requestId);
     occupiedSize -= requestSize;
+    outstandingRequests--;
     
     pthread_cond_broadcast(&available);
     pthread_mutex_unlock(&mutex);
@@ -93,6 +118,7 @@ void Throttler::clear()
     pthread_mutex_lock(&mutex);
     isDestroyed = false;
     occupiedSize = 0;
+    outstandingRequests = 0;
     requests.clear();
     pthread_mutex_unlock(&mutex);
 }

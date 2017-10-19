@@ -200,7 +200,9 @@ typedef NS_ENUM(NSInteger, BoardInfo) {
     /*! @brief Board type: 1 for Teensy LC, 2 for Teensy 3.2 */
     BoardInfoBoardType = 3,
     /*! @brief Firmware version in BCD */
-    BoardInfoFirmwareVersion = 4
+    BoardInfoFirmwareVersion = 4,
+    /*! @brief Memory management integrity check (only available with debug versions) */
+    BoardInfoMemoryManagementIntegrity = 5
 };
 
 

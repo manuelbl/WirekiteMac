@@ -21,7 +21,8 @@ public:
     ~Throttler();
     
     /**
-     * Gets the configured memory size (in bytes)
+     * Gets the configured memory size
+     * @return the memory size (in bytes)
      */
     int memorySize();
     
@@ -30,6 +31,18 @@ public:
      * @param size memory size (in bytes)
      */
     void configureMemorySize(int size);
+    
+    /**
+     * Gets the maximum number of outstanding requests.
+     * @return the number of requests
+     */
+    int maximumOutstanding();
+    
+    /**
+     * Configures the maximum number of outstanding requets.
+     * @param maxReq the number of requests
+     */
+    void configureMaximumOutstanding(int maxReq);
     
     /**
      * Waits until the specified amount of memory is available on the Wirekite.
@@ -55,6 +68,8 @@ public:
 private:
     int memSize;
     int occupiedSize;
+    int maxOutstandingRequests;
+    int outstandingRequests;
     std::unordered_map<uint16_t, uint16_t> requests;
     pthread_cond_t available;
     pthread_mutex_t mutex;
