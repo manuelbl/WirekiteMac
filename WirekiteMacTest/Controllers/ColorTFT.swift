@@ -139,10 +139,8 @@ class ColorTFT: NSObject {
             p += 2
         }
         
-//        DispatchQueue.global(qos: .userInteractive).async {
-            self.setAddressWindow(x: 0, y: 0, w: self.Height, h: self.Width)
-            self.sendCommand(ColorTFT.RAMWR, data: pixels)
-//        }
+        self.setAddressWindow(x: 0, y: 0, w: self.Height, h: self.Width)
+        self.sendCommand(ColorTFT.RAMWR, data: pixels)
     }
     
     private func reset() {
@@ -178,7 +176,7 @@ class ColorTFT: NSObject {
         
         var offset = 0
         while offset < data.count {
-            let end = min(offset + 2048, data.count)
+            let end = min(offset + 1024, data.count)
             let commandLoad = Data(bytes: data[offset ..< end])
             device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
             offset = end

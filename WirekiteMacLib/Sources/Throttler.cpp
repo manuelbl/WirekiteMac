@@ -12,7 +12,7 @@
 
 
 Throttler::Throttler()
-:   memSize(4000),
+:   memSize(4200),
     occupiedSize(0),
     maxOutstandingRequests(20),
     outstandingRequests(0),

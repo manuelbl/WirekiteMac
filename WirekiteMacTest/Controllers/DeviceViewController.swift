@@ -256,7 +256,7 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasColorTFT {
-                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 4000000, attributes: [])
+                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 8000000, attributes: [])
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
                 colorTFTThread = Thread() {
                     self.continuouslyUpdateTFT()
