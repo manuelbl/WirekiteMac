@@ -15,8 +15,8 @@
 #import <IOKit/IOCFPlugIn.h>
 #import <IOKit/usb/IOUSBLib.h>
 
-#define kVendorID         0x16c0
-#define kProductID        0x2701
+#define kVendorID         0x1209
+#define kProductID        0x317e
 
 
 static void DeviceConnected(void *refCon, io_iterator_t iterator);
