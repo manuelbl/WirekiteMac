@@ -9,6 +9,9 @@
 import CoreFoundation
 import Cocoa
 
+/**
+ Color TFT display using the ST7735 chip and SPI communication.
+ */
 class ColorTFT: NSObject {
     
     private static let NOP: UInt8 =     0x00
@@ -58,8 +61,8 @@ class ColorTFT: NSObject {
     private static let GMCTRN1: UInt8 = 0xE1
  
     
-    var Width = 160
-    var Height = 128
+    var Width = 128
+    var Height = 160
     
     private var device: WirekiteDevice?
     private var spi: PortID
@@ -127,20 +130,30 @@ class ColorTFT: NSObject {
     }
     
     func finishDrawing() {
-        var pixels = graphics!.finishDrawing(format: .rgb565Rotated90)
+        var pixels = graphics!.finishDrawing(format: .rgb565)
+        pixels = ColorTFT.swapPairsOfBytes(pixels)
         
-        // swap pairs of bytes
-        let len = pixels.count
-        var p = 0
-        while p < len {
-            let t = pixels[p]
-            pixels[p] = pixels[p + 1]
-            pixels[p + 1] = t
-            p += 2
+        self.setAddressWindow(x: 0, y: 0, w: self.Width, h: self.Height)
+        self.sendCommand(ColorTFT.RAMWR, data: pixels)
+    }
+    
+    func draw(pixelData data: [UInt8], rowLength: Int, atX x: Int, atY y: Int) {
+        self.setAddressWindow(x: x, y: y, w: rowLength, h: data.count / rowLength / 2)
+        self.sendCommand(ColorTFT.RAMWR, data: data)
+    }
+    
+    func draw(pixelData data: [UInt8], rowLength: Int, tileX: Int, tileY: Int, tileWidth: Int, tileHeight: Int, atX x: Int, atY y: Int) {
+        var tileData = [UInt8](repeating: 0, count: tileWidth * 2 * tileHeight)
+        var sourcePtr = tileY * rowLength * 2 + tileX * 2
+        var destPtr = 0
+        for _ in 0 ..< tileHeight {
+            tileData[destPtr ..< destPtr + tileWidth * 2] = data[sourcePtr ..< sourcePtr + tileWidth * 2]
+            sourcePtr += rowLength * 2
+            destPtr += tileWidth * 2
         }
         
-        self.setAddressWindow(x: 0, y: 0, w: self.Height, h: self.Width)
-        self.sendCommand(ColorTFT.RAMWR, data: pixels)
+        self.setAddressWindow(x: x, y: y, w: tileWidth, h: tileHeight)
+        self.sendCommand(ColorTFT.RAMWR, data: tileData)
     }
     
     private func reset() {
@@ -181,6 +194,20 @@ class ColorTFT: NSObject {
             device!.submit(onSPIPort: spi, data: commandLoad, chipSelect: csPort)
             offset = end
         }
+    }
+    
+    static func swapPairsOfBytes(_ bytes: [UInt8]) -> [UInt8] {
+        var result = [UInt8](repeating: 0, count: bytes.count)
+
+        let len = bytes.count
+        var p = 0
+        while p < len {
+            result[p] = bytes[p + 1]
+            result[p + 1] = bytes[p]
+            p += 2
+        }
+
+        return result
     }
 }
 

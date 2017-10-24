@@ -84,6 +84,7 @@ class DeviceViewController: NSViewController {
     var colorTFT: ColorTFT? = nil
     var colorTFTThread: Thread? = nil
     var colorTFTOffset = 0
+    var colorTFTPixelData: [UInt8]?
 
     // three LEDs
     @IBOutlet weak var checkboxRed: NSButton!
@@ -256,7 +257,7 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasColorTFT {
-                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 8000000, attributes: [])
+                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 16000000, attributes: [])
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
                 colorTFTThread = Thread() {
                     self.continuouslyUpdateTFT()
@@ -367,35 +368,50 @@ class DeviceViewController: NSViewController {
     }
     
     func continuouslyUpdateTFT() {
+        createTFTPixelData()
         colorTFT!.initDevice()
+        clearTFTDisplay()
         while !Thread.current.isCancelled {
             updateTFTInner()
         }
     }
     
-    func updateTFTInner() {
-        let gc = colorTFT!.prepareForDrawing()
+    func createTFTPixelData() {
+        let g = GraphicsBuffer(width: 540, height: 54, isColor: true)
+        let gc = g.prepareForDrawing()
         gc.setShouldAntialias(true)
         gc.setShouldSmoothFonts(true)
         gc.setShouldSubpixelPositionFonts(false)
         gc.setShouldSubpixelQuantizeFonts(false)
         gc.setFillColor(CGColor.white)
-        gc.fill(CGRect(x: 0, y: 0, width: 160, height: 128))
+        gc.fill(CGRect(x: 0, y: 0, width: 540, height: 54))
         
-        let font = NSFont(name: "Helvetica-Bold", size: 64)!
+        let font = NSFont(name: "Helvetica-Bold", size: 54)!
         let attr: [String: Any] = [
             NSFontAttributeName: font,
             NSForegroundColorAttributeName: NSColor.black
         ]
         
         let s = "😱✌️🎃🐢☠️😨💩😱✌️🎃" as NSString
-        s.draw(at: NSMakePoint(CGFloat(10 + colorTFTOffset), 30), withAttributes: attr)
-        colorTFTOffset -= 10
-        if colorTFTOffset <= -448 {
-            colorTFTOffset += 448 // 448 = 7 * 64: 7 emojis - each one 64 pixel wide
-        }
+        s.draw(at: NSMakePoint(0, -9), withAttributes: attr)
+        colorTFTPixelData = g.finishDrawing(format: .rgb565Rotated180)
+        colorTFTPixelData = ColorTFT.swapPairsOfBytes(colorTFTPixelData!)
+    }
+    
+    func clearTFTDisplay() {
+        let data = [UInt8](repeating: 0xff, count: 128 * 160 * 2)
+        colorTFT!.draw(pixelData: data, rowLength: 128, atX: 0, atY: 0)
+    }
+    
+    func updateTFTInner() {
+        
+        colorTFT!.draw(pixelData: colorTFTPixelData!, rowLength: 540, tileX: colorTFTOffset, tileY: 0, tileWidth: 128, tileHeight: 54, atX: 0, atY: 14)
+        colorTFT!.draw(pixelData: colorTFTPixelData!, rowLength: 540, tileX: 378 - colorTFTOffset, tileY: 0, tileWidth: 128, tileHeight: 54, atX: 0, atY: 90)
 
-        colorTFT!.finishDrawing()
+        colorTFTOffset += 1
+        if colorTFTOffset >= 378 {
+            colorTFTOffset -= 378 // 378 = 7 * 54: 7 emojis - each one 54 pixel wide
+        }
     }
     
     static func scheduleBackgroundTimer(withTimeInterval interval: DispatchTimeInterval, block: @escaping () -> ()) -> DispatchSourceTimer {

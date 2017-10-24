@@ -17,6 +17,8 @@ class GraphicsBuffer {
         case blackAndWhiteDithered
         case rgb565
         case rgb565Rotated90
+        case rgb565Rotated180
+        case rgb565Rotated270
     }
 
     private let width: Int
@@ -57,7 +59,11 @@ class GraphicsBuffer {
         case .rgb565:
             return toRGB565()
         case .rgb565Rotated90:
-            return toRotatedRGB565()
+            return toRGB565Rotated(by: kRotate90DegreesClockwise)
+        case .rgb565Rotated180:
+            return toRGB565RotatedBy180()
+        case .rgb565Rotated270:
+            return toRGB565Rotated(by: kRotate270DegreesClockwise)
         }
     }
     
@@ -82,16 +88,33 @@ class GraphicsBuffer {
     }
     
     
-    private func toRotatedRGB565() -> [UInt8] {
+    private func toRGB565Rotated(by rotation: Int) -> [UInt8] {
         var src = vImage_Buffer(data: graphics.data, height: vImagePixelCount(graphics.height), width: vImagePixelCount(graphics.width), rowBytes: graphics.bytesPerRow)
         
         var intermedData = [UInt8](repeating: 0, count: width * height * 4)
         var intermed = vImage_Buffer(data: &intermedData, height: vImagePixelCount(width), width: vImagePixelCount(height), rowBytes: height * 4)
         var backgroundColor: [UInt8] = [ 255, 0, 255, 0 ]
-        vImageRotate90_ARGB8888(&src, &intermed, UInt8(kRotate90DegreesClockwise), &backgroundColor, 0)
+        vImageRotate90_ARGB8888(&src, &intermed, UInt8(rotation), &backgroundColor, 0)
         
         var destData = [UInt8](repeating: 0, count: width * height * 2)
         var dest = vImage_Buffer(data: &destData, height: vImagePixelCount(width), width: vImagePixelCount(height), rowBytes: height * 2)
+        
+        vImageConvert_ARGB8888toRGB565(&intermed, &dest, 0)
+        
+        return destData
+    }
+    
+    
+    private func toRGB565RotatedBy180() -> [UInt8] {
+        var src = vImage_Buffer(data: graphics.data, height: vImagePixelCount(graphics.height), width: vImagePixelCount(graphics.width), rowBytes: graphics.bytesPerRow)
+        
+        var intermedData = [UInt8](repeating: 0, count: width * height * 4)
+        var intermed = vImage_Buffer(data: &intermedData, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: width * 4)
+        var backgroundColor: [UInt8] = [ 255, 0, 255, 0 ]
+        vImageRotate90_ARGB8888(&src, &intermed, UInt8(kRotate180DegreesClockwise), &backgroundColor, 0)
+        
+        var destData = [UInt8](repeating: 0, count: width * height * 2)
+        var dest = vImage_Buffer(data: &destData, height: vImagePixelCount(height), width: vImagePixelCount(width), rowBytes: width * 2)
         
         vImageConvert_ARGB8888toRGB565(&intermed, &dest, 0)
         
