@@ -173,6 +173,9 @@ class ColorTFT: NSObject {
     }
     
     private func sendCommand(_ command: UInt8, data: [UInt8]) {
+        if device!.isClosed() {
+            return
+        }
         
         // select command mode
         device!.writeDigitalPin(onPort: dcPort, value: false, synchronizedWithSPIPort: spi)
