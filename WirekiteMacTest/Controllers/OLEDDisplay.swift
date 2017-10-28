@@ -41,7 +41,6 @@ class OLEDDisplay {
     
     private let device: WirekiteDevice?
     private let i2cPort: PortID
-    private let releasePort: Bool
     private var isInitialized = false
     private var offset = 0
     
@@ -64,25 +63,12 @@ class OLEDDisplay {
     private var graphics: GraphicsBuffer?
     
     
-    init(device: WirekiteDevice, i2cPins: I2CPins) {
-        self.device = device
-        i2cPort = device.configureI2CMaster(i2cPins, frequency: 400000)
-        releasePort = true
-    }
-    
     init(device: WirekiteDevice, i2cPort: PortID) {
         self.device = device
         self.i2cPort = i2cPort
-        releasePort = false
     }
     
-    deinit {
-        if releasePort {
-            device?.releaseI2CPort(i2cPort)
-        }
-    }
-    
-    private func initSensor() {
+    private func initSensor(retries: Int) {
         // Init sequence
         let initSequence: [UInt8] = [
             0x80, OLEDDisplay.DisplayOff,
@@ -106,7 +92,17 @@ class OLEDDisplay {
         let initSequenceData = Data(bytes: initSequence)
         let numBytesSent = device!.send(onI2CPort: i2cPort, data: initSequenceData, toSlave: displayAddress)
         if Int(numBytesSent) != initSequenceData.count {
-            NSLog("OLED initialization failed")
+            let result = device!.lastResult(onI2CPort: i2cPort)
+            if result == .busBusy && retries > 0 {
+                NSLog("OLED initialization: bus busy")
+                device!.resetBus(onI2CPort: i2cPort)
+                if device!.lastResult(onI2CPort: i2cPort) != .OK {
+                    NSLog("Resetting bus failed")
+                }
+                initSensor(retries: retries - 1)
+            } else {
+                NSLog("OLED initialization failed: \(result.rawValue)")
+            }
             return
         }
 
@@ -135,7 +131,7 @@ class OLEDDisplay {
     func showTile() {
         
         if !isInitialized {
-            initSensor()
+            initSensor(retries: 1)
             isInitialized = true
         }
         

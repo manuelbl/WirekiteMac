@@ -549,6 +549,17 @@ extern long InvalidPortID;
  */
 - (void) releaseI2CPort: (PortID)port;
 
+/*! @brief Reset the I2C bus
+ 
+    @discussion If an I2C transaction was interrupted, a slave can still hold on to SDA
+        because it believes to be in the middle of a byte.
+        By toggling SCL up to 9 times, most slaves  let go of SDA.
+        This method can be used if an I2C operations returns a "bus busy" error.
+ 
+    @param port the I2C port ID
+ */
+- (void) resetBusOnI2CPort: (PortID)port;
+
 /*! @brief Send data to an I2C slave
  
      @discussion The operation performs a complete I2C transaction, starting with a START condition

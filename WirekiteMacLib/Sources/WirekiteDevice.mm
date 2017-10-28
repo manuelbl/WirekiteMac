@@ -1020,13 +1020,43 @@ retry:
     request.header.port_id = port;
     request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_RELEASE;
-
+    
     wk_config_response* response = [self executeConfigRequest: &request];
-
+    
     Port* p = portList.getPort(port);
     portList.removePort(port);
     free(response);
     delete p;
+}
+
+
+- (void) resetBusOnI2CPort: (PortID)port
+{
+    if ([self isClosed])
+        return; // silently ignore
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return;
+    
+    uint16_t requestId = portList.nextRequestId();
+    uint16_t msgLen = WK_PORT_REQUEST_ALLOC_SIZE(0);
+    wk_port_request request;
+    memset(&request, 0, msgLen);
+    request.header.message_size = msgLen;
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.header.port_id = port;
+    request.header.request_id = requestId;
+    request.action = WK_PORT_ACTION_RESET;
+    
+    throttler.waitUntilAvailable(requestId, msgLen);
+    
+    wk_port_event* response = [self executePortRequest:&request];
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    free(response);
 }
 
 
@@ -1041,7 +1071,7 @@ retry:
     if (p == nil)
         return 0;
     
-    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave requestId:portList.nextRequestId()];
+    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave];
     wk_port_event* response = [self executePortRequest:request];
     free(request);
     
@@ -1063,16 +1093,20 @@ retry:
     if (p == nil)
         return;
     
-    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave requestId:0];
+    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave];
     [self writeMessage:&request->header];
     free(request);
 }
 
 
--(wk_port_request*)createI2CTxRequestForPort: (PortID)port data: (NSData*)data toSlave: (long)slave requestId: (uint16) requestId
+-(wk_port_request*)createI2CTxRequestForPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
     NSUInteger len = data.length;
     size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(len);
+    uint16_t requestId = portList.nextRequestId();
+
+    throttler.waitUntilAvailable(requestId, msg_len);
+
     wk_port_request* request = (wk_port_request*)malloc(msg_len);
     memset(request, 0, msg_len);
     request->header.message_size = msg_len;
@@ -1093,15 +1127,18 @@ retry:
     if (p == nil)
         return nil;
     
+    uint16_t requestId = portList.nextRequestId();
     wk_port_request request;
     memset(&request, 0, WK_PORT_REQUEST_ALLOC_SIZE(0));
     request.header.message_size = WK_PORT_REQUEST_ALLOC_SIZE(0);
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request.header.port_id = port;
-    request.header.request_id = portList.nextRequestId();
+    request.header.request_id = requestId;
     request.action = WK_PORT_ACTION_RX_DATA;
     request.action_attribute2 = (uint16_t)slave;
     request.value1 = (uint16_t)length;
+    
+    throttler.waitUntilAvailable(requestId, WK_PORT_EVENT_ALLOC_SIZE(length));
     
     wk_port_event* response = [self executePortRequest:&request];
     
@@ -1131,16 +1168,22 @@ retry:
     
     NSUInteger len = data.length;
     size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(len);
+    uint16 requestId = portList.nextRequestId();
     wk_port_request* request = (wk_port_request*)malloc(msg_len);
     memset(request, 0, msg_len);
     request->header.message_size = msg_len;
     request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request->header.port_id = port;
-    request->header.request_id = portList.nextRequestId();
+    request->header.request_id = requestId;
     request->action = WK_PORT_ACTION_TX_N_RX_DATA;
     request->action_attribute2 = (uint16_t)slave;
     request->value1 = (uint16_t)receiveLength;
     memcpy(request->data, data.bytes, len);
+    
+    size_t mem_size = WK_PORT_EVENT_ALLOC_SIZE(receiveLength);
+    if (msg_len > mem_size)
+        mem_size = msg_len;
+    throttler.waitUntilAvailable(requestId, mem_size);
     
     wk_port_event* response = [self executePortRequest:request];
     free(request);
@@ -1360,8 +1403,7 @@ retry:
         
         PortType portType = port->type();
         if (portType == PortTypeI2C || portType == PortTypeSPI) {
-            if (portType == PortTypeSPI)
-                throttler.requestCompleted(event->header.request_id);
+            throttler.requestCompleted(event->header.request_id);
             pendingRequests.putResponse(event->header.request_id, (wk_msg_header*)event);
             return;
         }    

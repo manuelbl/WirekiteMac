@@ -17,11 +17,11 @@ class DeviceViewController: NSViewController {
     static let hasTwoPotentiometers = false
     static let hasServo = false
     static let hasAnalogStick = false
-    static let hasAmmeter = false
-    static let hasOLED = false
-    static let hasGyro = false
+    static let hasAmmeter = true
+    static let hasOLED = true
+    static let hasGyro = true
     static let hasEPaper = false
-    static let hasColorTFT = true
+    static let hasColorTFT = false
 
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -68,8 +68,8 @@ class DeviceViewController: NSViewController {
     
     // OLED display
     var display: OLEDDisplay? = nil
-    var displayTimer: Timer? = nil
-    
+    var displayThread: Thread? = nil
+
     // Gyro / accelerometer
     var gyro: GyroMPU6050? = nil
     var gyroTimer: Timer? = nil
@@ -138,8 +138,8 @@ class DeviceViewController: NSViewController {
         ammeterTimer = nil
         gyroTimer?.invalidate()
         gyroTimer = nil
-        displayTimer?.invalidate()
-        displayTimer = nil
+        displayThread?.cancel()
+        displayThread = nil
         ePaperTimer?.invalidate()
         ePaperTimer = nil
         colorTFTThread?.cancel()
@@ -240,7 +240,11 @@ class DeviceViewController: NSViewController {
             if DeviceViewController.hasOLED {
                 display = OLEDDisplay(device: device, i2cPort: i2cPort)
                 display!.DisplayOffset = 2
-                displayTimer = Timer.scheduledTimer(withTimeInterval: 0.04, repeats: true) { timer in self.updateDisplay() }
+                displayThread = Thread() {
+                    self.continuouslyUpdateOLEDDisplay()
+                }
+                displayThread!.name = "OLED Display"
+                displayThread!.start()
             }
             
             if DeviceViewController.hasGyro {
@@ -337,8 +341,10 @@ class DeviceViewController: NSViewController {
         }
     }
     
-    func updateDisplay() {
-        display!.showTile()
+    func continuouslyUpdateOLEDDisplay() {
+        while !Thread.current.isCancelled {
+            display!.showTile()
+        }
     }
     
     func updateEPaper() {
