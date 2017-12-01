@@ -270,6 +270,18 @@ extern long InvalidPortID;
  */
 - (void) resetConfiguration;
 
+/*! @brief Configures the flow control for data intensive ports (I2C and SPI)
+ 
+    @discussion The throttling parameters control if a request is immediately sent to
+        the Wirekite board or if it blocks until sufficient space is freed up on the board.
+        This allows to send and receive data at the maximum rate of the I2C, SPI and USB bus.
+ 
+    @param memSize the memory size available on the Wirekite board for buffering
+ 
+    @param maxRequests the maximum number of I2C and SPI requests that may be outstanding at any time
+ */
+- (void) configureFlowControlMemSize: (int)memSize maxOutstandingRequest: (int)maxRequests;
+
 /*! @brief Indicates if the device has been closed (or disconnected).
  */
 -(bool)isClosed;

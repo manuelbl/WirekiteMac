@@ -45,6 +45,13 @@ public:
     void configureMaximumOutstanding(int maxReq);
     
     /**
+     * Configures the available memory size and the number of outstanding requets.
+     * @param memSize memory size (in bytes) available on the microcontroller board for buffering data
+     * @param maxReq the maximum number of requests to be outstanding at any time
+     */
+    void configure(int memSize, int maxReq);
+    
+    /**
      * Waits until the specified amount of memory is available on the Wirekite.
      *
      * The occupied memory size is then increased by that amount. Once the request

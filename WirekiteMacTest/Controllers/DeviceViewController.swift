@@ -17,11 +17,11 @@ class DeviceViewController: NSViewController {
     static let hasTwoPotentiometers = false
     static let hasServo = false
     static let hasAnalogStick = false
-    static let hasAmmeter = true
-    static let hasOLED = true
-    static let hasGyro = true
+    static let hasAmmeter = false
+    static let hasOLED = false
+    static let hasGyro = false
     static let hasEPaper = false
-    static let hasColorTFT = false
+    static let hasColorTFT = true
 
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -229,7 +229,7 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasAmmeter || DeviceViewController.hasOLED || DeviceViewController.hasGyro {
-                i2cPort = device.configureI2CMaster(.SCL16_SDA17, frequency: 400000)
+                i2cPort = device.configureI2CMaster(.SCL16_SDA17, frequency: 200000)
             }
             
             if DeviceViewController.hasAmmeter {
@@ -261,7 +261,13 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasColorTFT {
-                spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 16000000, attributes: [])
+                let boardType = device.boardInfo(.boardType)
+                if boardType == 1 {
+                    spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 16000000, attributes: [])
+                } else {
+                    device.configureFlowControlMemSize(20000, maxOutstandingRequest: 100)
+                    spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: InvalidPortID, frequency: 18000000, attributes: [])
+                }
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
                 colorTFTThread = Thread() {
                     self.continuouslyUpdateTFT()

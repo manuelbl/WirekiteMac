@@ -126,6 +126,7 @@ typedef struct {
     
     portList.clear();
     throttler.clear();
+    pendingRequests.clear();
     deviceStatus = StatusClosed;
 }
 
@@ -309,6 +310,12 @@ retry:
     [analogInputPinCallbacks removeAllObjects];
     [analogInputDispatchQueues removeAllObjects];
     deviceStatus = StatusReady;
+}
+
+
+- (void) configureFlowControlMemSize: (int)memSize maxOutstandingRequest: (int)maxRequests
+{
+    throttler.configure(memSize, maxRequests);
 }
 
 

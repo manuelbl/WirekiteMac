@@ -71,6 +71,21 @@ void Throttler::configureMaximumOutstanding(int maxReq)
 }
 
 
+void Throttler::configure(int size, int maxReq)
+{
+    pthread_mutex_lock(&mutex);
+    int oldMemSize = memSize;
+    memSize = size;
+    int oldMaxRequests = maxOutstandingRequests;
+    maxOutstandingRequests = maxReq;
+    
+    if (memSize > oldMemSize || maxOutstandingRequests > oldMaxRequests)
+        pthread_cond_broadcast(&available);
+    
+    pthread_mutex_unlock(&mutex);
+}
+
+
 void Throttler::waitUntilAvailable(uint16_t requestId, uint16_t requiredMemSize)
 {
     requiredMemSize += 8;
