@@ -1284,7 +1284,7 @@ retry:
     if (p == nil)
         return 0;
     
-    wk_port_request* request = [self createSPITxRequestForPort:port data:data chipSelect:chipSelect];
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_DATA data:data chipSelect:chipSelect];
     wk_port_event* response = [self executePortRequest:request];
     free(request);
     
@@ -1306,13 +1306,92 @@ retry:
     if (p == nil)
         return;
     
-    wk_port_request* request = [self createSPITxRequestForPort:port data:data chipSelect:chipSelect];
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_DATA data:data chipSelect:chipSelect];
     [self writeMessage:&request->header];
     free(request);
 }
 
 
--(wk_port_request*)createSPITxRequestForPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+-(NSData* _Nullable)requestOnSPIPort:(PortID)port chipSelect:(PortID)chipSelect length:(long)length
+{
+    return [self requestOnSPIPort:port chipSelect:chipSelect length:length mosiValue:0xff];
+}
+
+
+-(NSData* _Nullable)requestOnSPIPort:(PortID)port chipSelect:(PortID)chipSelect length:(long)length mosiValue:(long)mosiValue
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return nil;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    uint16_t requestId = portList.nextRequestId();
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(0);
+    
+    throttler.waitUntilAvailable(requestId, msg_len);
+    
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->header.port_id = port;
+    request->header.request_id = requestId;
+    request->action = WK_PORT_ACTION_RX_DATA;
+    request->action_attribute1 = (uint8_t)mosiValue;
+    request->action_attribute2 = chipSelect;
+    request->value1 = (uint32_t)length;
+    
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
+    
+    SPIResult result = (SPIResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
+}
+
+
+-(NSData* _Nullable)transmitAndRequestOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return nil;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_N_RX_DATA data:data chipSelect:chipSelect];
+    [self writeMessage:&request->header];
+    
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
+    
+    SPIResult result = (SPIResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
+}
+
+
+-(wk_port_request*)createSPIRequestForPort:(PortID)port action:(uint8_t)action data:(NSData*)data chipSelect:(PortID)chipSelect
 {
     uint16_t requestId = portList.nextRequestId();
     NSUInteger len = data.length;
@@ -1326,7 +1405,7 @@ retry:
     request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
     request->header.port_id = port;
     request->header.request_id = requestId;
-    request->action = WK_PORT_ACTION_TX_DATA;
+    request->action = action;
     request->action_attribute2 = chipSelect;
     memcpy(request->data, data.bytes, len);
     

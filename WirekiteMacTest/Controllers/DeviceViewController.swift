@@ -7,6 +7,8 @@
 //
 
 import Cocoa
+import os.log
+
 
 class DeviceViewController: NSViewController {
     
@@ -21,7 +23,8 @@ class DeviceViewController: NSViewController {
     static let hasOLED = false
     static let hasGyro = false
     static let hasEPaper = false
-    static let hasColorTFT = true
+    static let hasColorTFT = false
+    static let hasRadio = true
 
     static let indicatorColorNormal = NSColor.black
     static let indicatorColorPressed = NSColor.orange
@@ -110,6 +113,10 @@ class DeviceViewController: NSViewController {
     @IBOutlet weak var gyroZLabel: NSTextField!
     @IBOutlet weak var gyroTempLabel: NSTextField!
     
+    // NRF24L01+ radio
+    var radio: RF24Radio? = nil
+    var radioThread: Thread? = nil
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -144,6 +151,8 @@ class DeviceViewController: NSViewController {
         ePaperTimer = nil
         colorTFTThread?.cancel()
         colorTFTThread = nil
+        radioThread?.cancel()
+        radioThread = nil
     }
 
     func configurePins() {
@@ -260,20 +269,48 @@ class DeviceViewController: NSViewController {
                 ePaperTimer!.fire()
             }
             
-            if DeviceViewController.hasColorTFT {
+            if DeviceViewController.hasColorTFT || DeviceViewController.hasRadio {
                 let boardType = device.boardInfo(.boardType)
                 if boardType == 1 {
-                    spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: InvalidPortID, frequency: 16000000, attributes: [])
+                    let frequency = DeviceViewController.hasRadio ? 4000000 : 16000000
+                    spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: 5, frequency: frequency, attributes: [])
                 } else {
                     device.configureFlowControlMemSize(20000, maxOutstandingRequest: 100)
-                    spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: InvalidPortID, frequency: 18000000, attributes: [])
+                    let frequency = DeviceViewController.hasRadio ? 4000000 : 18000000
+                    spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: 5, frequency: frequency, attributes: [])
                 }
+            }
+            
+            if DeviceViewController.hasColorTFT {
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
                 colorTFTThread = Thread() {
                     self.continuouslyUpdateTFT()
                 }
                 colorTFTThread!.name = "Color TFT"
                 colorTFTThread!.start()
+            }
+            
+            if DeviceViewController.hasRadio {
+                radio = RF24Radio(device: device, spiPort: spi, cePin: 14, csnPin: 15)
+                radio!.initDevice()
+                radio!.set(channel: 0x52)
+                radio!.set(autoAck: false)
+                radio!.set(paLevel: .Low)
+                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, msg) in
+                    let joystickX = Int(msg[0])
+                    let joystickY = Int(msg[1])
+                    os_log("X: %3d,  Y: %3d", joystickX, joystickY)
+                })
+                radio!.openWritingPipe(address: 0x389f30cc1b)
+                radio!.openReadingPipe(child: 1, address: 0x38a8bb7201)
+                radio!.startListening()
+                radio!.debugRegisters()
+
+                //radioThread = Thread() {
+                //    self.continuouslyUpdateRadio()
+                //}
+                //radioThread!.name = "Radio"
+                //radioThread!.start()
             }
 
         } else {
@@ -350,6 +387,21 @@ class DeviceViewController: NSViewController {
     func continuouslyUpdateOLEDDisplay() {
         while !Thread.current.isCancelled {
             display!.showTile()
+        }
+    }
+    
+    
+    func continuouslyUpdateRadio() {
+        var count = 0
+        while !Thread.current.isCancelled {
+            os_log("Status: %02x", radio!.getStatus())
+            os_log("Available: %@", radio!.dataAvailable ? "true" : "false")
+            count += 1
+            if count == 20 {
+                radio!.debugRegisters()
+                count = 0
+            }
+            Thread.sleep(forTimeInterval: 1)
         }
     }
     

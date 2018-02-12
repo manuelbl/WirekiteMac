@@ -733,6 +733,76 @@ extern long InvalidPortID;
  */
 -(void) submitOnSPIPort:(PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
 
+/*! @brief Request data from an SPI slave
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @discussion SPI is a full-duplex protocol at all times. Unless they use additional connection, slaves
+ cannot distinguish between read and write transactions. This member functions send 0xFF on the MOSI
+ line during the read.
+ 
+ @param port the SPI port ID
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @param length the number of bytes of data requested from the slave
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) requestOnSPIPort: (PortID)port chipSelect:(PortID)chipSelect length: (long)length;
+
+/*! @brief Request data from an SPI slave
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @discussion SPI is a full-duplex protocol at all times. Unless they use additional connection, slaves
+ cannot distinguish between read and write transactions. This member functions send a configurable value
+ on the MOSI line during the read.
+ 
+ @param port the SPI port ID
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @param length the number of bytes of data requested from the slave
+ 
+ @param mosiValue byte value sent on MOSI signal during reading
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) requestOnSPIPort: (PortID)port chipSelect:(PortID)chipSelect length: (long)length mosiValue:(long)mosiValue;
+
+/*! @brief Transmit and request data from an SPI slave
+ 
+ @discussion The operations is performed in a full-duplex fashion, i.e. the data is transmitted and received at
+ the same time. For that reason, the number of received bytes equals the number of transmitted bytes.
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and transmits and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @param port the SPI port ID
+ 
+ @param data the data to transmit
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) transmitAndRequestOnSPIPort: (PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
 /*! @brief Result code of the last transmission or receipt
  
     @param port the SPI port ID
