@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import os.log
 
 
 class DeviceViewController: NSViewController {
@@ -115,7 +114,6 @@ class DeviceViewController: NSViewController {
     
     // NRF24L01+ radio
     var radio: RF24Radio? = nil
-    var radioThread: Thread? = nil
 
     
     override func viewDidLoad() {
@@ -151,8 +149,6 @@ class DeviceViewController: NSViewController {
         ePaperTimer = nil
         colorTFTThread?.cancel()
         colorTFTThread = nil
-        radioThread?.cancel()
-        radioThread = nil
     }
 
     func configurePins() {
@@ -292,25 +288,18 @@ class DeviceViewController: NSViewController {
             
             if DeviceViewController.hasRadio {
                 radio = RF24Radio(device: device, spiPort: spi, cePin: 14, csnPin: 15)
-                radio!.initDevice()
-                radio!.set(channel: 0x52)
-                radio!.set(autoAck: false)
-                radio!.set(paLevel: .Low)
-                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, msg) in
-                    let joystickX = Int(msg[0])
-                    let joystickY = Int(msg[1])
-                    os_log("X: %3d,  Y: %3d", joystickX, joystickY)
-                })
-                radio!.openWritingPipe(address: 0x389f30cc1b)
-                radio!.openReadingPipe(child: 1, address: 0x38a8bb7201)
-                radio!.startListening()
-                radio!.debugRegisters()
+                radio!.initModule()
+                radio!.rfChannel = 0x52
+                radio!.autoAck = false
+                radio!.rfOutputPower = .Low
 
-                //radioThread = Thread() {
-                //    self.continuouslyUpdateRadio()
-                //}
-                //radioThread!.name = "Radio"
-                //radioThread!.start()
+                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, packet) in
+                    self.updateNunchuckValues(packet: packet)
+                })
+                
+                radio!.openTransmitPipe(address: 0x389f30cc1b)
+                radio!.openReceivePipe(pipe: 1, address: 0x38a8bb7201)
+                radio!.startListening()
             }
 
         } else {
@@ -391,20 +380,6 @@ class DeviceViewController: NSViewController {
     }
     
     
-    func continuouslyUpdateRadio() {
-        var count = 0
-        while !Thread.current.isCancelled {
-            os_log("Status: %02x", radio!.getStatus())
-            os_log("Available: %@", radio!.dataAvailable ? "true" : "false")
-            count += 1
-            if count == 20 {
-                radio!.debugRegisters()
-                count = 0
-            }
-            Thread.sleep(forTimeInterval: 1)
-        }
-    }
-    
     func updateEPaper() {
         let gc = ePaper!.prepareForDrawing()
         gc.setShouldAntialias(false)
@@ -476,6 +451,24 @@ class DeviceViewController: NSViewController {
         if colorTFTOffset >= 378 {
             colorTFTOffset -= 378 // 378 = 7 * 54: 7 emojis - each one 54 pixel wide
         }
+    }
+    
+    func updateNunchuckValues(packet: [UInt8]) {
+        self.analogStick.directionX = (Double(packet[0]) - 127) / 128
+        self.analogStick.directionY = (Double(packet[1]) - 128) / 128
+        let upperButton = packet[2] != 0
+        let lowerButton = packet[3] != 0
+        let color: NSColor
+        if upperButton && lowerButton {
+            color = NSColor.orange
+        } else if upperButton {
+            color = NSColor.red
+        } else if lowerButton {
+            color = NSColor.green
+        } else {
+            color = NSColor.darkGray
+        }
+        self.analogStick.circleColor = color
     }
     
     static func scheduleBackgroundTimer(withTimeInterval interval: DispatchTimeInterval, block: @escaping () -> ()) -> DispatchSourceTimer {

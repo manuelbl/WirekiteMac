@@ -11,8 +11,6 @@ import Cocoa
 @IBDesignable
 class AnalogStick : NSView {
     
-    static let circleColor = NSColor.darkGray
-    
     @IBInspectable var directionX: Double = 0 {
         didSet {
             needsDisplay = true
@@ -31,7 +29,13 @@ class AnalogStick : NSView {
         }
     }
     
+    @IBInspectable var circleColor: NSColor = NSColor.darkGray {
+        didSet {
+            needsDisplay = true
+        }
+    }
     
+
     override init(frame frameRect: NSRect) {
         super.init(frame:frameRect)
     }
@@ -54,7 +58,7 @@ class AnalogStick : NSView {
 
         let context = NSGraphicsContext.current()!.cgContext
 
-        AnalogStick.circleColor.setStroke()
+        circleColor.setStroke()
         context.setLineWidth(2)
         context.strokeEllipse(in: CGRect(x: w / 2 - r + 1, y: h / 2 - r + 1, width: r * 2 - 2, height: r * 2 - 2))
         

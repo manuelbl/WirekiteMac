@@ -104,7 +104,7 @@ public enum DataRate {
 }
 
 
-public enum PALevel: Int {
+public enum RFOutputPower: Int {
     case Min = 0
     case Low = 1
     case High = 2
@@ -112,6 +112,9 @@ public enum PALevel: Int {
 }
 
 
+/**
+ Controls a NRF24L01+ radio transceiver module
+ */
 public class RF24Radio {
     
     private var device: WirekiteDevice?
@@ -131,6 +134,17 @@ public class RF24Radio {
     private var expectedPayloadSize = 32
 
 
+    /**
+     Creates a new instance.
+ 
+     - Parameter device: Wirekite device
+     
+     - Parameter spiPort: port ID of the SPI bus
+     
+     - Parameter cePin: Wirekite pin number of the pin connected to the module's CE pin
+     
+     - Parameter csnPin: Wirkite pin number of the pin connected to the module's CSN pin
+    */
     init(device: WirekiteDevice, spiPort: PortID, cePin: Int, csnPin: Int) {
         self.device = device
         self.spi = spiPort
@@ -147,21 +161,25 @@ public class RF24Radio {
         }
     }
     
-    func initDevice() {
+    /**
+        Initializes the module.
+     
+        Must be called before calling any other function or accessing properties
+      */
+    func initModule() {
         Thread.sleep(forTimeInterval: 0.005)
         
-        debugRegisters()
-
         // Reset CONFIG and enable 16-bit CRC.
         write(value: RF24.CONFIG.EN_CRC | RF24.CONFIG.CRCO, toRegister: .CONFIG)
         
-        setRetries(delay: 5, count: 15)
+        setRetries(count: 15, delay: 5)
         
         // check for connected module and if this is a p nRF24l01 variant
-        isPlusModel = set(dataRate: ._250kbps)
+        dataRate = ._250kbps
+        isPlusModel = dataRate == ._250kbps
         
         // Default speed
-        let _ = set(dataRate: ._1mbps)
+        dataRate = ._1mbps
         
         // Disable dynamic payloads, to match dynamic_payloads_enabled setting - Reset value is 0
         toggleFeatures()
@@ -176,11 +194,11 @@ public class RF24Radio {
         // Set up default configuration.  Callers can always change it later.
         // This channel should be universally safe and not bleed over into adjacent
         // spectrum.
-        set(channel: 76)
+        rfChannel = 76
         
         // Flush buffers
-        flushRX()
-        flushTX()
+        discardReceivedPackets()
+        discardQueuedTransmitPackets()
         
         powerUp() // Power up by default when begin() is called
         
@@ -190,11 +208,27 @@ public class RF24Radio {
         var config = read(fromRegister: .CONFIG)
         config &= ~RF24.CONFIG.PRIM_RX
         write(value: config, toRegister: .CONFIG)
-        
-        debugRegisters()
     }
     
-    func configureIRQPin(irqPin: Int, payloadSize: Int,  completion: @escaping (RF24Radio, [UInt8]) -> Void) {
+    
+    // MARK: - Module configuration
+    
+    /**
+     Configures the IRQ pin of the module.
+     
+     The module uses the IRQ pin to notify the host about events such as a recieved packet.
+     
+     - Parameter irqPin: Wirekit pin number of the pin connected to the module's IRQ pin
+     
+     - Parameter payloadSize: expected size of payload in received packets (in bytes)
+     
+     - Parameter completion: block called when a packet has been received
+     
+     - Parameter radio: the `RF24Radio` instance that has received the packet
+     
+     - Parameter packet: the received packet
+    */
+    func configureIRQPin(irqPin: Int, payloadSize: Int,  completion: @escaping (_ radio: RF24Radio, _ packet: [UInt8]) -> Void) {
         readCompletion = completion
         expectedPayloadSize = payloadSize
         irqPort = device!.configureDigitalInputPin(irqPin, attributes: .triggerFalling) {
@@ -203,6 +237,11 @@ public class RF24Radio {
         }
     }
     
+    /**
+     Address width (in bytes)
+     
+     Valid values are between 2 and 5. The default is 5.
+    */
     var addressWidth: Int {
         get {
             return addrWidth
@@ -221,60 +260,134 @@ public class RF24Radio {
         }
     }
     
-    var dataAvailable: Bool {
-        get {
-            let status = read(fromRegister: .FIFO_STATUS)
-            return (status & RF24.FIFO_STATUS.RX_EMPTY) == 0
-        }
+    /**
+     Gets the number of retries and the delay between retries
+    
+     Reading these values requires communication with the module.
+
+     - Parameter count: the number of retries.
+     
+     - Parameter delay: the delay between retries (in µs)
+    */
+    func getRetries() -> (count: Int, delay: Int) {
+        let value = read(fromRegister: .SETUP_RETR)
+        let count = Int(value & 0x0f)
+        let delay = (Int(value >> 4) - 1) * 250
+        return (count, delay)
     }
     
-    func setRetries(delay: Int, count: Int) {
-        var delayCode: Int = (delay + 249) / 250 // delay in µs
-        if delayCode > 15 {
+    /**
+     Sets the number of retries and the retry delay
+     
+     The delay value will be rounded to a multiple of 250µs.
+     Valid delay values are between 250µs and 4000µs.
+     Valid values for `count` are between 0 (no retries) and 15.
+     
+     - Parameter count: the number of retries.
+
+     - Parameter delay: the delay between retries (in µs)
+    */
+    func setRetries(count: Int, delay: Int) {
+        var delayCode: Int = (delay + 124) / 250 - 1
+        if delayCode < 0 {
+            delayCode = 0
+        } else if delayCode > 15 {
             delayCode = 15
         }
         var retries = count
-        if retries > 15 {
+        if retries < 0 {
+            retries = 0
+        } else if retries > 15 {
             retries = 15
         }
         let value = UInt8((delayCode << 4) | retries)
         write(value: value, toRegister: .SETUP_RETR)
     }
     
-    func set(dataRate: DataRate) -> Bool {
-        var setup = read(fromRegister: .RF_SETUP)
-        setup &= ~(RF24.RF_SETUP.RF_DR_LOW | RF24.RF_SETUP.RF_DR_HIGH)
-        setup |= dataRate == ._250kbps ? RF24.RF_SETUP.RF_DR_LOW : (dataRate == ._2mbps ? RF24.RF_SETUP.RF_DR_HIGH : 0)
-        write(value: setup, toRegister: .RF_SETUP)
-        
-        // Verify our result
-        return read(fromRegister: .RF_SETUP) == setup
-    }
-    
-    func getStatus() -> UInt8 {
-        return write(command: RF24.CMD.NOP)
-    }
-    
-    func toggleFeatures() {
-        let bytes: [UInt8] = [ 0x50, 0x73 ]
-        let data = Data(bytes)
-        device!.transmit(onSPIPort: spi, data: data, chipSelect: csnPort)
-    }
-    
-    func set(channel: Int) {
-        if channel >= 0 && channel <= 125 {
-            write(value: UInt8(channel), toRegister: .RF_CH)
+    /**
+     Data rate for transmissions
+     
+     Reading this property requires communication with the module.
+    */
+    var dataRate: DataRate {
+        get {
+            let value = read(fromRegister: .RF_SETUP)
+            var rate: DataRate
+            if (value & RF24.RF_SETUP.RF_DR_LOW) != 0 {
+                rate = ._250kbps
+            } else if (value & RF24.RF_SETUP.RF_DR_HIGH) != 0 {
+                rate = ._2mbps
+            } else {
+                rate = ._1mbps
+            }
+            return rate
+        }
+        set(newValue) {
+            var setup = read(fromRegister: .RF_SETUP)
+            setup &= ~(RF24.RF_SETUP.RF_DR_LOW | RF24.RF_SETUP.RF_DR_HIGH)
+            setup |= newValue == ._250kbps ? RF24.RF_SETUP.RF_DR_LOW : (newValue == ._2mbps ? RF24.RF_SETUP.RF_DR_HIGH : 0)
+            write(value: setup, toRegister: .RF_SETUP)
         }
     }
     
-    func flushTX() {
-        let _ = write(command: RF24.CMD.FLUSH_TX)
+    /**
+     RF output power
+     
+     Reading this property requires communication with the module
+    */
+    var rfOutputPower: RFOutputPower {
+        get {
+            let value = (read(fromRegister: .RF_SETUP) >> 1) & 0x03
+            return RFOutputPower(rawValue: Int(value))!
+        }
+        set(newValue) {
+            var setup = read(fromRegister: .RF_SETUP)
+            setup &= ~RF24.RF_SETUP.RF_PWR_MASK
+            setup |= UInt8(newValue.rawValue) << 1
+            write(value: setup, toRegister: .RF_SETUP)
+        }
     }
     
-    func flushRX() {
-        let _ = write(command: RF24.CMD.FLUSH_RX)
+    /**
+     Value of NRF24L01+ status register
+    */
+    var statusRegister: UInt8 {
+        get {
+            return write(command: RF24.CMD.NOP)
+        }
     }
     
+    /**
+     RF channel number.
+     
+     Valid channel numbers are between 0 and 125.
+    */
+    var rfChannel: Int {
+        get {
+            return Int(read(fromRegister: .RF_CH))
+        }
+        set(newValue) {
+            if newValue >= 0 && newValue <= 125 {
+                write(value: UInt8(newValue), toRegister: .RF_CH)
+            }
+        }
+    }
+    
+    /**
+     Enables auto acknowledge for all pipes
+    */
+    var autoAck: Bool {
+        get {
+            return read(fromRegister: .EN_AA) == 0x3f
+        }
+        set(newValue) {
+            write(value: newValue ? 0x3f : 0, toRegister: .EN_AA)
+        }
+    }
+
+    /**
+     Powers the module down
+    */
     func powerDown() {
         device!.writeDigitalPin(onPort: cePort, value: false, synchronizedWithSPIPort: spi)
         var config = read(fromRegister: .CONFIG)
@@ -282,6 +395,9 @@ public class RF24Radio {
         write(value: config, toRegister: .CONFIG)
     }
     
+    /**
+     Powers the module up
+    */
     func powerUp() {
         var config = read(fromRegister: .CONFIG)
         if (config & RF24.CONFIG.PWR_UP) == 0 {
@@ -291,54 +407,81 @@ public class RF24Radio {
         }
     }
     
-    func set(autoAck: Bool) {
-        write(value: autoAck ? 0x3f : 0, toRegister: .EN_AA)
-    }
     
-    func set(paLevel: PALevel) {
-        var setup = read(fromRegister: .RF_SETUP)
-        setup &= ~RF24.RF_SETUP.RF_PWR_MASK
-        setup |= UInt8(paLevel.rawValue) << 1
-        write(value: setup, toRegister: .RF_SETUP)
-    }
+    // MARK: - Receiving
     
-    func openWritingPipe(address: UInt64) {
-        write(address: address, toRegister: .RX_ADDR_P0)
-        write(address: address, toRegister: .TX_ADDR)
-        write(value: UInt8(payloadSize), toRegister: .RX_PW_P0)
-    }
-    
-    func openReadingPipe(child: Int, address: UInt64) {
-        if child < 0 || child > 6 {
+    /**
+     Opens a pipe for receiving packets
+     
+     Addresses are between 2 and 5 bytes long (see `addressWidth`).
+     So the most significant bits in `address` are ignored.
+     
+     Use pipe 1 as the primary receive channel as pipe 0 is mainly
+     used to implement auto acknowledge.
+     
+     The address of pipes 2 to 5 must only differ from pipe 1 address
+     in the least significant byte. Therefore, only the LSB is used
+     for these pipes. The other bytes are ignored.
+     
+     - Parameter pipe: the pipe index (between 0 and 5)
+     
+     - Parameter address: the address of the pipe
+    */
+    func openReceivePipe(pipe: Int, address: UInt64) {
+        if pipe < 0 || pipe > 6 {
             return
         }
-        if child == 0 {
+        if pipe == 0 {
             pipe0ReadingAddress = address
         }
         
-        let addrRegister = Register.RX_ADDR_P0.offset(by: child)
-        if child < 2 {
+        let addrRegister = Register.RX_ADDR_P0.offset(by: pipe)
+        if pipe < 2 {
             write(address: address, toRegister: addrRegister)
         } else {
             write(value: UInt8(address & 0xff), toRegister: addrRegister)
         }
         
-        let payloadRegister = Register.RX_PW_P0.offset(by: child)
+        let payloadRegister = Register.RX_PW_P0.offset(by: pipe)
         write(value: UInt8(payloadSize), toRegister: payloadRegister)
         
         var enRxAddr = read(fromRegister: .EN_RXADDR)
-        enRxAddr |= UInt8(1 << child)
+        enRxAddr |= UInt8(1 << pipe)
         write(value: enRxAddr, toRegister: .EN_RXADDR)
     }
-    
-    func closeReadingPipe(child: Int) {
+
+    /**
+     Closes the recieve pipe.
+     
+     - Parameter pipe: the pipe index (between 0 and 5)
+    */
+    func closeReceivePipe(pipe: Int) {
         var enRxAddr = read(fromRegister: .EN_RXADDR)
-        enRxAddr &= ~UInt8(1 << child)
+        enRxAddr &= ~UInt8(1 << pipe)
         write(value: enRxAddr, toRegister: .EN_RXADDR)
     }
     
-    func read(numBytes: Int) -> [UInt8] {
-        let data = readPayload(numBytes: numBytes)
+    /**
+     Indicates if a received packet is available and can be read
+     
+     Reading this property requires communication with the module.
+     */
+    var packetAvailable: Bool {
+        get {
+            let status = read(fromRegister: .FIFO_STATUS)
+            return (status & RF24.FIFO_STATUS.RX_EMPTY) == 0
+        }
+    }
+    
+    /**
+     Fetches the received packet from the module and removes it from the receive queue.
+     
+     The result is undefined if no packet has been received.
+     
+     - Parameter packetLength: the length of the expected packet payload
+    */
+    func fetchPacket(packetLength: Int) -> [UInt8] {
+        let data = readPayload(numBytes: packetLength)
         let status: UInt8 = RF24.STATUS.RX_DR | RF24.STATUS.TX_DS | RF24.STATUS.MAX_RT
         write(value: status, toRegister: .STATUS)
         return data
@@ -348,17 +491,160 @@ public class RF24Radio {
         let plSize = min(numBytes, payloadSize)
         let padSize = dynamicPayloadEnabled ? 0 : payloadSize - plSize
         
-        var txData = [UInt8](repeating: RF24.CMD.NOP, count: plSize + padSize)
+        var txData = [UInt8](repeating: RF24.CMD.NOP, count: plSize + padSize + 1)
         txData[0] = RF24.CMD.R_RX_PAYLOAD
         let rxData = transmitAndRequest(txData: txData)
-        return Array(rxData[..<plSize])
+        return Array(rxData[1..<plSize+1])
     }
 
+    /**
+     Discards all received packets from the receive queue
+    */
+    func discardReceivedPackets() {
+        let _ = write(command: RF24.CMD.FLUSH_RX)
+    }
+    
+    /**
+     Starts to listen for incoming packets
+    */
+    func startListening() {
+        powerUp()
+        
+        var config = read(fromRegister: .CONFIG)
+        config |= RF24.CONFIG.PRIM_RX
+        write(value: config, toRegister: .CONFIG)
+        
+        let status: UInt8 = RF24.STATUS.RX_DR | RF24.STATUS.TX_DS | RF24.STATUS.MAX_RT
+        write(value: status, toRegister: .STATUS)
+        
+        device!.writeDigitalPin(onPort: cePort, value: true, synchronizedWithSPIPort: spi)
+        
+        // Restore the pipe0 adddress, if exists
+        if (pipe0ReadingAddress & 0xff) != 0 {
+            write(address: pipe0ReadingAddress, toRegister: .RX_ADDR_P0)
+        } else {
+            closeReceivePipe(pipe: 0)
+        }
+        
+        if (read(fromRegister: .FEATURE) & RF24.FEATURE.EN_ACK_PAY) != 0 {
+            discardQueuedTransmitPackets()
+        }
+    }
+    
+    
+    // MARK: - Transmitting
+    
+    /**
+     Opens the pipe for transmitting packets
+     
+     Addresses are between 2 and 5 bytes long (see `addressWidth`).
+     So the most significant bits in `address` are ignored.
+     
+     - Parameter address: the address of the pipe
+     */
+    func openTransmitPipe(address: UInt64) {
+        write(address: address, toRegister: .RX_ADDR_P0)
+        write(address: address, toRegister: .TX_ADDR)
+        write(value: UInt8(payloadSize), toRegister: .RX_PW_P0)
+    }
+    
+    
+
+    /**
+     Discard the packets queue for transmission
+    */
+    func discardQueuedTransmitPackets() {
+        let _ = write(command: RF24.CMD.FLUSH_TX)
+    }
+    
+    
+    // MARK: - Low level
+    
+    private func interruptTriggered() {
+        let data = fetchPacket(packetLength: expectedPayloadSize)
+        readCompletion!(self, data)
+    }
+    
+
+    private func addressToByteArray(address: UInt64) -> [UInt8] {
+        // convert to byte array, LSB first
+        var addr = address
+        var bytes = [UInt8](repeating: 0, count: addressWidth)
+        for i in 0 ..< addressWidth {
+            bytes[i] = UInt8(addr & 0xff)
+            addr >>= 8
+        }
+        return bytes
+    }
+    
+    fileprivate func toggleFeatures() {
+        let data: [UInt8] = [ 0x50, 0x73 ]
+        transmit(txData: data)
+    }
+    
+    private func write(value: UInt8, toRegister register: Register) {
+        let data: [UInt8] = [ writeCode(register: register), value ]
+        transmit(txData: data)
+    }
+    
+    private func write(address: UInt64, toRegister register: Register) {
+        var data: [UInt8] = [ writeCode(register: register) ]
+        data.append(contentsOf: addressToByteArray(address: address))
+        transmit(txData: data)
+    }
+    
+    private func write(command: UInt8) -> UInt8 {
+        let txData: [UInt8] = [ command ]
+        let rxData = transmitAndRequest(txData: txData)
+        return rxData[0]
+    }
+    
+    private func read(fromRegister register: Register) -> UInt8 {
+        let txData: [UInt8] = [ readCode(register: register), RF24.CMD.NOP]
+        let rxData = transmitAndRequest(txData: txData)
+        return rxData[1]
+    }
+    
+    private func readAddress(fromRegister register: Register, length: Int) -> [UInt8] {
+        var txData = [UInt8](repeating: RF24.CMD.NOP, count: length + 1)
+        txData[0] = readCode(register: register)
+        let rxData = transmitAndRequest(txData: txData)
+        return Array(rxData[1...])
+    }
+
+    private func writeCode(register: Register) -> UInt8 {
+        return RF24.CMD.W_REGISTER | register.rawValue
+    }
+    
+    private func readCode(register: Register) -> UInt8 {
+        return RF24.CMD.R_REGISTER | register.rawValue
+    }
+    
+    private func transmit(txData: [UInt8]) {
+        let txPayload = Data(txData)
+        device!.submit(onSPIPort: spi, data: txPayload, chipSelect: csnPort)
+    }
+    
+    private func transmitAndRequest(txData: [UInt8]) -> [UInt8] {
+        let txPayload = Data(txData)
+        let rxPayload = device!.transmitAndRequest(onSPIPort: spi, data: txPayload, chipSelect: csnPort)
+        if let rxPayload = rxPayload {
+            return [UInt8](rxPayload)
+        } else {
+            return [UInt8]()
+        }
+    }
+    
+    // MARK: - Debugging information
+    
+    /**
+     Writes information about the module's status register to the debug output
+     */
     func debugRegisters() {
         
         // status
-        debug(status: getStatus())
-
+        debug(status: statusRegister)
+        
         // addresses
         debug(addressRegister: .RX_ADDR_P0, addressLength: addressWidth)
         debug(addressRegister: .RX_ADDR_P1, addressLength: addressWidth)
@@ -376,7 +662,7 @@ public class RF24Radio {
         debug(byteRegister: .FEATURE)
     }
     
-    func debug(status: UInt8) {
+    fileprivate func debug(status: UInt8) {
         os_log("STATUS: RX_DR = %d, TX_DS = %d, MAX_RT = %d, RX_P_NO = %d, RX_FULL = %d",
                (status & RF24.STATUS.RX_DR) == 0 ? 0 : 1,
                (status & RF24.STATUS.TX_DS) == 0 ? 0 : 1,
@@ -419,95 +705,5 @@ public class RF24Radio {
         let registerName = "\(register)"
         os_log("%@:%@", registerName, dataStr)
     }
-    
-    func startListening() {
-        powerUp()
-        
-        var config = read(fromRegister: .CONFIG)
-        config |= RF24.CONFIG.PRIM_RX
-        write(value: config, toRegister: .CONFIG)
-        
-        let status: UInt8 = RF24.STATUS.RX_DR | RF24.STATUS.TX_DS | RF24.STATUS.MAX_RT
-        write(value: status, toRegister: .STATUS)
 
-        device!.writeDigitalPin(onPort: cePort, value: true, synchronizedWithSPIPort: spi)
-
-        // Restore the pipe0 adddress, if exists
-        if (pipe0ReadingAddress & 0xff) != 0 {
-            write(address: pipe0ReadingAddress, toRegister: .RX_ADDR_P0)
-        } else {
-            closeReadingPipe(child: 0)
-        }
-        
-        if (read(fromRegister: .FEATURE) & RF24.FEATURE.EN_ACK_PAY) != 0 {
-            flushTX()
-        }
-    }
-    
-    private func interruptTriggered() {
-        let data = read(numBytes: expectedPayloadSize)
-        readCompletion!(self, data)
-    }
-    
-
-    private func addressToByteArray(address: UInt64) -> [UInt8] {
-        // convert to byte array, LSB first
-        var addr = address
-        var bytes = [UInt8](repeating: 0, count: addressWidth)
-        for i in 0 ..< addressWidth {
-            bytes[i] = UInt8(addr & 0xff)
-            addr >>= 8
-        }
-        return bytes
-    }
-    
-    private func write(value: UInt8, toRegister register: Register) {
-        let bytes: [UInt8] = [ writeCode(register: register), value ]
-        let data = Data(bytes)
-        device!.transmit(onSPIPort: spi, data: data, chipSelect: csnPort)
-    }
-    
-    private func write(address: UInt64, toRegister register: Register) {
-        var bytes: [UInt8] = [ writeCode(register: register) ]
-        bytes.append(contentsOf: addressToByteArray(address: address))
-        let data = Data(bytes)
-        device!.transmit(onSPIPort: spi, data: data, chipSelect: csnPort)
-    }
-    
-    private func write(command: UInt8) -> UInt8 {
-        let txData: [UInt8] = [ command ]
-        let rxData = transmitAndRequest(txData: txData)
-        return rxData[0]
-    }
-    
-    private func read(fromRegister register: Register) -> UInt8 {
-        let txData: [UInt8] = [ readCode(register: register), RF24.CMD.NOP]
-        let rxData = transmitAndRequest(txData: txData)
-        return rxData[1]
-    }
-    
-    private func readAddress(fromRegister register: Register, length: Int) -> [UInt8] {
-        var txData = [UInt8](repeating: RF24.CMD.NOP, count: length + 1)
-        txData[0] = readCode(register: register)
-        let rxData = transmitAndRequest(txData: txData)
-        return Array(rxData[1...])
-    }
-
-    private func writeCode(register: Register) -> UInt8 {
-        return RF24.CMD.W_REGISTER | register.rawValue
-    }
-    
-    private func readCode(register: Register) -> UInt8 {
-        return RF24.CMD.R_REGISTER | register.rawValue
-    }
-    
-    private func transmitAndRequest(txData: [UInt8]) -> [UInt8] {
-        let txPayload = Data(txData)
-        let rxPayload = device!.transmitAndRequest(onSPIPort: spi, data: txPayload, chipSelect: csnPort)
-        if let rxPayload = rxPayload {
-            return [UInt8](rxPayload)
-        } else {
-            return [UInt8]()
-        }
-    }
 }
