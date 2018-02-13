@@ -124,13 +124,13 @@ public class RF24Radio {
     private var csnPort: PortID
     private var irqPort: PortID = InvalidPortID
     
-    private var isPlusModel = false
+    private var isPlusModel_ = false
     private var dynamicPayloadEnabled = true
-    private var addrWidth = 5
-    private var payloadSize = 32
+    private var addressWidth_ = 5
+    private var payloadSize_ = 32
     private var pipe0ReadingAddress: UInt64 = 0
     
-    private var readCompletion: ((RF24Radio, [UInt8]) -> Void)?
+    private var readCompletion: ((RF24Radio, Int, [UInt8]?) -> Void)?
     private var expectedPayloadSize = 32
 
 
@@ -167,16 +167,14 @@ public class RF24Radio {
         Must be called before calling any other function or accessing properties
       */
     func initModule() {
-        Thread.sleep(forTimeInterval: 0.005)
-        
         // Reset CONFIG and enable 16-bit CRC.
         write(value: RF24.CONFIG.EN_CRC | RF24.CONFIG.CRCO, toRegister: .CONFIG)
         
-        setRetries(count: 15, delay: 5)
+        setRetransmissions(count: 15, delay: 5)
         
         // check for connected module and if this is a p nRF24l01 variant
         dataRate = ._250kbps
-        isPlusModel = dataRate == ._250kbps
+        isPlusModel_ = dataRate == ._250kbps
         
         // Default speed
         dataRate = ._1mbps
@@ -218,6 +216,9 @@ public class RF24Radio {
      
      The module uses the IRQ pin to notify the host about events such as a recieved packet.
      
+     If a payload size if 0 is specified, `nil` is passed in *packet* to the completion block.
+     The completion block must then fetch the packet itself.
+     
      - Parameter irqPin: Wirekit pin number of the pin connected to the module's IRQ pin
      
      - Parameter payloadSize: expected size of payload in received packets (in bytes)
@@ -226,9 +227,11 @@ public class RF24Radio {
      
      - Parameter radio: the `RF24Radio` instance that has received the packet
      
+     - Parameter pipe: the index of the pipe where the packet was received
+     
      - Parameter packet: the received packet
     */
-    func configureIRQPin(irqPin: Int, payloadSize: Int,  completion: @escaping (_ radio: RF24Radio, _ packet: [UInt8]) -> Void) {
+    func configureIRQPin(irqPin: Int, payloadSize: Int,  completion: @escaping (_ radio: RF24Radio, _ pipe: Int, _ packet: [UInt8]?) -> Void) {
         readCompletion = completion
         expectedPayloadSize = payloadSize
         irqPort = device!.configureDigitalInputPin(irqPin, attributes: .triggerFalling) {
@@ -240,36 +243,41 @@ public class RF24Radio {
     /**
      Address width (in bytes)
      
-     Valid values are between 2 and 5. The default is 5.
+     Valid values are between 3 and 5. The default is 5.
     */
     var addressWidth: Int {
         get {
-            return addrWidth
+            return addressWidth_
         }
         
         set(newValue) {
-            var w = newValue - 2
-            if w > 3 {
-                w = 3
-            } else if w < 0 {
-                w = 0
-            }
-            
-            write(value: UInt8(w), toRegister: .SETUP_AW)
-            addrWidth = w + 2
+            addressWidth_ = clamp(newValue, minValue: 3, maxValue: 5)
+            write(value: UInt8(addressWidth_ - 2), toRegister: .SETUP_AW)
         }
     }
     
     /**
-     Gets the number of retries and the delay between retries
+     Payload size (in bytes)
+    */
+    var payloadSize: Int {
+        get {
+            return payloadSize_
+        }
+        set(newValue) {
+            payloadSize_ = clamp(newValue, minValue: 1, maxValue: 32)
+        }
+    }
+    
+    /**
+     Gets the number of retransmissions and the delay between them
     
      Reading these values requires communication with the module.
 
-     - Parameter count: the number of retries.
+     - Parameter count: the number of retransmissions.
      
-     - Parameter delay: the delay between retries (in µs)
+     - Parameter delay: the delay between retransmission (in µs)
     */
-    func getRetries() -> (count: Int, delay: Int) {
+    func getRetransmissions() -> (count: Int, delay: Int) {
         let value = read(fromRegister: .SETUP_RETR)
         let count = Int(value & 0x0f)
         let delay = (Int(value >> 4) - 1) * 250
@@ -277,30 +285,20 @@ public class RF24Radio {
     }
     
     /**
-     Sets the number of retries and the retry delay
+     Sets the number of retransmissions and the retry delay
      
      The delay value will be rounded to a multiple of 250µs.
      Valid delay values are between 250µs and 4000µs.
-     Valid values for `count` are between 0 (no retries) and 15.
+     Valid values for `count` are between 0 (no retransmissions) and 15.
      
-     - Parameter count: the number of retries.
+     - Parameter count: the number of retransmissions.
 
-     - Parameter delay: the delay between retries (in µs)
+     - Parameter delay: the delay between retransmissions (in µs)
     */
-    func setRetries(count: Int, delay: Int) {
-        var delayCode: Int = (delay + 124) / 250 - 1
-        if delayCode < 0 {
-            delayCode = 0
-        } else if delayCode > 15 {
-            delayCode = 15
-        }
-        var retries = count
-        if retries < 0 {
-            retries = 0
-        } else if retries > 15 {
-            retries = 15
-        }
-        let value = UInt8((delayCode << 4) | retries)
+    func setRetransmissions(count: Int, delay: Int) {
+        let delayCode: Int = clamp((delay + 124) / 250 - 1, minValue: 0, maxValue: 15)
+        let retransmissions = clamp(count, minValue: 0, maxValue: 15)
+        let value = UInt8((delayCode << 4) | retransmissions)
         write(value: value, toRegister: .SETUP_RETR)
     }
     
@@ -358,6 +356,15 @@ public class RF24Radio {
     }
     
     /**
+    */
+    var isConnected: Bool {
+        get {
+            let value = read(fromRegister: .SETUP_AW)
+            return value >= 1 && value <= 3
+        }
+    }
+    
+    /**
      RF channel number.
      
      Valid channel numbers are between 0 and 125.
@@ -384,7 +391,17 @@ public class RF24Radio {
             write(value: newValue ? 0x3f : 0, toRegister: .EN_AA)
         }
     }
-
+    
+    /**
+     Indicates if the connected module is a plus model
+     (NRF24L01+ as opposed to NRF24L01)
+    */
+    var isPlusModel: Bool {
+        get {
+            return isPlusModel_
+        }
+    }
+    
     /**
      Powers the module down
     */
@@ -443,7 +460,7 @@ public class RF24Radio {
         }
         
         let payloadRegister = Register.RX_PW_P0.offset(by: pipe)
-        write(value: UInt8(payloadSize), toRegister: payloadRegister)
+        write(value: UInt8(payloadSize_), toRegister: payloadRegister)
         
         var enRxAddr = read(fromRegister: .EN_RXADDR)
         enRxAddr |= UInt8(1 << pipe)
@@ -477,19 +494,16 @@ public class RF24Radio {
      Fetches the received packet from the module and removes it from the receive queue.
      
      The result is undefined if no packet has been received.
-     
-     - Parameter packetLength: the length of the expected packet payload
     */
     func fetchPacket(packetLength: Int) -> [UInt8] {
         let data = readPayload(numBytes: packetLength)
-        let status: UInt8 = RF24.STATUS.RX_DR | RF24.STATUS.TX_DS | RF24.STATUS.MAX_RT
-        write(value: status, toRegister: .STATUS)
+        write(value: RF24.STATUS.RX_DR, toRegister: .STATUS)
         return data
     }
     
     private func readPayload(numBytes: Int) -> [UInt8] {
-        let plSize = min(numBytes, payloadSize)
-        let padSize = dynamicPayloadEnabled ? 0 : payloadSize - plSize
+        let plSize = min(numBytes, payloadSize_)
+        let padSize = dynamicPayloadEnabled ? 0 : payloadSize_ - plSize
         
         var txData = [UInt8](repeating: RF24.CMD.NOP, count: plSize + padSize + 1)
         txData[0] = RF24.CMD.R_RX_PAYLOAD
@@ -531,6 +545,26 @@ public class RF24Radio {
         }
     }
     
+    /**
+     Stops listening for incoming packets
+    */
+    func stopListening() {
+        device!.writeDigitalPin(onPort: cePort, value: false, synchronizedWithSPIPort: spi)
+        
+        let feature = read(fromRegister: .FEATURE)
+        if (feature & RF24.FEATURE.EN_ACK_PAY) != 0 {
+            discardQueuedTransmitPackets()
+        }
+        
+        var config = read(fromRegister: .CONFIG)
+        config &= ~RF24.CONFIG.PRIM_RX
+        write(value: config, toRegister: .FEATURE)
+        
+        var enRxAddr = read(fromRegister: .EN_RXADDR)
+        enRxAddr |= 1
+        write(value: enRxAddr, toRegister: .EN_RXADDR)
+    }
+    
     
     // MARK: - Transmitting
     
@@ -545,9 +579,8 @@ public class RF24Radio {
     func openTransmitPipe(address: UInt64) {
         write(address: address, toRegister: .RX_ADDR_P0)
         write(address: address, toRegister: .TX_ADDR)
-        write(value: UInt8(payloadSize), toRegister: .RX_PW_P0)
+        write(value: UInt8(payloadSize_), toRegister: .RX_PW_P0)
     }
-    
     
 
     /**
@@ -561,16 +594,41 @@ public class RF24Radio {
     // MARK: - Low level
     
     private func interruptTriggered() {
-        let data = fetchPacket(packetLength: expectedPayloadSize)
-        readCompletion!(self, data)
+        while true {
+            let status = read(fromRegister: .STATUS)
+            
+            if (status & RF24.STATUS.RX_DR) != 0 {
+                // packet arrived
+                let pipe = Int((status >> 1) & 0x07)
+                let data: [UInt8]?
+                if expectedPayloadSize > 0 {
+                    data = fetchPacket(packetLength: expectedPayloadSize)
+                } else {
+                    data = nil
+                }
+                readCompletion!(self, pipe, data)
+            
+            } else if (status & RF24.STATUS.TX_DS) != 0 {
+                // packet transmitted
+                write(value: RF24.STATUS.TX_DS, toRegister: .STATUS)
+                
+            } else if (status & RF24.STATUS.MAX_RT) != 0 {
+                // maximum number of retransmissions reached
+                write(value: RF24.STATUS.MAX_RT, toRegister: .STATUS)
+                
+            } else {
+                // no further work
+                break
+            }
+        }
     }
     
 
     private func addressToByteArray(address: UInt64) -> [UInt8] {
         // convert to byte array, LSB first
         var addr = address
-        var bytes = [UInt8](repeating: 0, count: addressWidth)
-        for i in 0 ..< addressWidth {
+        var bytes = [UInt8](repeating: 0, count: addressWidth_)
+        for i in 0 ..< addressWidth_ {
             bytes[i] = UInt8(addr & 0xff)
             addr >>= 8
         }
@@ -646,10 +704,10 @@ public class RF24Radio {
         debug(status: statusRegister)
         
         // addresses
-        debug(addressRegister: .RX_ADDR_P0, addressLength: addressWidth)
-        debug(addressRegister: .RX_ADDR_P1, addressLength: addressWidth)
+        debug(addressRegister: .RX_ADDR_P0, addressLength: addressWidth_)
+        debug(addressRegister: .RX_ADDR_P1, addressLength: addressWidth_)
         debug(byteRegisters: .RX_ADDR_P2, count: 4, label: "RX_ADDR_P2..5")
-        debug(addressRegister: .TX_ADDR, addressLength: addressWidth)
+        debug(addressRegister: .TX_ADDR, addressLength: addressWidth_)
         
         debug(byteRegisters: .RX_PW_P0, count: 6, label: "RX_PW_P0..5")
         debug(byteRegister: .EN_AA)
@@ -707,3 +765,9 @@ public class RF24Radio {
     }
 
 }
+
+
+fileprivate func clamp<T>(_ value: T, minValue: T, maxValue: T) -> T where T : Comparable {
+    return min(max(value, minValue), maxValue)
+}
+

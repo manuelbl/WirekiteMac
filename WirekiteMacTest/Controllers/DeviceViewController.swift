@@ -293,8 +293,8 @@ class DeviceViewController: NSViewController {
                 radio!.autoAck = false
                 radio!.rfOutputPower = .Low
 
-                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, packet) in
-                    self.updateNunchuckValues(packet: packet)
+                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, pipe, packet) in
+                    self.updateNunchuckValues(packet: packet!)
                 })
                 
                 radio!.openTransmitPipe(address: 0x389f30cc1b)
