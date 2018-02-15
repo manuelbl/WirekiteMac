@@ -114,6 +114,7 @@ class DeviceViewController: NSViewController {
     
     // NRF24L01+ radio
     var radio: RF24Radio? = nil
+    var radioThread: Thread? = nil
 
     
     override func viewDidLoad() {
@@ -149,6 +150,8 @@ class DeviceViewController: NSViewController {
         ePaperTimer = nil
         colorTFTThread?.cancel()
         colorTFTThread = nil
+        radioThread?.cancel()
+        radioThread = nil
     }
 
     func configurePins() {
@@ -268,11 +271,11 @@ class DeviceViewController: NSViewController {
             if DeviceViewController.hasColorTFT || DeviceViewController.hasRadio {
                 let boardType = device.boardInfo(.boardType)
                 if boardType == 1 {
-                    let frequency = DeviceViewController.hasRadio ? 4000000 : 16000000
+                    let frequency = DeviceViewController.hasRadio ? 10000000 : 16000000
                     spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: 5, frequency: frequency, attributes: [])
                 } else {
                     device.configureFlowControlMemSize(20000, maxOutstandingRequest: 100)
-                    let frequency = DeviceViewController.hasRadio ? 4000000 : 18000000
+                    let frequency = DeviceViewController.hasRadio ? 10000000 : 18000000
                     spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: 5, frequency: frequency, attributes: [])
                 }
             }
@@ -300,6 +303,12 @@ class DeviceViewController: NSViewController {
                 radio!.openTransmitPipe(address: 0x389f30cc1b)
                 radio!.openReceivePipe(pipe: 1, address: 0x38a8bb7201)
                 radio!.startListening()
+
+                radioThread = Thread() {
+                    self.continuouslySendTime()
+                }
+                radioThread!.name = "Radio Thread"
+                radioThread!.start()
             }
 
         } else {
@@ -469,6 +478,27 @@ class DeviceViewController: NSViewController {
             color = NSColor.darkGray
         }
         self.analogStick.circleColor = color
+    }
+    
+    func continuouslySendTime() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .none
+        dateFormatter.timeStyle = .medium
+
+        while !Thread.current.isCancelled {
+
+            Thread.sleep(forTimeInterval: 0.5)
+
+            let now = Date()
+            let str = dateFormatter.string(from: now)
+            var packet: [UInt8]
+            packet = [UInt8](str.utf8)
+            packet.append(0)
+            
+            radio!.stopListening()
+            radio!.transmit(packet: packet)
+            radio!.startListening()
+        }
     }
     
     static func scheduleBackgroundTimer(withTimeInterval interval: DispatchTimeInterval, block: @escaping () -> ()) -> DispatchSourceTimer {
