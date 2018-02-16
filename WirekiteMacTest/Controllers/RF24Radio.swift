@@ -225,7 +225,7 @@ public class RF24Radio {
     func setRetransmissions(count: Int, delay: Int) {
         let delayCode: Int = clamp((delay + 124) / 250 - 1, minValue: 0, maxValue: 15)
         let retransmissions = clamp(count, minValue: 0, maxValue: 15)
-        let regSetupRetr = UInt8((delayCode << 4) | retransmissions)
+        regSetupRetr = UInt8((delayCode << 4) | retransmissions)
         write(value: regSetupRetr, toRegister: .SETUP_RETR)
     }
     
@@ -464,7 +464,6 @@ public class RF24Radio {
         while txQueueCount > 0 {
             txQueueNotFull.wait()
         }
-        txQueueNotFull.unlock()
         
         regConfig |= RF24.CONFIG.PRIM_RX
         write(value: regConfig, toRegister: .CONFIG)
@@ -481,6 +480,8 @@ public class RF24Radio {
         if (regFeature & RF24.FEATURE.EN_ACK_PAY) != 0 {
             discardQueuedTransmitPackets()
         }
+        
+        txQueueNotFull.unlock()
     }
     
     /**
@@ -571,20 +572,36 @@ public class RF24Radio {
         
         while true {
             let status = read(fromRegister: .STATUS)
-            
+
             if (status & RF24.STATUS.RX_DR) != 0 {
                 // packet arrived
-                let pipe = Int((status >> 1) & 0x07)
-                let data: [UInt8]?
-                if expectedPayloadSize > 0 {
-                    data = fetchPacket(packetLength: expectedPayloadSize)
-                } else {
-                    data = nil
+                while true {
+                    // read data
+                    let data: [UInt8]?
+                    if expectedPayloadSize > 0 {
+                        data = fetchPacket(packetLength: expectedPayloadSize)
+                    } else {
+                        data = nil
+                    }
+                    
+                    // callback
+                    let pipe = Int((status >> 1) & 0x07)
+                    DispatchQueue.main.async {
+                        self.readCompletion!(self, pipe, data)
+                    }
+
+                    // clear RX_DR
+                    write(value: RF24.STATUS.RX_DR, toRegister: .STATUS)
+                    
+                    // read FIFO_STATUS
+                    let fifoStatus = read(fromRegister: .FIFO_STATUS)
+                    if (fifoStatus & RF24.FIFO_STATUS.RX_EMPTY) != 0 {
+                        break
+                    }
                 }
-                DispatchQueue.main.async {
-                    self.readCompletion!(self, pipe, data)
-                }
-            
+                
+                continue
+                
             } else if (status & RF24.STATUS.TX_DS) != 0 {
                 // packet transmitted
                 write(value: RF24.STATUS.TX_DS, toRegister: .STATUS)
@@ -606,6 +623,7 @@ public class RF24Radio {
                 os_log("Maximum number of TX retransmissions reached, flushing %d packets",
                        log: RF24Radio.log, type: .error,
                        txQueueCount)
+                discardQueuedTransmitPackets()
                 txQueueCount = 0
                 setCE(high: false)
                 txQueueNotFull.signal()
