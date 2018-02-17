@@ -12,6 +12,8 @@
 		DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0A29431F44C87100287E20 /* GyroMPU6050.swift */; };
 		DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB23554F1F2FC20E005515F4 /* MainViewController.swift */; };
 		DB80E3F61F2C8B2300321DC2 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */; };
+		DBB31CB91F83E794009D6A76 /* EPaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB31CB81F83E794009D6A76 /* EPaper.swift */; };
+		DBB31CBB1F8573DE009D6A76 /* GraphicsBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBB31CBA1F8573DE009D6A76 /* GraphicsBuffer.swift */; };
 		DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C341F293ECC00328C0F /* AppDelegate.swift */; };
 		DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C361F293ECC00328C0F /* DeviceViewController.swift */; };
 		DBC93C451F2BA41500328C0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBC93C381F293ECC00328C0F /* Assets.xcassets */; };
@@ -19,6 +21,8 @@
 		DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C471F2BA61700328C0F /* AnalogStick.swift */; };
 		DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC93C481F2BA61700328C0F /* Light.swift */; };
 		DBC93C4E1F2BA78A00328C0F /* libWirekiteMacLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */; };
+		DBCA38232030A7D40001AEB0 /* RF24Radio.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBCA38222030A7D40001AEB0 /* RF24Radio.swift */; };
+		DBE2105B1F895DC900EC157E /* ColorTFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBE2105A1F895DC900EC157E /* ColorTFT.swift */; };
 		DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +31,8 @@
 		DB0A29411F43735A00287E20 /* OLEDDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OLEDDisplay.swift; sourceTree = "<group>"; };
 		DB0A29431F44C87100287E20 /* GyroMPU6050.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GyroMPU6050.swift; sourceTree = "<group>"; };
 		DB23554F1F2FC20E005515F4 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		DBB31CB81F83E794009D6A76 /* EPaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPaper.swift; sourceTree = "<group>"; };
+		DBB31CBA1F8573DE009D6A76 /* GraphicsBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsBuffer.swift; sourceTree = "<group>"; };
 		DBC93C311F293ECC00328C0F /* Wirekite.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wirekite.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBC93C341F293ECC00328C0F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DBC93C361F293ECC00328C0F /* DeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceViewController.swift; sourceTree = "<group>"; };
@@ -37,6 +43,8 @@
 		DBC93C481F2BA61700328C0F /* Light.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
 		DBC93C4D1F2BA78A00328C0F /* libWirekiteMacLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWirekiteMacLib.a; path = ../WirekiteMacLib/build/Debug/libWirekiteMacLib.a; sourceTree = "<group>"; };
 		DBC93C4F1F2BA8BA00328C0F /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		DBCA38222030A7D40001AEB0 /* RF24Radio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RF24Radio.swift; sourceTree = "<group>"; };
+		DBE2105A1F895DC900EC157E /* ColorTFT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTFT.swift; sourceTree = "<group>"; };
 		DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Servo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,6 +100,10 @@
 				DB0A29411F43735A00287E20 /* OLEDDisplay.swift */,
 				DB0A29431F44C87100287E20 /* GyroMPU6050.swift */,
 				DBFC329D1F5DD7A600BE6BE9 /* Servo.swift */,
+				DBB31CB81F83E794009D6A76 /* EPaper.swift */,
+				DBB31CBA1F8573DE009D6A76 /* GraphicsBuffer.swift */,
+				DBE2105A1F895DC900EC157E /* ColorTFT.swift */,
+				DBCA38222030A7D40001AEB0 /* RF24Radio.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -189,12 +201,16 @@
 			files = (
 				DBC93C371F293ECC00328C0F /* DeviceViewController.swift in Sources */,
 				DB0A29401F40789200287E20 /* Ammeter.swift in Sources */,
+				DBE2105B1F895DC900EC157E /* ColorTFT.swift in Sources */,
 				DBC93C351F293ECC00328C0F /* AppDelegate.swift in Sources */,
 				DB0A29441F44C87100287E20 /* GyroMPU6050.swift in Sources */,
 				DBC93C4A1F2BA61700328C0F /* Light.swift in Sources */,
+				DBB31CBB1F8573DE009D6A76 /* GraphicsBuffer.swift in Sources */,
 				DBC93C491F2BA61700328C0F /* AnalogStick.swift in Sources */,
+				DBCA38232030A7D40001AEB0 /* RF24Radio.swift in Sources */,
 				DBFC329E1F5DD7A600BE6BE9 /* Servo.swift in Sources */,
 				DB0A29421F43735A00287E20 /* OLEDDisplay.swift in Sources */,
+				DBB31CB91F83E794009D6A76 /* EPaper.swift in Sources */,
 				DB2355501F2FC20E005515F4 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

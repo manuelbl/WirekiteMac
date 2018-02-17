@@ -160,6 +160,36 @@ typedef NS_ENUM(NSInteger, I2CResult) {
     I2CResultInvalidParameter = 8
 };
 
+/*! @brief Additional settings for SPI bus */
+typedef NS_OPTIONS(NSUInteger, SPIAttributes) {
+    /*! @brief Default. No special features enabled. */
+    SPIAttributesDefault = 0,
+    /*! @brief Transmit/receive most significant bit (MSB) first */
+    SPIAttributesMSBFirst = 0,
+    /*! @brief Transmit/receive least significant bit (LSB) first */
+    SPIAttributesLSBFirst = 1,
+    /*! @brief Transmit/receive in SPI mode 0 (CPOL = 0 / clock idles in low / CPHA = 0 / "out" changes on trailing clock edge / "in" is cpatured on leading clock edge  */
+    SPIAttributesMode0 = 0,
+    /*! @brief Transmit/receive in SPI mode 1 (CPOL = 0 / clock idles in low / CPHA = 1 / "out" changes on leading clock edge / "in" is cpatured on trailing clock edge  */
+    SPIAttributesMode1 = 4,
+    /*! @brief Transmit/receive in SPI mode 2 (CPOL = 1 / clock idles in high / CPHA = 0 / "out" changes on trailing clock edge / "in" is cpatured on leading clock edge  */
+    SPIAttributesMode2 = 8,
+    /*! @brief Transmit/receive in SPI mode 3 (CPOL = 1 / clock idles in high / CPHA = 1 / "out" changes on leading clock edge / "in" is cpatured on trailing clock edge  */
+    SPIAttributesMode3 = 16
+};
+
+/*! @brief Result code for SPI send and receive transactions */
+typedef NS_ENUM(NSInteger, SPIResult) {
+    /*! @brief Action was successful */
+    SPIResultOK = 0,
+    /*! @brief Action timed out */
+    SPIResultTimeout = 1,
+    /*! @brief Unknown error occurred */
+    SPIResultUnknownError = 7,
+    /*! @brief An invalid parameter was specified */
+    SPIResultInvalidParameter = 8
+};
+
 
 /*! @brief Board information item that can be queried */
 typedef NS_ENUM(NSInteger, BoardInfo) {
@@ -170,7 +200,9 @@ typedef NS_ENUM(NSInteger, BoardInfo) {
     /*! @brief Board type: 1 for Teensy LC, 2 for Teensy 3.2 */
     BoardInfoBoardType = 3,
     /*! @brief Firmware version in BCD */
-    BoardInfoFirmwareVersion = 4
+    BoardInfoFirmwareVersion = 4,
+    /*! @brief Memory management integrity check (only available with debug versions) */
+    BoardInfoMemoryManagementIntegrity = 5
 };
 
 
@@ -237,6 +269,22 @@ extern long InvalidPortID;
     @discussion Releases all ports
  */
 - (void) resetConfiguration;
+
+/*! @brief Configures the flow control for data intensive ports (I2C and SPI)
+ 
+    @discussion The throttling parameters control if a request is immediately sent to
+        the Wirekite board or if it blocks until sufficient space is freed up on the board.
+        This allows to send and receive data at the maximum rate of the I2C, SPI and USB bus.
+ 
+    @param memSize the memory size available on the Wirekite board for buffering
+ 
+    @param maxRequests the maximum number of I2C and SPI requests that may be outstanding at any time
+ */
+- (void) configureFlowControlMemSize: (int)memSize maxOutstandingRequest: (int)maxRequests;
+
+/*! @brief Indicates if the device has been closed (or disconnected).
+ */
+-(bool)isClosed;
 
 
 /*!
@@ -513,6 +561,17 @@ extern long InvalidPortID;
  */
 - (void) releaseI2CPort: (PortID)port;
 
+/*! @brief Reset the I2C bus
+ 
+    @discussion If an I2C transaction was interrupted, a slave can still hold on to SDA
+        because it believes to be in the middle of a byte.
+        By toggling SCL up to 9 times, most slaves  let go of SDA.
+        This method can be used if an I2C operations returns a "bus busy" error.
+ 
+    @param port the I2C port ID
+ */
+- (void) resetBusOnI2CPort: (PortID)port;
+
 /*! @brief Send data to an I2C slave
  
      @discussion The operation performs a complete I2C transaction, starting with a START condition
@@ -600,5 +659,172 @@ extern long InvalidPortID;
     @return the result code of the last operation on this port
  */
 - (I2CResult) lastResultOnI2CPort: (PortID)port;
+
+
+/*!
+ @name SPI communication
+ */
+
+/*! @brief Configures a SPI port as a master.
+ 
+    @discussion The pins are specified with the index as printed on the Teensy board.
+         The MISO pin is optional and can be ommitted if there is no communication from
+         the slave to the master.
+ 
+    @param sckPin the index of the pin to use for the SCK signal (serial clock)
+ 
+    @param mosiPin the index of the pin to use for the MOSI signal (master out - slave in)
+ 
+    @param misoPin the index of the pin to use for the MISO signal (master in - slave out) or -1 if not used
+ 
+    @frequency the frequency for the SPI communication (in Hz). If in doubt, use 100,000 Hz.
+ 
+    @attributes additional settings of the SPI bus
+ 
+    @return the SPI port ID
+ */
+-(PortID) configureSPIMasterForSCKPin: (long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes;
+
+
+/*! @brief Releases the SPI port
+ 
+    @param port the SPI port ID
+ */
+-(void) releaseSPIPort: (PortID)port;
+
+
+/*! @brief Transmit data to a SPI slave
+ 
+    @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+        transation and transmits the data. Optionally, a digital output can be used as the chip select (CS),
+        which is then held low for the duration of the transaction and set to high at the end of the transaction.
+ 
+     @discussion The request is executed sychnronously, i.e. the call blocks until the data
+         has been transmitted or the transmission has failed.
+ 
+     @discussion If less than the specified number of bytes are transmitted,
+         [WirekiteDevice lastSPIResult:] returns the associated reason.
+ 
+    @param port the SPI port ID
+ 
+    @param data the data to transmit
+ 
+    @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+    @return the number of sent bytes
+ */
+-(long) transmitOnSPIPort:(PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
+
+/*! @brief Submits data to be transmitted to an SPI slave
+ 
+    @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+        transation and transmits the data. Optionally, a digital output can be used as the chip select (CS),
+        which is then held low for the duration of the transaction and set to high at the end of the transaction.
+
+    @discussion The request is executed asychnronously, i.e. the call returns immediately. If the
+        transaction fails, a message appears in the log.
+ 
+    @param port the SPI port ID
+ 
+    @param data the data to transmit
+ 
+    @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ */
+-(void) submitOnSPIPort:(PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
+/*! @brief Request data from an SPI slave
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @discussion SPI is a full-duplex protocol at all times. Unless they use additional connection, slaves
+ cannot distinguish between read and write transactions. This member functions send 0xFF on the MOSI
+ line during the read.
+ 
+ @param port the SPI port ID
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @param length the number of bytes of data requested from the slave
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) requestOnSPIPort: (PortID)port chipSelect:(PortID)chipSelect length: (long)length;
+
+/*! @brief Request data from an SPI slave
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @discussion SPI is a full-duplex protocol at all times. Unless they use additional connection, slaves
+ cannot distinguish between read and write transactions. This member functions send a configurable value
+ on the MOSI line during the read.
+ 
+ @param port the SPI port ID
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @param length the number of bytes of data requested from the slave
+ 
+ @param mosiValue byte value sent on MOSI signal during reading
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) requestOnSPIPort: (PortID)port chipSelect:(PortID)chipSelect length: (long)length mosiValue:(long)mosiValue;
+
+/*! @brief Transmit and request data from an SPI slave
+ 
+ @discussion The operations is performed in a full-duplex fashion, i.e. the data is transmitted and received at
+ the same time. For that reason, the number of received bytes equals the number of transmitted bytes.
+ 
+ @discussion The operation performs a complete SPI transaction, i.e. enables the clock for the duration of
+ transation and transmits and receives the data.
+ 
+ @discussion The operation is executed sychnronously, i.e. the call blocks until the
+ transaction has been completed or has failed. If the transaction fails,
+ use [WirekiteDevice lastSPIResult:] to retrieve the reason.
+ 
+ @param port the SPI port ID
+ 
+ @param data the data to transmit
+ 
+ @param chipSelect the digital output port ID to use as chip select (or `InvalidPortID` if not used)
+ 
+ @return the received data or `nil` if it fails
+ */
+- (NSData* _Nullable) transmitAndRequestOnSPIPort: (PortID)port data:(NSData* _Nonnull)data chipSelect:(PortID)chipSelect;
+
+/*! @brief Result code of the last transmission or receipt
+ 
+    @param port the SPI port ID
+ 
+    @return the result code of the last operation on this port
+ */
+-(SPIResult) lastResultOnSPIPort:(PortID)port;
+
+/*! @brief Writes a value to the digital output pin synchronized with an SPI port
+ 
+    @discussion Writing a value is an asynchronous operations. The function returns immediately
+        without awaiting a confirmation that it has been succeeded. However, the action is not executed
+        until all already submitted SPI actions have been executed and before SPI actions submitted later.
+        This is useful to change a signal relevant for the SPI communication such as a data/command signal.
+ 
+    @param port the port ID of the pin
+ 
+    @param value value to set the pin to: YES / true / 1 for high, NO / false / 0 for low
+ 
+    @param spiPort the SPI port ID
+ */
+- (void) writeDigitalPinOnPort: (PortID)port value:(BOOL)value synchronizedWithSPIPort:(PortID)spiPort;
+
 
 @end

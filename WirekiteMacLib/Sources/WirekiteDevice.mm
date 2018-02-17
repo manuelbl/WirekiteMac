@@ -12,6 +12,7 @@
 #import "proto.h"
 #import "PendingRequestList.hpp"
 #import "PortList.hpp"
+#import "Throttler.hpp"
 #import "MessageDump.hpp"
 
 #import <IOKit/IOKitLib.h>
@@ -61,6 +62,7 @@ typedef struct {
 
     PendingRequestList pendingRequests;
     PortList portList;
+    Throttler throttler;
     NSThread* workerThread;
     
     NSMutableDictionary<NSNumber*, DigitalInputPinCallback>* digitalInputPinCallbacks;
@@ -123,7 +125,14 @@ typedef struct {
     notification = NULL;
     
     portList.clear();
+    throttler.clear();
+    pendingRequests.clear();
     deviceStatus = StatusClosed;
+}
+
+
+-(bool)isClosed {
+    return interface == NULL;
 }
 
 
@@ -287,21 +296,26 @@ retry:
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = 0xffff;
     request.action = WK_CFG_ACTION_RESET;
-    request.request_id = 0xffff;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     free(response);
     
     portList.clear();
     pendingRequests.clear();
+    throttler.clear();
     [digitalInputPinCallbacks removeAllObjects];
     [digitalInputDispatchQueues removeAllObjects];
     [analogInputPinCallbacks removeAllObjects];
     [analogInputDispatchQueues removeAllObjects];
     deviceStatus = StatusReady;
+}
+
+
+- (void) configureFlowControlMemSize: (int)memSize maxOutstandingRequest: (int)maxRequests
+{
+    throttler.configure(memSize, maxRequests);
 }
 
 
@@ -342,6 +356,9 @@ retry:
 
 - (void) writeBytes: (const uint8_t*)bytes size: (uint16_t) size
 {
+    if (self->interface == NULL)
+        return; // has probably been disconnected
+    
     // data must be copied
     Transfer* transfer = (Transfer*)malloc(sizeof(Transfer));
     memset(transfer, 0, sizeof(Transfer));
@@ -357,6 +374,24 @@ retry:
                                                transfer);
     if (kr)
         NSLog(@"Wirekite: Error on submitting write (0x%08x)", kr);
+}
+
+
+-(wk_config_response*)executeConfigRequest:(wk_config_request*)request
+{
+    uint16_t requestId = request->header.request_id;
+    pendingRequests.announceRequest(requestId);
+    [self writeMessage:&request->header];
+    return (wk_config_response*)pendingRequests.waitForResponse(requestId);
+}
+
+
+-(wk_port_event*)executePortRequest:(wk_port_request*)request
+{
+    uint16_t requestId = request->header.request_id;
+    pendingRequests.announceRequest(requestId);
+    [self writeMessage:&request->header];
+    return (wk_port_event*)pendingRequests.waitForResponse(requestId);
 }
 
 
@@ -475,7 +510,7 @@ retry:
 
     if (msg->message_type == WK_MSG_TYPE_CONFIG_RESPONSE) {
         wk_config_response* config_response = (wk_config_response*)msg;
-        if (deviceStatus == StatusReady || config_response->request_id == 0xffff)
+        if (deviceStatus == StatusReady || config_response->header.request_id == 0xffff)
             [self handleConfigResponse: config_response];
         else
             free(msg);
@@ -499,13 +534,11 @@ retry:
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_QUERY;
     request.port_type = boardInfo;
-    request.request_id = portList.nextRequestId();
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     
     long result;
     if (response->result == WK_RESULT_OK) {
@@ -595,20 +628,18 @@ retry:
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_CONFIG_PORT;
     request.port_type = WK_CFG_PORT_TYPE_DIGI_PIN;
-    request.request_id = portList.nextRequestId();
     request.port_attributes1 = attributes;
     request.pin_config = pin;
     request.value1 = initialValue ? 1 : 0;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
 
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
-        port = new Port(response->port_id, type, 10);
+        port = new Port(response->header.port_id, type, 10);
         portList.addPort(port);
         if ((attributes & 1) == 0)
             port->setLastSample(response->optional1);
@@ -623,17 +654,18 @@ retry:
 
 - (void) releaseDigitalPinOnPort: (PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.port_id = portId;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_RELEASE;
-    request.port_id = portId;
-    request.request_id = portList.nextRequestId();
     
-    [self writeMessage:&request.header];
-
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     
     NSNumber* key = [NSNumber numberWithUnsignedShort:portId];
     [digitalInputPinCallbacks removeObjectForKey:key];
@@ -646,16 +678,36 @@ retry:
 }
 
 
-- (void) writeDigitalPinOnPort: (PortID)portId value:(BOOL)value
+- (void) writeDigitalPinOnPort: (PortID)port value:(BOOL)value
 {
+    [self writeDigitalPinOnPort:port value:value synchronizedWithSPIPort:0];
+}
+
+
+- (void) writeDigitalPinOnPort: (PortID)port value:(BOOL)value synchronizedWithSPIPort:(PortID)spiPort
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. Digital port operation is ignored.");
+        return;
+    }
+
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(0);
+    uint16_t requestId = 0;
+    if (spiPort != 0) {
+        requestId = portList.nextRequestId();
+        throttler.waitUntilAvailable(requestId, msg_len);
+    }
+    
     wk_port_request request;
-    memset(&request, 0, sizeof(wk_port_request));
-    request.header.message_size = sizeof(wk_port_request);
+    memset(&request, 0, msg_len);
+    request.header.message_size = msg_len;
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request.port_id = portId;
+    request.header.port_id = port;
+    request.header.request_id = requestId;
     request.action = WK_PORT_ACTION_SET_VALUE;
     request.value1 = value ? 1 : 0;
-
+    request.action_attribute2 = (uint16_t)spiPort;
+    
     [self writeMessage:&request.header];
 }
 
@@ -674,10 +726,10 @@ retry:
         return NO;
     
     wk_port_request request;
-    memset(&request, 0, sizeof(request));
-    request.header.message_size = sizeof(wk_port_request) - 4;
+    memset(&request, 0, WK_PORT_REQUEST_ALLOC_SIZE(0));
+    request.header.message_size = WK_PORT_REQUEST_ALLOC_SIZE(0);
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request.port_id = portId;
+    request.header.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
 
     [self writeMessage:&request.header];
@@ -738,17 +790,15 @@ retry:
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
     request.action = WK_CFG_ACTION_CONFIG_PORT;
     request.port_type = WK_CFG_PORT_TYPE_ANALOG_IN;
-    request.request_id = portList.nextRequestId();
+    request.header.request_id = portList.nextRequestId();
     request.pin_config = pin;
     request.value1 = (int32_t)interval;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     
     Port* port = NULL;
     if (response->result == WK_RESULT_OK) {
-        port = new Port(response->port_id, interval == 0 ? PortTypeAnalogInputOnDemand : PortTypeAnalogInputSampling, 10);
+        port = new Port(response->header.port_id, interval == 0 ? PortTypeAnalogInputOnDemand : PortTypeAnalogInputSampling, 10);
         portList.addPort(port);
     } else {
         NSLog(@"Wirekite: Analog input pin configuration failed");
@@ -761,18 +811,19 @@ retry:
 
 - (void) releaseAnalogPinOnPort: (PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.port_id = portId;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_RELEASE;
-    request.port_id = portId;
-    request.request_id = portList.nextRequestId();
-    
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
-    
+
+    wk_config_response* response = [self executeConfigRequest: &request];
+
     NSNumber* key = [NSNumber numberWithUnsignedShort:portId];
     [analogInputPinCallbacks removeObjectForKey:key];
     [analogInputDispatchQueues removeObjectForKey:key];
@@ -791,10 +842,10 @@ retry:
         return 0;
     
     wk_port_request request;
-    memset(&request, 0, sizeof(wk_port_request));
-    request.header.message_size = sizeof(wk_port_request) - 4;
+    memset(&request, 0, WK_PORT_REQUEST_ALLOC_SIZE(0));
+    request.header.message_size = WK_PORT_REQUEST_ALLOC_SIZE(0);
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request.port_id = portId;
+    request.header.port_id = portId;
     request.action = WK_PORT_ACTION_GET_VALUE;
     
     [self writeMessage:&request.header];
@@ -823,20 +874,18 @@ retry:
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_CONFIG_PORT;
     request.port_type = WK_CFG_PORT_TYPE_PWM;
-    request.request_id = portList.nextRequestId();
     request.pin_config = pin;
     request.value1 = (uint32_t)(initialDutyCycle * 2147483647 + 0.5);
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
-    
+    wk_config_response* response = [self executeConfigRequest: &request];
+
     Port* port = NULL;
     PortID portId = 0;
     if (response->result == WK_RESULT_OK) {
-        portId = response->port_id;
+        portId = response->header.port_id;
         port = new Port(portId, PortTypePWMOutput, 10);
         portList.addPort(port);
     } else {
@@ -850,18 +899,19 @@ retry:
 
 - (void) releasePWMPinOnPort:(PortID)portId
 {
+    if ([self isClosed])
+        return; // silently ignore
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.port_id = portId;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_RELEASE;
-    request.port_id = portId;
-    request.request_id = portList.nextRequestId();
-    
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
-    
+
+    wk_config_response* response = [self executeConfigRequest: &request];
+
     Port* port = portList.getPort(portId);
     portList.removePort(portId);
     free(response);
@@ -871,11 +921,16 @@ retry:
 
 - (void) writePWMPinOnPort:(PortID)portId dutyCycle:(double)dutyCycle
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_port_request request;
-    memset(&request, 0, sizeof(wk_port_request));
-    request.header.message_size = sizeof(wk_port_request);
+    memset(&request, 0, WK_PORT_REQUEST_ALLOC_SIZE(0));
+    request.header.message_size = WK_PORT_REQUEST_ALLOC_SIZE(0);
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request.port_id = portId;
+    request.header.port_id = portId;
     request.action = WK_PORT_ACTION_SET_VALUE;
     request.value1 = (uint32_t)(dutyCycle * 2147483647 + 0.5);
     
@@ -885,40 +940,46 @@ retry:
 
 - (void) configurePWMTimer: (long) timer frequency: (long) frequency attributes: (PWMTimerAttributes) attributes
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
     request.port_type = WK_CFG_MODULE_PWM_TIMER;
-    request.request_id = portList.nextRequestId();
     request.pin_config = (uint8_t)timer;
     request.port_attributes1 = attributes;
     request.value1 = (int32_t)frequency;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     free(response);
 }
 
 
 - (void) configurePWMChannel: (long) timer channel: (long) channel attributes: (PWMChannelAttributes) attributes
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. PWM output operation is ignored.");
+        return;
+    }
+    
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_CONFIG_MODULE;
     request.port_type = WK_CFG_MODULE_PWM_CHANNEL;
-    request.request_id = portList.nextRequestId();
     request.pin_config = (uint8_t)timer;
     request.port_attributes1 = attributes;
     request.value1 = (uint8_t)channel;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     free(response);
 }
 
@@ -931,20 +992,18 @@ retry:
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_CONFIG_PORT;
     request.port_type = WK_CFG_PORT_TYPE_I2C;
-    request.request_id = portList.nextRequestId();
     request.pin_config = pins;
     request.value1 = (int32_t)frequency;
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
-    
+    wk_config_response* response = [self executeConfigRequest: &request];
+
     Port* port = NULL;
     PortID portId = 0;
     if (response->result == WK_RESULT_OK) {
-        portId = response->port_id;
+        portId = response->header.port_id;
         port = new Port(portId, PortTypeI2C, 10);
         portList.addPort(port);
     } else {
@@ -958,20 +1017,18 @@ retry:
 
 - (void) releaseI2CPort: (PortID)port
 {
-    if (deviceStatus != StatusReady)
-        return;
+    if ([self isClosed])
+        return; // silently ignore
     
     wk_config_request request;
     memset(&request, 0, sizeof(wk_config_request));
     request.header.message_size = sizeof(wk_config_request);
     request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.port_id = port;
+    request.header.request_id = portList.nextRequestId();
     request.action = WK_CFG_ACTION_RELEASE;
-    request.port_id = port;
-    request.request_id = portList.nextRequestId();
     
-    [self writeMessage:&request.header];
-    
-    wk_config_response* response = (wk_config_response*)pendingRequests.waitForResponse(request.request_id);
+    wk_config_response* response = [self executeConfigRequest: &request];
     
     Port* p = portList.getPort(port);
     portList.removePort(port);
@@ -980,16 +1037,50 @@ retry:
 }
 
 
+- (void) resetBusOnI2CPort: (PortID)port
+{
+    if ([self isClosed])
+        return; // silently ignore
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return;
+    
+    uint16_t requestId = portList.nextRequestId();
+    uint16_t msgLen = WK_PORT_REQUEST_ALLOC_SIZE(0);
+    wk_port_request request;
+    memset(&request, 0, msgLen);
+    request.header.message_size = msgLen;
+    request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request.header.port_id = port;
+    request.header.request_id = requestId;
+    request.action = WK_PORT_ACTION_RESET;
+    
+    throttler.waitUntilAvailable(requestId, msgLen);
+    
+    wk_port_event* response = [self executePortRequest:&request];
+    
+    I2CResult result = (I2CResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    free(response);
+}
+
+
 - (long) sendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return 0;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
     
-    uint16_t requestId = portList.nextRequestId();
-    [self submitSendOnI2CPort:port data:data toSlave:(uint16_t)slave requestId:requestId];
-    
-    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(requestId);
+    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave];
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
     
     uint16_t transmitted = response->event_attribute2;
     p->setLastSample((I2CResult)response->event_attribute1);
@@ -1000,30 +1091,40 @@ retry:
 
 - (void) submitOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return;
     
-    [self submitSendOnI2CPort:port data:data toSlave:(uint16_t)slave requestId:0];
+    wk_port_request* request = [self createI2CTxRequestForPort:port data:data toSlave:slave];
+    [self writeMessage:&request->header];
+    free(request);
 }
 
 
-- (void) submitSendOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave requestId: (uint16) requestId
+-(wk_port_request*)createI2CTxRequestForPort: (PortID)port data: (NSData*)data toSlave: (long)slave
 {
     NSUInteger len = data.length;
-    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(len);
+    uint16_t requestId = portList.nextRequestId();
+
+    throttler.waitUntilAvailable(requestId, msg_len);
+
     wk_port_request* request = (wk_port_request*)malloc(msg_len);
     memset(request, 0, msg_len);
     request->header.message_size = msg_len;
     request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request->port_id = port;
-    request->request_id = requestId;
+    request->header.port_id = port;
+    request->header.request_id = requestId;
     request->action = WK_PORT_ACTION_TX_DATA;
     request->action_attribute2 = (uint16_t)slave;
     memcpy(request->data, data.bytes, len);
-    
-    [self writeMessage:&request->header];
-    free(request);
+
+    return request;
 }
 
 
@@ -1033,24 +1134,26 @@ retry:
     if (p == nil)
         return nil;
     
+    uint16_t requestId = portList.nextRequestId();
     wk_port_request request;
-    memset(&request, 0, sizeof(wk_port_request));
-    request.header.message_size = sizeof(wk_port_request) - 2;
+    memset(&request, 0, WK_PORT_REQUEST_ALLOC_SIZE(0));
+    request.header.message_size = WK_PORT_REQUEST_ALLOC_SIZE(0);
     request.header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request.port_id = port;
-    request.request_id = portList.nextRequestId();
+    request.header.port_id = port;
+    request.header.request_id = requestId;
     request.action = WK_PORT_ACTION_RX_DATA;
     request.action_attribute2 = (uint16_t)slave;
     request.value1 = (uint16_t)length;
     
-    [self writeMessage:&request.header];
-    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request.request_id);
+    throttler.waitUntilAvailable(requestId, WK_PORT_EVENT_ALLOC_SIZE(length));
+    
+    wk_port_event* response = [self executePortRequest:&request];
     
     I2CResult result = (I2CResult)response->event_attribute1;
     p->setLastSample(result);
     
     NSData* data = nil;
-    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
     if (dataLength > 0)
         data = [NSData dataWithBytes:response->data length:dataLength];
     
@@ -1061,34 +1164,42 @@ retry:
 
 - (NSData*) sendAndRequestOnI2CPort: (PortID)port data: (NSData*)data toSlave: (long)slave receiveLength: (long)receiveLength
 {
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. I2C operation is ignored.");
+        return 0;
+    }
+    
     Port* p = portList.getPort(port);
     if (p == nil)
         return 0;
     
     NSUInteger len = data.length;
-    size_t msg_len = sizeof(wk_port_request) - 4 + len;
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(len);
+    uint16 requestId = portList.nextRequestId();
     wk_port_request* request = (wk_port_request*)malloc(msg_len);
     memset(request, 0, msg_len);
     request->header.message_size = msg_len;
     request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
-    request->port_id = port;
-    request->request_id = portList.nextRequestId();
+    request->header.port_id = port;
+    request->header.request_id = requestId;
     request->action = WK_PORT_ACTION_TX_N_RX_DATA;
     request->action_attribute2 = (uint16_t)slave;
     request->value1 = (uint16_t)receiveLength;
     memcpy(request->data, data.bytes, len);
     
-    [self writeMessage:&request->header];
-    uint16_t request_id = request->request_id;
+    size_t mem_size = WK_PORT_EVENT_ALLOC_SIZE(receiveLength);
+    if (msg_len > mem_size)
+        mem_size = msg_len;
+    throttler.waitUntilAvailable(requestId, mem_size);
+    
+    wk_port_event* response = [self executePortRequest:request];
     free(request);
-
-    wk_port_event* response = (wk_port_event*)pendingRequests.waitForResponse(request_id);
     
     I2CResult result = (I2CResult)response->event_attribute1;
     p->setLastSample(result);
     
     NSData* rxData = nil;
-    size_t dataLength = response->header.message_size - sizeof(wk_port_event) + 4;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
     if (dataLength > 0)
         rxData = [NSData dataWithBytes:response->data length:dataLength];
     
@@ -1107,19 +1218,224 @@ retry:
 }
 
 
+#pragma mark - SPI communication
+
+-(PortID)configureSPIMasterForSCKPin:(long)sckPin mosiPin:(long)mosiPin misoPin:(long)misoPin frequency:(long)frequency attributes:(SPIAttributes)attributes
+{
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.request_id = portList.nextRequestId();
+    request.action = WK_CFG_ACTION_CONFIG_PORT;
+    request.port_type = WK_CFG_PORT_TYPE_SPI;
+    request.pin_config = (sckPin & 0xff) | ((mosiPin & 0xff) << 8);
+    request.port_attributes2 = (misoPin & 0xff);
+    request.port_attributes1 = attributes;
+    request.value1 = (int32_t)frequency;
+    
+    wk_config_response* response = [self executeConfigRequest:&request];
+    
+    Port* port = NULL;
+    PortID portId = 0;
+    if (response->result == WK_RESULT_OK) {
+        portId = response->header.port_id;
+        port = new Port(portId, PortTypeSPI, 10);
+        portList.addPort(port);
+    } else {
+        NSLog(@"Wirekite: SPI configuration failed");
+    }
+    
+    free(response);
+    return portId;
+}
+
+
+-(void)releaseSPIPort: (PortID)port
+{
+    if ([self isClosed])
+        return; // silently ignore
+    
+    wk_config_request request;
+    memset(&request, 0, sizeof(wk_config_request));
+    request.header.message_size = sizeof(wk_config_request);
+    request.header.message_type = WK_MSG_TYPE_CONFIG_REQUEST;
+    request.header.port_id = port;
+    request.header.request_id = portList.nextRequestId();
+    request.action = WK_CFG_ACTION_RELEASE;
+
+    wk_config_response* response = [self executeConfigRequest:&request];
+    
+    Port* p = portList.getPort(port);
+    portList.removePort(port);
+    free(response);
+    delete p;
+}
+
+
+-(long)transmitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return 0;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return 0;
+    
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_DATA data:data chipSelect:chipSelect];
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
+    
+    uint16_t transmitted = response->event_attribute2;
+    p->setLastSample((SPIResult)response->event_attribute1);
+    free(response);
+    return transmitted;
+}
+
+
+-(void)submitOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return;
+    
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_DATA data:data chipSelect:chipSelect];
+    [self writeMessage:&request->header];
+    free(request);
+}
+
+
+-(NSData* _Nullable)requestOnSPIPort:(PortID)port chipSelect:(PortID)chipSelect length:(long)length
+{
+    return [self requestOnSPIPort:port chipSelect:chipSelect length:length mosiValue:0xff];
+}
+
+
+-(NSData* _Nullable)requestOnSPIPort:(PortID)port chipSelect:(PortID)chipSelect length:(long)length mosiValue:(long)mosiValue
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return nil;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    uint16_t requestId = portList.nextRequestId();
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(0);
+    
+    throttler.waitUntilAvailable(requestId, msg_len);
+    
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->header.port_id = port;
+    request->header.request_id = requestId;
+    request->action = WK_PORT_ACTION_RX_DATA;
+    request->action_attribute1 = (uint8_t)mosiValue;
+    request->action_attribute2 = chipSelect;
+    request->value1 = (uint32_t)length;
+    
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
+    
+    SPIResult result = (SPIResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
+}
+
+
+-(NSData* _Nullable)transmitAndRequestOnSPIPort:(PortID)port data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    if ([self isClosed]) {
+        NSLog(@"Wirekite: Device has been closed or disconnected. SPI operation is ignored.");
+        return nil;
+    }
+    
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return nil;
+    
+    wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_N_RX_DATA data:data chipSelect:chipSelect];
+    [self writeMessage:&request->header];
+    
+    wk_port_event* response = [self executePortRequest:request];
+    free(request);
+    
+    SPIResult result = (SPIResult)response->event_attribute1;
+    p->setLastSample(result);
+    
+    NSData* rxData = nil;
+    size_t dataLength = WK_PORT_EVENT_DATA_LEN(response);
+    if (dataLength > 0)
+        rxData = [NSData dataWithBytes:response->data length:dataLength];
+    
+    free(response);
+    return rxData;
+}
+
+
+-(wk_port_request*)createSPIRequestForPort:(PortID)port action:(uint8_t)action data:(NSData*)data chipSelect:(PortID)chipSelect
+{
+    uint16_t requestId = portList.nextRequestId();
+    NSUInteger len = data.length;
+    size_t msg_len = WK_PORT_REQUEST_ALLOC_SIZE(len);
+    
+    throttler.waitUntilAvailable(requestId, msg_len);
+    
+    wk_port_request* request = (wk_port_request*)malloc(msg_len);
+    memset(request, 0, msg_len);
+    request->header.message_size = msg_len;
+    request->header.message_type = WK_MSG_TYPE_PORT_REQUEST;
+    request->header.port_id = port;
+    request->header.request_id = requestId;
+    request->action = action;
+    request->action_attribute2 = chipSelect;
+    memcpy(request->data, data.bytes, len);
+    
+    return request;
+}
+
+
+-(SPIResult) lastResultOnSPIPort: (PortID)port
+{
+    Port* p = portList.getPort(port);
+    if (p == nil)
+        return SPIResultInvalidParameter;
+    
+    return (SPIResult)p->lastSample();
+}
+
+
 #pragma mark - Message handling
 
 
 - (void) handleConfigResponse: (wk_config_response*) response
 {
-    pendingRequests.putResponse(response->request_id, (wk_msg_header*)response);
+    pendingRequests.putResponse(response->header.request_id, (wk_msg_header*)response);
 }
 
 
 - (void) handlePortEvent: (wk_port_event*) event
 {
     if (event->event == WK_EVENT_SINGLE_SAMPLE) {
-        Port* port = portList.getPort(event->port_id);
+        Port* port = portList.getPort(event->header.port_id);
         if (port == NULL)
             goto error;
         
@@ -1167,23 +1483,24 @@ retry:
         }
         
     } else if (event->event == WK_EVENT_TX_COMPLETE || event->event == WK_EVENT_DATA_RECV) {
-        Port* port = portList.getPort(event->port_id);
+        Port* port = portList.getPort(event->header.port_id);
         if (port == NULL)
             goto error;
         
         PortType portType = port->type();
-        if (portType == PortTypeI2C) {
-            if (event->request_id != 0) {
-                pendingRequests.putResponse(event->request_id, (wk_msg_header*)event);
-            } else {
-                free(event);
-            }
+        if (portType == PortTypeI2C || portType == PortTypeSPI) {
+            throttler.requestCompleted(event->header.request_id);
+            pendingRequests.putResponse(event->header.request_id, (wk_msg_header*)event);
             return;
         }    
+    } else if (event->event == WK_EVENT_SET_DONE) {
+        throttler.requestCompleted(event->header.request_id);
+        free(event);
+        return;
     }
 
 error:
-    NSLog(@"Wirekite: Unknown event (%d) for port (%d) received", event->event, event->port_id);
+    NSLog(@"Wirekite: Unknown event (%d) for port (%d) received", event->event, event->header.port_id);
     free(event);
 }
 

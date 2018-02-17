@@ -78,7 +78,7 @@ class GyroMPU6050 {
         let data = Data(bytes: bytes)
         let len = device!.send(onI2CPort: i2cPort, data: data, toSlave: gyroAddress)
         if Int(len) != data.count {
-            NSLog("Failed to set gyro regoster")
+            NSLog("Failed to set gyro register")
         }
     }
     

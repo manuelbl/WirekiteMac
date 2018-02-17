@@ -22,6 +22,8 @@
 		DB90AE181F293A5A00E8A95B /* WirekiteDeviceInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */; };
 		DB90AE191F293A5A00E8A95B /* WirekiteService.h in Headers */ = {isa = PBXBuildFile; fileRef = DB90AE0A1F293A5A00E8A95B /* WirekiteService.h */; };
 		DB90AE1A1F293A5A00E8A95B /* WirekiteService.mm in Sources */ = {isa = PBXBuildFile; fileRef = DB90AE0B1F293A5A00E8A95B /* WirekiteService.mm */; };
+		DBE2107C1F8E1E8700EC157E /* Throttler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBE2107A1F8E1E8700EC157E /* Throttler.cpp */; };
+		DBE2107D1F8E1E8700EC157E /* Throttler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DBE2107B1F8E1E8700EC157E /* Throttler.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WirekiteDeviceInternal.h; sourceTree = "<group>"; };
 		DB90AE0A1F293A5A00E8A95B /* WirekiteService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WirekiteService.h; sourceTree = "<group>"; };
 		DB90AE0B1F293A5A00E8A95B /* WirekiteService.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WirekiteService.mm; sourceTree = "<group>"; };
+		DBE2107A1F8E1E8700EC157E /* Throttler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Throttler.cpp; sourceTree = "<group>"; };
+		DBE2107B1F8E1E8700EC157E /* Throttler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Throttler.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +87,8 @@
 				DB90AE041F293A5A00E8A95B /* PortList.hpp */,
 				DB90AE051F293A5A00E8A95B /* proto.h */,
 				DB90AE061F293A5A00E8A95B /* Queue.hpp */,
+				DBE2107A1F8E1E8700EC157E /* Throttler.cpp */,
+				DBE2107B1F8E1E8700EC157E /* Throttler.hpp */,
 				DB90AE071F293A5A00E8A95B /* WirekiteDevice.h */,
 				DB90AE081F293A5A00E8A95B /* WirekiteDevice.mm */,
 				DB90AE091F293A5A00E8A95B /* WirekiteDeviceInternal.h */,
@@ -108,6 +114,7 @@
 				DB90AE191F293A5A00E8A95B /* WirekiteService.h in Headers */,
 				DB90AE131F293A5A00E8A95B /* PortList.hpp in Headers */,
 				DB90AE181F293A5A00E8A95B /* WirekiteDeviceInternal.h in Headers */,
+				DBE2107D1F8E1E8700EC157E /* Throttler.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +180,7 @@
 				DB90AE1A1F293A5A00E8A95B /* WirekiteService.mm in Sources */,
 				DB90AE0C1F293A5A00E8A95B /* MessageDump.cpp in Sources */,
 				DB90AE121F293A5A00E8A95B /* PortList.cpp in Sources */,
+				DBE2107C1F8E1E8700EC157E /* Throttler.cpp in Sources */,
 				DB90AE171F293A5A00E8A95B /* WirekiteDevice.mm in Sources */,
 				DB90AE0E1F293A5A00E8A95B /* PendingRequestList.cpp in Sources */,
 			);

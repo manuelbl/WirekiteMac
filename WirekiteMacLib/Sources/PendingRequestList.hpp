@@ -11,6 +11,7 @@
 
 #include <pthread.h>
 #include <vector>
+#include <unordered_set>
 #include "proto.h"
 
 
@@ -26,14 +27,17 @@ public:
     PendingRequestList();
     ~PendingRequestList();
     
+    void announceRequest(uint16_t requestId);
     void putResponse(uint16_t requestId, wk_msg_header* response);
     wk_msg_header* waitForResponse(uint16_t requestId);
     void clear();
-    
+
 private:
-    std::vector<PendingRequest> requests;
+    std::vector<PendingRequest> completedRequests;
+    std::unordered_set<uint16_t> waitingForRequests;
     pthread_cond_t inserted;
     pthread_mutex_t mutex;
+    bool isDestroyed;
 };
 
 #endif /* PendingRequest_hpp */

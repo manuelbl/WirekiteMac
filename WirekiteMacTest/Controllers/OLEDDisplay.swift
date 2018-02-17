@@ -6,7 +6,7 @@
 // https://opensource.org/licenses/MIT
 //
 
-import Foundation
+import CoreFoundation
 import Cocoa
 
 
@@ -41,7 +41,6 @@ class OLEDDisplay {
     
     private let device: WirekiteDevice?
     private let i2cPort: PortID
-    private let releasePort: Bool
     private var isInitialized = false
     private var offset = 0
     
@@ -61,28 +60,15 @@ class OLEDDisplay {
     */
     var DisplayOffset = 0
     
-    private var graphics: CGContext?
+    private var graphics: GraphicsBuffer?
     
-    
-    init(device: WirekiteDevice, i2cPins: I2CPins) {
-        self.device = device
-        i2cPort = device.configureI2CMaster(i2cPins, frequency: 400000)
-        releasePort = true
-    }
     
     init(device: WirekiteDevice, i2cPort: PortID) {
         self.device = device
         self.i2cPort = i2cPort
-        releasePort = false
     }
     
-    deinit {
-        if releasePort {
-            device?.releaseI2CPort(i2cPort)
-        }
-    }
-    
-    private func initSensor() {
+    private func initSensor(retries: Int) {
         // Init sequence
         let initSequence: [UInt8] = [
             0x80, OLEDDisplay.DisplayOff,
@@ -106,20 +92,32 @@ class OLEDDisplay {
         let initSequenceData = Data(bytes: initSequence)
         let numBytesSent = device!.send(onI2CPort: i2cPort, data: initSequenceData, toSlave: displayAddress)
         if Int(numBytesSent) != initSequenceData.count {
-            NSLog("OLED initialization failed")
+            let result = device!.lastResult(onI2CPort: i2cPort)
+            if result == .busBusy && retries > 0 {
+                NSLog("OLED initialization: bus busy")
+                device!.resetBus(onI2CPort: i2cPort)
+                if device!.lastResult(onI2CPort: i2cPort) != .OK {
+                    NSLog("Resetting bus failed")
+                }
+                initSensor(retries: retries - 1)
+            } else {
+                NSLog("OLED initialization failed: \(result.rawValue)")
+            }
             return
         }
 
-        graphics = CGContext(data: nil, width: Width, height: Height, bitsPerComponent: 8, bytesPerRow: Width, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        graphics = GraphicsBuffer(width: Width, height: Height, isColor: false)
     }
     
     func draw(offset: Int) {
         
-        graphics!.setFillColor(CGColor.black)
-        graphics!.fill(CGRect(x: 0, y: 0, width: 128, height: 64))
+        let gc = graphics!.prepareForDrawing()
         
-        let gc = NSGraphicsContext(cgContext: graphics!, flipped: false)
-        NSGraphicsContext.setCurrent(gc)
+        gc.setFillColor(CGColor.black)
+        gc.fill(CGRect(x: 0, y: 0, width: 128, height: 64))
+        
+        let ngc = NSGraphicsContext(cgContext: gc, flipped: false)
+        NSGraphicsContext.setCurrent(ngc)
         let font = NSFont(name: "Helvetica", size: 64)!
         let attr: [String: Any] = [
             NSFontAttributeName: font,
@@ -133,7 +131,7 @@ class OLEDDisplay {
     func showTile() {
         
         if !isInitialized {
-            initSensor()
+            initSensor(retries: 1)
             isInitialized = true
         }
         
@@ -143,10 +141,7 @@ class OLEDDisplay {
             offset = 0
         }
         
-        let data = graphics!.data
-        let dataPtr = data!.bindMemory(to: UInt8.self, capacity: Width * Height)
-        let dataBuffer = UnsafeBufferPointer(start: dataPtr, count: Width * Height)
-        let pixels = OLEDDisplay.burkesDither(pixelData: [UInt8](dataBuffer), width: Width)
+        let pixels = graphics!.finishDrawing(format: .blackAndWhiteDithered)
         
         var tile = [UInt8](repeating: 0, count: Width + 7)
 
@@ -180,8 +175,9 @@ class OLEDDisplay {
             device!.submit(onI2CPort: i2cPort, data: data, toSlave: displayAddress)
         }
         
+        /*
         // Just for the fun of it: read back some of the data
-        // It's unclear why the data is offset by 1 pixel and the first byte differs
+        // It's unclear why the data is offset by 1 pixel and the first byte is garbage
         let cmd: [UInt8] = [
             0x80, OLEDDisplay.SetPageAddress + UInt8(7),
             0x80, OLEDDisplay.SetColumnAddressLow | UInt8((DisplayOffset + 1) & 0x0f),
@@ -196,100 +192,8 @@ class OLEDDisplay {
         for i in 1 ..< Width {
             assert(tile[i + 7] == responseBytes[i])
         }
+        */
     }
     
     
-    private static let OrderedDitheringMatrix: [UInt8] = [
-        0, 48, 12, 60,  3, 51, 15, 63,
-        32, 16, 44, 28, 35, 19, 47, 31,
-        8, 56,  4, 52, 11, 59,  7, 55,
-        40, 24, 36, 20, 43, 27, 39, 23,
-        2, 50, 14, 62,  1, 49, 13, 61,
-        34, 18, 46, 30, 33, 17, 45, 29,
-        10, 58,  6, 54,  9, 57,  5, 53,
-        42, 26, 38, 22, 41, 25, 37, 21
-    ]
-    
-    
-    /**
-        Apply ordered 8x8 dithering to the specified grayscale pixelmap.
-     
-        - parameter pixelData: grayscale pixelmap as an array of pixel bytes
-     
-        - parameter width: width of pixelmap
-     
-        - parameter randomOffset: random offset for x and y dithering pattern (specified 0 if not needed)
-     
-        - returns: dithered pixelmap with black (0) and white (255) pixels
-     */
-    static func orderedDither(pixelData: [UInt8], width: Int, randomOffset: Int) -> [UInt8] {
-        let offset = Int(OrderedDitheringMatrix[randomOffset & 0x3f])
-        let xOffset = offset & 0x07
-        let yOffset = offset >> 3
-        
-        let height = pixelData.count / width
-        var result = [UInt8](repeating: 0, count: width * height)
-        var p = 0
-        for y in 0 ..< height {
-            let yi = (y + yOffset) & 0x7
-            for x in 0 ..< width {
-                let xi = (x + xOffset) & 0x7
-                let r = OrderedDitheringMatrix[yi * 8 + xi] << 2
-                result[p] = pixelData[p] > r ? 255 : 0
-                p += 1
-            }
-        }
-        
-        return result
-    }
-
-
-    /**
-        Apply Burke's dithering to the specified grayscale pixelmap.
-
-        - parameter pixelData: grayscale pixelmap as an array of pixel bytes
-
-        - parameter width: width of pixelmap
-
-        - returns: dithered pixelmap with black (0) and white (255) pixels
-     */
-    static func burkesDither(pixelData: [UInt8], width: Int) -> [UInt8] {
-        
-        let height = pixelData.count / width
-        var result = [UInt8](repeating: 0, count: width * height)
-        var currLine = [Int](repeating: 0, count: width)
-        var nextLine = currLine
-        
-        var p = 0
-        for _ in 0 ..< height {
-            currLine = nextLine
-            nextLine = [Int](repeating: 0, count: width)
-            for x in 0 ..< width {
-                let gs = Int(pixelData[p]) + currLine[x] // target value
-                let bw = gs >= 128 ? 255 : 0 // black/white value
-                let err = gs - bw // error
-                result[p] = UInt8(bw)
-                p += 1
-                
-                // distribute error
-                nextLine[x] += err >> 2
-                if x > 0 {
-                    nextLine[x - 1] += err >> 3
-                }
-                if x > 1 {
-                    nextLine[x - 2] += err >> 4
-                }
-                if x < width - 1 {
-                    currLine[x + 1] += err >> 2
-                    nextLine[x + 1] += err >> 3
-                }
-                if x < width - 2 {
-                    currLine[x + 2] += err >> 3
-                    nextLine[x + 2] += err >> 4
-                }
-            }
-        }
-        
-        return result
-    }
 }
