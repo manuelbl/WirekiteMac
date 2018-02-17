@@ -269,17 +269,17 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasColorTFT || DeviceViewController.hasRadio {
+                let frequency: Int
                 let boardType = device.boardInfo(.boardType)
                 if boardType == 1 {
-                    let frequency = DeviceViewController.hasRadio ? 10000000 : 16000000
-                    spi = device.configureSPIMaster(forSCKPin: 20, mosiPin: 21, misoPin: 5, frequency: frequency, attributes: [])
+                    frequency = DeviceViewController.hasRadio ? 10000000 : 16000000
                 } else {
                     device.configureFlowControlMemSize(20000, maxOutstandingRequest: 100)
-                    let frequency = DeviceViewController.hasRadio ? 10000000 : 18000000
-                    spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: 5, frequency: frequency, attributes: [])
+                    frequency = DeviceViewController.hasRadio ? 10000000 : 18000000
                 }
+                spi = device.configureSPIMaster(forSCKPin: 14, mosiPin: 11, misoPin: 12, frequency: frequency, attributes: [])
             }
-            
+
             if DeviceViewController.hasColorTFT {
                 colorTFT = ColorTFT(device: device, spiPort: spi, csPin: 6, dcPin: 4, resetPin: 5)
                 colorTFTThread = Thread() {
@@ -290,13 +290,13 @@ class DeviceViewController: NSViewController {
             }
             
             if DeviceViewController.hasRadio {
-                radio = RF24Radio(device: device, spiPort: spi, cePin: 14, csnPin: 15)
+                radio = RF24Radio(device: device, spiPort: spi, cePin: 18, csnPin: 19)
                 radio!.initModule()
                 radio!.rfChannel = 0x52
                 radio!.autoAck = false
                 radio!.rfOutputPower = .Low
 
-                radio!.configureIRQPin(irqPin: 4, payloadSize: 10, completion: { (radio, pipe, packet) in
+                radio!.configureIRQPin(irqPin: 10, payloadSize: 10, completion: { (radio, pipe, packet) in
                     self.updateNunchuckValues(packet: packet!)
                 })
                 
