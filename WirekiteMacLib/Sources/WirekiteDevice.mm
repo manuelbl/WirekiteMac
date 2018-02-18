@@ -1373,7 +1373,6 @@ retry:
         return nil;
     
     wk_port_request* request = [self createSPIRequestForPort:port action:WK_PORT_ACTION_TX_N_RX_DATA data:data chipSelect:chipSelect];
-    [self writeMessage:&request->header];
     
     wk_port_event* response = [self executePortRequest:request];
     free(request);

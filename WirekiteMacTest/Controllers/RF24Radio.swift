@@ -695,7 +695,7 @@ public class RF24Radio {
     
     private func transmit(txData: [UInt8]) {
         let txPayload = Data(txData)
-        device!.submit(onSPIPort: spi, data: txPayload, chipSelect: csnPort)
+        device!.transmit(onSPIPort: spi, data: txPayload, chipSelect: csnPort)
     }
     
     private func transmitAndRequest(txData: [UInt8]) -> [UInt8] {
